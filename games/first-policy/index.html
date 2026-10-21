@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>First Policy. A First Day Onboarding Adventure</title>
+<meta name="description" content="A 3D onboarding learning game (Three.js). Play a new hire at Indus Insurance: explore the office, complete department missions, and file your very first policy.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three.module.min.js",
+  "three/addons/": "./vendor/addons/"
+} }
+</script>
+</head>
+<body>
+
+<canvas id="scene"></canvas>
+
+<!-- Top HUD -->
+<header id="hud" class="hidden">
+  <div class="hud-left">
+    <span class="hud-logo">🛡️ First Policy</span>
+    <span id="hud-progress" class="hud-chip">0% of first day</span>
+  </div>
+  <button id="objective-pill" class="hidden" type="button" title="Go to your next station"></button>
+  <div class="hud-right">
+    <span id="hud-timer" class="hud-chip" title="Time at Indus today">⏱ 0:00</span>
+    <span id="hud-stars" class="hud-chip" title="Service Stars earned">⭐ 0</span>
+    <button id="btn-stations" class="hud-btn" type="button">📍 Stations</button>
+    <button id="btn-handbook" class="hud-btn" type="button">📖 Handbook</button>
+    <button id="btn-mute" class="hud-btn" type="button" title="Sound on/off">🔊</button>
+    <button id="btn-lang-hud" class="hud-btn" type="button" title="Language / زبان">اردو</button>
+  </div>
+  <div id="minimap-wrap">
+    <canvas id="minimap" width="176" height="118"></canvas>
+    <div class="minimap-label">INDUS · GROUND FLOOR</div>
+  </div>
+</header>
+
+<!-- Interaction hint -->
+<div id="hint" class="hidden"></div>
+
+<!-- Start screen -->
+<section id="start-screen" class="screen">
+  <div class="start-card">
+    <div class="start-badge">🛡️</div>
+    <h1>First Policy</h1>
+    <p class="start-sub">A first day onboarding adventure</p>
+    <p class="start-desc">You are a new hire at <strong>Indus Insurance</strong>. Walk around the 3D office, meet your mentors, do one mission in every department, and file your very first policy before the day ends.</p>
+    <div class="control-chips">
+      <span class="key-chip">🖱️ Click a mentor to talk</span>
+      <span class="key-chip">🚶 Click the floor to walk</span>
+      <span class="key-chip"><b>W A S D</b> to move</span>
+      <span class="key-chip">🧭 Follow the gold ▼ to your next station</span>
+    </div>
+    <p id="start-error" class="start-error hidden"></p>
+    <div id="load-wrap">
+      <div id="load-bar-bg"><div id="load-bar"></div></div>
+      <div id="load-label"><span id="load-label-text">Loading the office…</span> <span id="load-pct">0%</span></div>
+    </div>
+    <div id="start-actions">
+      <button id="btn-start" class="btn-primary" type="button" disabled>Loading the office…</button>
+      <button id="btn-continue" class="btn-secondary hidden" type="button">Continue your first day</button>
+      <button id="btn-lang" class="btn-secondary" type="button">اردو</button>
+    </div>
+    <p class="start-note">Click or tap to walk. There are no fail states. We coach your mistakes, we never punish them.</p>
+  </div>
+</section>
+
+<!-- Check-in (name + avatar) -->
+<section id="checkin-screen" class="screen hidden">
+  <div class="dialog-card">
+    <div class="dlg-head"><span class="dlg-avatar" style="--av:#b45309">R</span><div><div class="dlg-name">Ms. Rahman</div><div class="dlg-role">HR Lead</div></div></div>
+    <p id="checkin-ask" class="dlg-text"></p>
+    <input id="checkin-name" type="text" maxlength="40" autocomplete="name">
+    <p id="checkin-ask2" class="dlg-text"></p>
+    <div id="avatar-row" role="radiogroup" aria-label="Avatar style"></div>
+    <div class="dlg-actions"><button id="btn-checkin" class="btn-primary" type="button"></button></div>
+  </div>
+</section>
+
+<!-- Dialogue panel -->
+<section id="dialogue" class="hidden">
+  <div class="dialog-card">
+    <div class="dlg-head"><span id="dlg-avatar" class="dlg-avatar">?</span><div><div id="dlg-name" class="dlg-name"></div><div id="dlg-role" class="dlg-role"></div></div></div>
+    <p id="dlg-text" class="dlg-text"></p>
+    <div id="dlg-choices" class="dlg-choices"></div>
+    <div class="dlg-actions"><button id="dlg-next" class="btn-primary" type="button">Continue ▸</button></div>
+  </div>
+</section>
+
+<!-- Mission shell -->
+<section id="mission" class="screen hidden">
+  <div class="mission-card">
+    <div class="mission-head">
+      <div>
+        <div id="mission-kicker" class="mission-kicker"></div>
+        <h2 id="mission-title"></h2>
+        <p id="mission-intro"></p>
+      </div>
+      <div class="mission-meta"><span id="mission-errors" class="hud-chip">Mistakes: 0</span></div>
+    </div>
+    <div id="mission-body"></div>
+    <div id="mission-feedback" class="mission-feedback hidden"></div>
+  </div>
+</section>
+
+<!-- Handbook -->
+<section id="handbook" class="screen hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2>📖 Employee Handbook</h2><button class="btn-secondary btn-close" data-close="handbook" type="button">Close</button></div>
+    <p id="handbook-progress" class="panel-sub"></p>
+    <h3>Your first-day objectives</h3>
+    <div id="handbook-stations"></div>
+    <h3>Badges</h3>
+    <div id="handbook-badges" class="badge-grid"></div>
+    <h3>Glossary</h3>
+    <div id="handbook-glossary"></div>
+  </div>
+</section>
+
+<!-- Stations menu -->
+<section id="stations-menu" class="screen hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2>📍 Stations</h2><button class="btn-secondary btn-close" data-close="stations-menu" type="button">Close</button></div>
+    <p class="panel-sub">Go straight to a department. Walking is your choice, learning is not.</p>
+    <div id="stations-list"></div>
+  </div>
+</section>
+
+<!-- Report -->
+<section id="report" class="screen hidden">
+  <div class="panel-card report-card">
+    <div class="report-seal">🏅</div>
+    <h2 id="report-title">First-Day Report</h2>
+    <p id="report-name-line" class="panel-sub"></p>
+    <div id="report-body"></div>
+    <p id="report-disclaimer" class="report-disclaimer"></p>
+    <div class="report-actions">
+      <button id="btn-print" class="btn-primary" type="button">Print / Save PDF</button>
+      <button id="btn-copy" class="btn-secondary" type="button">Copy summary</button>
+      <button id="btn-roam" class="btn-secondary" type="button">Keep exploring the office</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="hidden"></div>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/confetti.min.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+:root{
+  --indigo:#4f46e5; --indigo-dark:#3730a3; --ink:#1e293b; --muted:#64748b;
+  --paper:#fffdf8; --card:#ffffff; --line:#e2e8f0; --good:#15803d; --warn:#b45309;
+  --gold:#f59e0b; --shadow:0 18px 50px rgba(30,27,75,.25); --radius:18px;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{font-family:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif; color:var(--ink); overflow:hidden; background:linear-gradient(180deg,#bcd6ff 0%,#dfeaff 42%,#f3ecdd 100%)}
+button{font:inherit; cursor:pointer}
+.hidden{display:none !important}
+#scene{position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed; top:0; left:0; right:0; z-index:20; display:flex; justify-content:space-between; align-items:center; padding:10px 14px; pointer-events:none}
+#hud>*{pointer-events:auto}
+.hud-left,.hud-right{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.hud-logo{font-weight:800; color:#fff; background:var(--indigo); padding:7px 12px; border-radius:999px; box-shadow:0 4px 14px rgba(55,48,163,.35)}
+.hud-chip{background:rgba(255,255,255,.92); border:1px solid var(--line); padding:7px 11px; border-radius:999px; font-size:.86rem; font-weight:600}
+.hud-btn{background:rgba(255,255,255,.92); border:1px solid var(--line); padding:7px 12px; border-radius:999px; font-weight:600; font-size:.9rem}
+.hud-btn:hover{background:#eef2ff; border-color:var(--indigo)}
+/* objective pill — the living "what next" guide (Pack B) */
+#objective-pill{pointer-events:auto; background:linear-gradient(90deg,#fff7e0,#ffedb5); border:1px solid #f5c542; color:#7c4a03; padding:7px 14px; border-radius:999px; font-weight:700; font-size:.88rem; box-shadow:0 4px 14px rgba(180,120,20,.25); max-width:36vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
+#objective-pill:hover{background:linear-gradient(90deg,#ffedb5,#ffe08a)}
+@media (max-width: 980px){ #objective-pill{display:none} }
+/* minimap (Pack B) */
+#minimap-wrap{position:absolute; top:58px; right:14px; background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:14px; padding:8px 8px 5px; box-shadow:0 8px 24px rgba(30,27,75,.16); pointer-events:none}
+#minimap{display:block}
+.minimap-label{font-size:.6rem; letter-spacing:.09em; color:var(--muted); text-align:center; margin-top:4px; font-weight:700}
+@media (max-width: 760px){ #minimap-wrap{display:none} }
+/* start-screen loading bar + control chips (Pack A) */
+#load-wrap{margin:16px 0 6px}
+#load-bar-bg{height:8px; background:#e2e8f0; border-radius:99px; overflow:hidden}
+#load-bar{height:100%; width:0%; background:linear-gradient(90deg,var(--indigo),var(--gold)); border-radius:99px; transition:width .45s ease}
+#load-label{font-size:.85rem; color:var(--muted); margin-top:7px; font-weight:600}
+#load-pct{color:var(--indigo-dark); font-weight:800}
+.control-chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0 2px}
+.key-chip{background:#eef2ff; border:1px solid #c7d2fe; color:var(--indigo-dark); padding:6px 11px; border-radius:999px; font-size:.82rem; font-weight:600}
+
+#hint{position:fixed; left:50%; bottom:118px; transform:translateX(-50%); z-index:15; background:rgba(30,27,75,.92); color:#fff; padding:9px 16px; border-radius:999px; font-size:.95rem; box-shadow:var(--shadow); pointer-events:none; max-width:92vw; text-align:center}
+
+/* ---------- Screens / cards ---------- */
+.screen{position:fixed; inset:0; z-index:30; display:flex; padding:16px; background:rgba(30,27,75,.45); backdrop-filter:blur(3px); overflow-y:auto}
+.screen>*{margin:auto}
+#start-screen{background:linear-gradient(160deg,rgba(55,48,163,.88),rgba(30,27,75,.94))}
+.start-card,.dialog-card,.mission-card,.panel-card{background:var(--paper); border-radius:var(--radius); box-shadow:var(--shadow); padding:28px; width:100%}
+.start-card{max-width:560px; text-align:center}
+.start-badge{font-size:3.4rem}
+.start-card h1{font-size:2.6rem; letter-spacing:-.02em; color:var(--indigo-dark)}
+.start-sub{font-size:1.1rem; color:var(--muted); margin:2px 0 14px; font-style:italic}
+.start-desc{line-height:1.55; margin-bottom:18px}
+.start-note{margin-top:14px; font-size:.85rem; color:var(--muted)}
+.start-error{background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:10px; padding:10px 12px; margin-bottom:12px; font-size:.9rem; line-height:1.45}
+#start-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+
+.btn-primary{background:var(--indigo); color:#fff; border:none; padding:12px 22px; border-radius:12px; font-weight:700; font-size:1rem; box-shadow:0 6px 16px rgba(79,70,229,.35)}
+.btn-primary:hover{background:var(--indigo-dark)}
+.btn-primary:disabled{opacity:.55; cursor:wait}
+.btn-secondary{background:#fff; color:var(--indigo-dark); border:2px solid var(--indigo); padding:10px 18px; border-radius:12px; font-weight:700}
+.btn-secondary:hover{background:#eef2ff}
+
+/* ---------- Dialogue ---------- */
+#dialogue{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; justify-content:center; padding:14px}
+.dialog-card{max-width:680px}
+.dlg-head{display:flex; gap:12px; align-items:center; margin-bottom:10px}
+.dlg-avatar{width:46px; height:46px; border-radius:50%; background:var(--av,#4f46e5); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.2rem; flex:none}
+.dlg-name{font-weight:800; font-size:1.05rem}
+.dlg-role{color:var(--muted); font-size:.85rem}
+.dlg-text{line-height:1.6; font-size:1.02rem; min-height:2.6em}
+.dlg-actions{display:flex; justify-content:flex-end; margin-top:14px}
+.dlg-choices{display:flex; flex-direction:column; gap:8px; margin-top:10px}
+.dlg-choice{text-align:left; background:#eef2ff; border:2px solid #c7d2fe; border-radius:12px; padding:10px 14px; font-weight:600}
+.dlg-choice:hover{border-color:var(--indigo)}
+
+#checkin-screen input{width:100%; padding:12px 14px; border:2px solid var(--line); border-radius:12px; font-size:1.05rem; margin:6px 0 12px}
+#avatar-row{display:flex; gap:10px; margin:8px 0 4px; flex-wrap:wrap}
+.avatar-pick{display:flex; flex-direction:column; align-items:center; gap:6px; background:#fff; border:2px solid var(--line); border-radius:14px; padding:10px 12px; font-size:.82rem; font-weight:600}
+.avatar-pick[aria-checked="true"]{border-color:var(--indigo); background:#eef2ff}
+.avatar-fig{font-size:1.9rem; line-height:1}
+.avatar-swatch{width:34px; height:34px; border-radius:50%; border:2px solid rgba(0,0,0,.12)}
+
+/* ---------- Mission ---------- */
+.mission-card{max-width:760px}
+.mission-head{display:flex; justify-content:space-between; gap:14px; align-items:flex-start; border-bottom:2px solid var(--line); padding-bottom:14px; margin-bottom:16px}
+.mission-kicker{font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--indigo); font-weight:800}
+.mission-meta{flex:none; white-space:nowrap}
+.mission-head h2{font-size:1.5rem; margin:3px 0 5px}
+.mission-head p{color:var(--muted); line-height:1.5}
+.mission-feedback{margin-top:16px; border-radius:12px; padding:13px 15px; line-height:1.55; font-size:.97rem}
+.mission-feedback.good{background:#f0fdf4; border:1.5px solid #bbf7d0; color:#14532d}
+.mission-feedback.coach{background:#fffbeb; border:1.5px solid #fde68a; color:#713f12}
+.feedback-actions{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
+
+/* timeline */
+.timeline-list{display:flex; flex-direction:column; gap:10px}
+.timeline-item{display:flex; gap:12px; align-items:flex-start; text-align:left; background:#fff; border:2px solid var(--line); border-radius:14px; padding:13px 15px; width:100%}
+.timeline-item:hover{border-color:var(--indigo)}
+.timeline-item.picked{border-color:var(--good); background:#f0fdf4}
+.timeline-item.shake{border-color:#dc2626; animation:shake .35s}
+.timeline-num{flex:none; width:30px; height:30px; border-radius:50%; background:#e2e8f0; color:var(--muted); font-weight:800; display:flex; align-items:center; justify-content:center}
+.timeline-item.picked .timeline-num{background:var(--good); color:#fff}
+.timeline-item p{line-height:1.5; font-size:.95rem}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* client cards */
+.client-card{background:#fff; border:2px solid var(--line); border-radius:14px; padding:16px}
+.client-card h3{font-size:1.08rem; margin-bottom:6px}
+.client-need{line-height:1.55; color:#334155; background:#f8fafc; border-radius:10px; padding:10px 12px; margin-bottom:12px}
+.choice-row{display:flex; gap:10px; flex-wrap:wrap}
+.choice-btn{flex:1; min-width:150px; background:#eef2ff; border:2px solid #c7d2fe; border-radius:12px; padding:12px; font-weight:700}
+.choice-btn:hover{border-color:var(--indigo)}
+.choice-btn.right{border-color:var(--good); background:#f0fdf4}
+.choice-btn.wrong{border-color:#dc2626; background:#fef2f2}
+.mission-progress{font-size:.85rem; color:var(--muted); margin-bottom:10px; font-weight:600}
+
+/* ---------- Panels (handbook / stations / report) ---------- */
+.panel-card{max-width:720px}
+.panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px}
+.panel-head h2{font-size:1.4rem}
+.panel-sub{color:var(--muted); margin-bottom:14px; line-height:1.5}
+.panel-card h3{margin:18px 0 8px; font-size:1.02rem; color:var(--indigo-dark)}
+.station-row{display:flex; gap:12px; align-items:center; background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; margin-bottom:8px; width:100%; text-align:left}
+.station-row .st-main{flex:1}
+.station-row .st-name{font-weight:700}
+.station-row .st-obj{font-size:.86rem; color:var(--muted); line-height:1.4}
+.station-row.done{border-color:#bbf7d0; background:#f0fdf4}
+.station-row.locked{opacity:.62}
+.st-stars{color:var(--gold); font-weight:800; white-space:nowrap}
+.st-go{font-weight:800; color:var(--indigo); white-space:nowrap}
+.badge-grid{display:flex; gap:10px; flex-wrap:wrap}
+.badge-chip{background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:10px 13px; font-weight:700; font-size:.9rem}
+.badge-chip.earned{border-color:var(--gold); background:#fffbeb}
+.badge-chip.locked{opacity:.5}
+.gloss-row{padding:7px 0; border-bottom:1px dashed var(--line); font-size:.93rem; line-height:1.5}
+.gloss-row strong{color:var(--indigo-dark)}
+
+.report-card{text-align:center}
+.report-seal{font-size:3rem}
+.report-card h2{font-size:1.6rem; margin-bottom:4px}
+#report-body{text-align:left; margin-top:10px}
+.report-disclaimer{font-size:.85rem; color:var(--muted); line-height:1.5; margin:14px 0}
+.report-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+.report-table{width:100%; border-collapse:collapse; font-size:.95rem}
+.report-table td,.report-table th{border-bottom:1px solid var(--line); padding:8px 6px; text-align:left}
+.report-table th{color:var(--indigo-dark)}
+
+#toast{position:fixed; top:64px; left:50%; transform:translateX(-50%); z-index:40; background:#14532d; color:#fff; padding:13px 20px; border-radius:14px; font-weight:700; box-shadow:var(--shadow); max-width:92vw; text-align:center}
+
+@media (max-width:640px){
+  .start-card h1{font-size:2rem}
+  .start-card,.dialog-card,.mission-card,.panel-card{padding:20px}
+  #hint{bottom:130px; font-size:.88rem}
+  .hud-logo{display:none}
+}
+@media print{
+  #scene,#hud,#hint,.report-actions{display:none !important}
+  .screen{position:static; background:none; padding:0}
+  #report{display:flex !important}
+}
+
+/* ---- stations 3-6 mission pieces ---- */
+.detail-list{display:flex; flex-direction:column; gap:9px; margin-top:12px}
+.detail-btn{text-align:left; background:var(--card); border:2px solid #e7e5f0; border-radius:12px; padding:12px 14px; font-size:.98rem; line-height:1.45; cursor:pointer; transition:border-color .15s, background .15s}
+.detail-btn:hover:not(:disabled){border-color:var(--indigo)}
+.detail-btn.right{border-color:var(--teal); background:#f0fdf9}
+.detail-btn.wrong{border-color:#dc2626; background:#fef2f2; opacity:.75}
+.crm-tracker{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:14px}
+.stage-chip{background:#e7e5f0; color:var(--muted); border-radius:999px; padding:5px 13px; font-weight:700; font-size:.85rem}
+.stage-chip.now{background:var(--indigo); color:#fff; box-shadow:0 4px 14px rgba(79,70,229,.35)}
+.stage-chip.done{background:#dcfce7; color:#166534}
+.stage-arrow{color:var(--muted); font-weight:700}
+.quote-card{background:#fffbeb; border:2px solid #fde68a; border-left:6px solid var(--amber); border-radius:14px; padding:16px 18px; font-size:1.08rem; line-height:1.55; font-style:italic; margin-bottom:6px}
+
+/* ---- Urdu mode (Nastaliq script, right to left) ---- */
+body.lang-ur{font-family:"Noto Nastaliq Urdu","Urdu Typesetting","Noto Naskh Arabic","Plus Jakarta Sans",serif}
+body.lang-ur .dlg-text,body.lang-ur .client-need,body.lang-ur .mission-feedback,body.lang-ur .gloss-row,body.lang-ur .panel-sub,body.lang-ur #mission-intro,body.lang-ur .quote-card{line-height:2.05}
+body.lang-ur .detail-btn,body.lang-ur .choice-btn,body.lang-ur .timeline-item p,body.lang-ur .st-obj{line-height:1.95}
+body.lang-ur .dlg-text,body.lang-ur .client-need,body.lang-ur .panel-sub,body.lang-ur #report-body,body.lang-ur .report-table td,body.lang-ur .report-table th{text-align:right}
+body.lang-ur .detail-btn,body.lang-ur .dlg-choice,body.lang-ur .timeline-item,body.lang-ur .station-row{text-align:right}
+body.lang-ur h1,body.lang-ur h2,body.lang-ur h3,body.lang-ur .hud-chip,body.lang-ur .hud-btn,body.lang-ur .btn-primary,body.lang-ur .btn-secondary{line-height:1.9}
+body.lang-ur .start-desc{line-height:2.05}
+body.lang-ur .dlg-avatar{font-family:"Plus Jakarta Sans","Segoe UI",sans-serif}
+body.lang-ur .start-card{padding-top:24px;padding-bottom:16px}
+body.lang-ur .start-badge{font-size:2.2rem;margin-bottom:2px}
+body.lang-ur .start-desc{line-height:1.9;margin-bottom:10px}
+body.lang-ur .control-chips{gap:6px;margin-bottom:12px}
+body.lang-ur .key-chip{padding:5px 11px}
+#start-screen{overflow-y:auto}
+/* Urdu start card must fit short windows without scrolling: Nastaliq runs
+   tall, so the Latin H1 keeps a tight line box and spacing tightens up. */
+body.lang-ur .start-card{padding-top:18px;padding-bottom:12px}
+body.lang-ur .start-card h1{line-height:1.3;font-size:2.1rem}
+body.lang-ur .start-badge{font-size:1.9rem}
+body.lang-ur .start-desc{line-height:1.8;margin-bottom:8px}
+body.lang-ur .control-chips{margin-bottom:10px}
+body.lang-ur .key-chip{padding-top:4px;padding-bottom:4px}
+body.lang-ur .start-note{line-height:1.9}

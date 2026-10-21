@@ -1,0 +1,788 @@
+{
+ "lang": "en",
+ "company": {
+  "name": "Indus Insurance",
+  "short": "Indus",
+  "tagline": "Protection, promised properly.",
+  "mission": "We help families face the worst days of life with dignity. We give honest advice, fair products, and we pay claims without a fight.",
+  "founded": 1998
+ },
+ "checkin": {
+  "askName": "Assalam o Alaikum and welcome to Indus Insurance. I am Ms. Rahman from HR. Before I give you your Employee Handbook tablet, please tell me your name. What name should we print on your badge?",
+  "namePlaceholder": "Your name",
+  "askAvatar": "Good to meet you. One last thing. Please choose your character.",
+  "confirm": "Check me in"
+ },
+ "glossary": [
+  {
+   "term": "Premium",
+   "def": "The money a policyholder pays, every month or every year, to keep a policy active."
+  },
+  {
+   "term": "Term Life",
+   "def": "Pure protection for a fixed number of years. It pays only if the sad event happens inside those years."
+  },
+  {
+   "term": "Whole Life",
+   "def": "Protection for the full life of the insured person. It usually has a savings part too."
+  },
+  {
+   "term": "KYC",
+   "def": "Know Your Customer. We check the identity documents of a client before we issue a policy."
+  },
+  {
+   "term": "AML",
+   "def": "Anti Money Laundering checks. They stop people from hiding illegal money in insurance."
+  },
+  {
+   "term": "FNOL",
+   "def": "First Notification of Loss. It is the first report a client makes when something goes wrong. Every claim starts here."
+  },
+  {
+   "term": "In patient",
+   "def": "Treatment where the patient stays in hospital. Most health plans start their cover here."
+  },
+  {
+   "term": "Comprehensive (motor)",
+   "def": "Motor cover with accidents, theft and third party liability. It is not only damage to others."
+  }
+ ],
+ "report": {
+  "intro": "All seven stations are complete. You did the full first day, from check in to your first issued policy.",
+  "disclaimer": "This is a practice game, not a certificate exam. Your scores show first day confidence, not full professional skill.",
+  "starsLabel": "Service Stars"
+ },
+ "signs": {
+  "journey": [
+   "OUR JOURNEY",
+   "1998 to 2024. Five milestones",
+   "The Station 0 mission is here"
+  ],
+  "policy": [
+   "POLICY No. 001",
+   "Est. 1998"
+  ],
+  "hall": [
+   "PRODUCT HALL",
+   "Life, Health, Motor"
+  ],
+  "lifeDesk": [
+   "LIFE DESK",
+   "Term and Whole Life"
+  ],
+  "healthDesk": [
+   "HEALTH AND MOTOR",
+   "Cover, honestly stated"
+  ],
+  "south": {
+   "3": [
+    "COMPLIANCE",
+    "KYC, AML, Red flags"
+   ],
+   "4": [
+    "CLAIMS HALL",
+    "FNOL to Decision"
+   ],
+   "5": [
+    "CRM LAB",
+    "Lead to Renewal"
+   ],
+   "6": [
+    "CLIENT MEETINGS",
+    "The last station"
+   ]
+  }
+ },
+ "ui": {
+  "gameTitle": "First Policy",
+  "subtitle": "A first day onboarding adventure",
+  "startDesc": "You are a new hire at <strong>Indus Insurance</strong>. Walk around the 3D office, meet your mentors, do one mission in every department, and file your very first policy before the day ends.",
+  "startNote": "Click or tap to walk. There are no fail states. We coach your mistakes, we never punish them.",
+  "chips": [
+   "Click a mentor to talk",
+   "Click the floor to walk",
+   "Use W A S D keys to move",
+   "Follow the gold arrow to your next station"
+  ],
+  "chipIcons": [
+   "🖱️",
+   "🚶",
+   "⌨️",
+   "🧭"
+  ],
+  "loadingOffice": "Loading the office…",
+  "contentFailed": "Content failed to load",
+  "continueDay": "Continue your first day",
+  "loadSteps": {
+   "office": "Loading the office…",
+   "team": "Hiring the team…",
+   "furniture": "Setting the furniture…",
+   "desks": "Arranging the desks…",
+   "lobby": "Polishing the lobby…",
+   "ready": "Ready. Welcome to {company}."
+  },
+  "stationsBtn": "📍 Stations",
+  "handbookBtn": "📖 Handbook",
+  "minimapLabel": "INDUS. GROUND FLOOR",
+  "timerTitle": "Time at Indus today",
+  "starsTitle": "Service Stars earned",
+  "muteTitle": "Sound on or off",
+  "pillTitle": "Go to your next station",
+  "progressOfDay": "{pct}% of first day",
+  "nextPill": "Next: {name}. Talk to {mentor}",
+  "dayCompletePill": "🎉 Day complete. See your First Day Report",
+  "hintStart": "This is your mentor, Ms. Rahman. She is by the gold ring. Click her to begin Station 0.",
+  "hintContinue": "Click a mentor, or use 📍 Stations, to continue your missions.",
+  "hintMission": "Click a mentor by a gold ring to start a mission.",
+  "badgeToast": "🏅 Badge earned: {badge}",
+  "reportReadyToast": "All stations complete. Your First Day Report is ready.",
+  "replayLine": "Back again, {name}? Good. The best advisors revise the basics. Do the mission once more and try to beat your {stars} stars.",
+  "handbookTitle": "📖 Employee Handbook",
+  "handbookObjectives": "Your first day objectives",
+  "handbookBadges": "Badges",
+  "handbookGlossary": "Glossary",
+  "missionsComplete": "Missions complete: {done} of {total}. Service Stars: {stars}",
+  "notYet": "Not yet",
+  "soon": "🔒 Soon",
+  "mentorPrefix": "Mentor",
+  "stationsTitle": "📍 Stations",
+  "stationsSub": "Go straight to a department. Walking is your choice, learning is not.",
+  "go": "Go ▸",
+  "close": "Close",
+  "dlgContinue": "Continue ▸",
+  "dlgDone": "Done ✓",
+  "mistakes": "Mistakes",
+  "tableStation": "Station",
+  "tableStatus": "Status",
+  "tableObjective": "Objective",
+  "complete": "✓ Complete",
+  "notComplete": "Not complete",
+  "timeAt": "Time at {company}",
+  "totalStarsLine": "Total Service Stars",
+  "summaryTitle": "FIRST POLICY. FIRST DAY REPORT",
+  "summaryName": "Name",
+  "summaryTime": "Time",
+  "print": "Print / Save PDF",
+  "copySummary": "Copy summary",
+  "keepExploring": "Keep exploring the office",
+  "copyOk": "Summary copied. Paste it in an email to HR.",
+  "copyBlocked": "The browser blocked copy. Please use Print / Save PDF.",
+  "badgePrinted": "Badge printed: {name}. {company}, Day 1",
+  "avatarLabels": [
+   "Ahmed",
+   "Fatima · Hijab",
+   "Zainab"
+  ],
+  "langToggle": "اردو",
+  "speakerRoles": {
+   "Sana": "Advisor, Health",
+   "Omar": "Advisor, Motor"
+  },
+  "m": {
+   "kicker": "Station {id}. {name}",
+   "appProgress": "Application {a} of {b}. One red flag is hidden in this file.",
+   "redFlagFound": "🚩 Red flag found.",
+   "nextApplication": "Next application ▸",
+   "collectBadge": "Collect your badge 🏅",
+   "journeyInOrder": "The journey is in order.",
+   "takeLive": "Take the live situations ▸",
+   "correctStep": "Correct. Step {n} of 5. Keep going.",
+   "liveProgress": "Live situation {a} of {b}",
+   "whatDoYouDo": "What do you do?",
+   "rightCall": "Right call.",
+   "nextSituation": "Next situation ▸",
+   "crmStepOf": "💻 CRM. Step {a} of {b}",
+   "yourAction": "Your action:",
+   "logged": "Logged correctly. Next…",
+   "journeyComplete": "Journey complete. Lead to Renewal.",
+   "momentOf": "Moment {a} of {b}",
+   "wellHandled": "Well handled.",
+   "continueMeeting": "Continue the meeting ▸",
+   "issuePolicy": "Issue the policy 🎉",
+   "clientOf": "Client {a} of {b}",
+   "scenarioOf": "Scenario {a} of {b}",
+   "isItCovered": "Is it covered?",
+   "termLifeBtn": "Term Life",
+   "termLifeSub": "Pure protection, fixed years, low premium",
+   "wholeLifeBtn": "Whole Life",
+   "wholeLifeSub": "Cover for full life, with savings, higher premium",
+   "whyFit": "Right product. Now tell me. Why does it fit this client?",
+   "exactlyRight": "Exactly right. Next client…",
+   "allMatched": "All clients matched.",
+   "timelineComplete": "Timeline complete.",
+   "correctYear": "Correct. That was {year}. {left} more to go.",
+   "notThisOne": "Not this one.",
+   "nextScenario": "Next scenario ▸"
+  },
+  "openingSoon": "Opening soon. This department comes in the full game.",
+  "reportTitle": "First Day Report",
+  "startBtn": "Start your first day",
+  "welcomeBack": "Welcome back, {name}! Your handbook kept your progress.",
+  "loadError": "⚠️ The office could not load its content file. If you opened this page by double clicking the file, please run it through a local server instead, or open the live version."
+ },
+ "stations": [
+  {
+   "id": 0,
+   "name": "Lobby and Reception",
+   "short": "Lobby",
+   "mentor": "Ms. Rahman",
+   "mentorRole": "HR Lead",
+   "badge": "Company Insider",
+   "objective": "Know the company. Its mission, its story, and who does what.",
+   "intro": [
+    {
+     "speaker": "Ms. Rahman",
+     "text": "Welcome. Every Indus story starts in this lobby. Our story too. Before anything else, you should know the company you are now a part of."
+    },
+    {
+     "speaker": "Ms. Rahman",
+     "text": "On the wall behind me is our journey. It has five milestones, and right now they are in the wrong order. It is a small first day tradition here. Put them in the right order, and the Company Insider badge is yours."
+    }
+   ],
+   "missionTitle": "The Indus Timeline",
+   "missionIntro": "Tap the milestones in the order they happened. Start with the earliest one.",
+   "timeline": [
+    {
+     "year": 1998,
+     "text": "Indus starts in Lahore. The first policy is sold and framed. It still hangs in this lobby."
+    },
+    {
+     "year": 2006,
+     "text": "The health line starts. The first hospital cash cover plan of Indus reaches 10,000 families."
+    },
+    {
+     "year": 2013,
+     "text": "The motor desk opens. Our claims promise is written. A decision in 10 working days."
+    },
+    {
+     "year": 2019,
+     "text": "The CRM time begins. Every policy journey moves to one system, from lead to renewal."
+    },
+    {
+     "year": 2024,
+     "text": "Indus crosses 500,000 active policyholders in Pakistan."
+    }
+   ],
+   "wrongFeedback": "Not quite. Think. What had to exist before this could happen? Try again.",
+   "success": "That is our story, in the right order. Clients ask about it again and again. Now you can answer them.",
+   "locked": false
+  },
+  {
+   "id": 1,
+   "name": "Product Hall. Life Desk",
+   "short": "Life Desk",
+   "mentor": "Bilal",
+   "mentorRole": "Senior Advisor, Life",
+   "badge": "Life Advisor",
+   "objective": "Learn the difference between term life and whole life, and match every client to the right one.",
+   "intro": [
+    {
+     "speaker": "Bilal",
+     "text": "Welcome to the Life Desk. Rule one here. We never sell a product. We match a need. Two products live on this desk. Term Life gives pure protection for a set number of years. The premium is low, and there is no payout if the term ends safely. Whole Life gives protection for full life, with a savings part, so it costs more."
+    },
+    {
+     "speaker": "Bilal",
+     "text": "Four clients are waiting for you. For every client, pick the product that fits. Then tell me why. If your reason is right, you have understood the product."
+    }
+   ],
+   "missionTitle": "Match the Client",
+   "missionIntro": "For every client, pick the right product first. Then pick the right reason.",
+   "productFeedback": {
+    "wrongTerm": "Think again about the need of this client. Does the need end on a date, or does it last a lifetime?",
+    "wrongWhole": "Think again about the need of this client. Does the need end on a date, or does it last a lifetime?"
+   },
+   "clients": [
+    {
+     "name": "Ahmed, 29. Newly married. Home loan of Rs. 8 million",
+     "need": "If something happens to him, the loan and the income of his family must stay safe. He needs maximum cover with minimum premium.",
+     "answer": "term",
+     "reasons": [
+      {
+       "text": "Term life gives the biggest cover for the lowest premium, for the same years as the loan.",
+       "ok": true
+      },
+      {
+       "text": "Whole life builds savings, so it must be safer for his family.",
+       "ok": false,
+       "feedback": "Savings sound safe, but they make the cover small, and his family needs big cover. When the need is pure protection on a small budget, term wins."
+      }
+     ]
+    },
+    {
+     "name": "Mrs. Qureshi, 52. She wants to leave something behind for her grandchildren",
+     "need": "She is not protecting an income. She wants a sure legacy, and it must last her whole life.",
+     "answer": "whole",
+     "reasons": [
+      {
+       "text": "Whole life stays active for life, so the legacy is there when it is needed.",
+       "ok": true
+      },
+      {
+       "text": "Term life is cheaper, so she can buy more of it.",
+       "ok": false,
+       "feedback": "Cheaper, yes. But a term can end while she is still alive, and then the legacy is gone. Her need has no end date."
+      }
+     ]
+    },
+    {
+     "name": "Danish, 34. Only earner at home. Two small children. Tight monthly budget",
+     "need": "If he is gone, his family must live on the payout for many years. Every rupee of premium counts.",
+     "answer": "term",
+     "reasons": [
+      {
+       "text": "Term life gives the biggest payout for every rupee of premium in the years when the children need him most.",
+       "ok": true
+      },
+      {
+       "text": "Whole life, because children need cover for their whole life.",
+       "ok": false,
+       "feedback": "The children need cover while they depend on his income, about 15 to 20 years. A lifelong product costs many times more, for cover they do not need at that age."
+      }
+     ]
+    },
+    {
+     "name": "Mr. Sheikh, 60. Retired. He wants funeral costs and final expenses covered",
+     "need": "A small cover that never ends, so his family never has to arrange money in a hard week.",
+     "answer": "whole",
+     "reasons": [
+      {
+       "text": "Whole life gives a sure payout whenever it happens. This is exactly what final expense cover is for.",
+       "ok": true
+      },
+      {
+       "text": "Term life for 5 years at a time is enough.",
+       "ok": false,
+       "feedback": "At his age, a new term can be refused, or it can end before it is needed. Final expenses have no last date, so the cover must have no last date too."
+      }
+     ]
+    }
+   ],
+   "success": "Four clients, four honest matches. That is the whole job at this desk. The product serves the need. The need never serves the product.",
+   "locked": false
+  },
+  {
+   "id": 2,
+   "name": "Product Hall. Health and Motor Desks",
+   "short": "Health and Motor",
+   "mentor": "Sana and Omar",
+   "mentorRole": "Advisors, Health and Motor",
+   "badge": "Coverage Checker",
+   "objective": "Tell clearly what the Health and Motor policies cover, and what they do not cover.",
+   "coverLabel": "Covered",
+   "notCoverLabel": "Not covered",
+   "intro": [
+    {
+     "speaker": "Sana",
+     "text": "This is the health desk. The fastest way to lose the trust of a client is simple. Let them believe something is covered when it is not. So we learn the edges of the policy, not only the middle."
+    },
+    {
+     "speaker": "Omar",
+     "text": "And this is the motor desk. The same rule, on wheels. Six real situations are coming. For every one, you will decide. Covered, or not covered? There is no penalty for a wrong guess. But I will explain every answer, because one day a client will ask you the same question."
+    }
+   ],
+   "missionTitle": "Covered or Not?",
+   "missionIntro": "Six scenarios. Decide with honesty. The client deserves the true answer, not the easy one.",
+   "scenarios": [
+    {
+     "text": "Health: A policyholder stays in hospital for one night for dengue fever. He needs a private room.",
+     "answer": true,
+     "why": "Hospital stay for illness is the heart of the health policy. The room and the treatment are covered."
+    },
+    {
+     "text": "Health: A policyholder wants the policy to pay for cosmetic surgery to remove a scar.",
+     "answer": false,
+     "why": "Cosmetic work is not included. The policy pays for medical need, not for looks."
+    },
+    {
+     "text": "Health: A policyholder visits a clinic for a routine check up and blood tests, then goes home.",
+     "answer": false,
+     "why": "Clinic visits and routine tests are not in this plan. Cover starts when the patient is admitted to hospital. This is a classic mix up. Sana writes it on the whiteboard every Monday."
+    },
+    {
+     "text": "Motor: The car of a policyholder is damaged in a crash with another vehicle on the motorway.",
+     "answer": true,
+     "why": "Damage from a crash is exactly what comprehensive motor cover is for."
+    },
+    {
+     "text": "Motor: The engine of a policyholder becomes old and weak. The car needs a full engine repair.",
+     "answer": false,
+     "why": "Old age damage and engine failure with time are not included. Insurance covers sudden accidents, not slow ageing."
+    },
+    {
+     "text": "Motor: The parked car of a policyholder is stolen at night. It is never found.",
+     "answer": true,
+     "why": "Theft is a main covered event in comprehensive motor cover. First the police report, the FIR, is filed. Then the claim process starts."
+    }
+   ],
+   "success": "Now you know the edges of both policies. Clients remember the advisor who told them the truth before the claim, not after it.",
+   "locked": false
+  },
+  {
+   "id": 3,
+   "name": "Compliance and Legal Zone",
+   "short": "Compliance",
+   "mentor": "Farah",
+   "mentorRole": "Compliance Officer",
+   "badge": "Compliance Guardian",
+   "objective": "Do the basics of KYC and AML, and spot red flags.",
+   "intro": [
+    {
+     "speaker": "Farah",
+     "text": "Welcome to Compliance. This department keeps Indus honest. My rule is simple. No policy leaves this building on incomplete papers. And we never promise a client something the policy does not say."
+    },
+    {
+     "speaker": "Farah",
+     "text": "Three applications came to my desk this morning. Every file has exactly ONE red flag. It can be a missing document, a detail that does not match, or a promise that must never be made. Find the flag in every file. The other details are fine. Please do not invent problems."
+    }
+   ],
+   "missionTitle": "Spot the Red Flags",
+   "missionIntro": "Read every application with care. Tap the ONE detail that is a red flag.",
+   "applications": [
+    {
+     "client": "Application 1 of 3. Mr. Tariq Mehmood. Term Life",
+     "details": [
+      {
+       "text": "CNIC copy is attached and clear to read",
+       "flag": false
+      },
+      {
+       "text": "Date of birth on the form matches the CNIC",
+       "flag": false
+      },
+      {
+       "text": "Nominee is written: the wife of the applicant, with her CNIC number",
+       "flag": false
+      },
+      {
+       "text": "Medical declaration is blank. The applicant wrote: will fill later",
+       "flag": true,
+       "why": "A policy cannot be issued on an incomplete declaration. This word, later, is where claim disputes are born. The complete form comes back, or the application waits."
+      }
+     ]
+    },
+    {
+     "client": "Application 2 of 3. Ms. Areeba Shah. Health",
+     "details": [
+      {
+       "text": "Form is signed by the applicant",
+       "flag": false
+      },
+      {
+       "text": "CNIC number on the form ends with 4213. The CNIC copy ends with 4231",
+       "flag": true,
+       "why": "Two digits do not match. It may be a small typing mistake, but KYC means we check, we do not guess. The application goes back for correction before anything is issued."
+      },
+      {
+       "text": "Premium payment is received in full",
+       "flag": false
+      },
+      {
+       "text": "Old policies declared: none",
+       "flag": false
+      }
+     ]
+    },
+    {
+     "client": "Application 3 of 3. Mr. Joseph D'Souza. Whole Life",
+     "details": [
+      {
+       "text": "Age of the applicant is checked with the CNIC",
+       "flag": false
+      },
+      {
+       "text": "Note of the advisor: I assured the client that this plan gives 12 percent returns every year, guaranteed",
+       "flag": true,
+       "why": "This promise must never be made. Savings growth is a projection. It is never a guarantee. The note is removed, the advisor is coached, and the client is told the true position before he signs."
+      },
+      {
+       "text": "Beneficiary details are complete",
+       "flag": false
+      },
+      {
+       "text": "First premium cheque is cleared",
+       "flag": false
+      }
+     ]
+    }
+   ],
+   "wrongFeedback": "That detail is fine. Every application here has exactly one real flag. Look again. Is something missing? Does something not match? Was something promised that should never be promised?",
+   "success": "Three files, three flags. And you left the good details alone. This judgement is the whole job here. Catch what is wrong. Do not block what is right.",
+   "locked": false
+  },
+  {
+   "id": 4,
+   "name": "Claims Hall",
+   "short": "Claims",
+   "mentor": "Daniyal",
+   "mentorRole": "Claims Manager",
+   "badge": "Claims Champion",
+   "objective": "Learn the claim journey. FNOL, assessment, decision.",
+   "intro": [
+    {
+     "speaker": "Daniyal",
+     "text": "This is Claims Hall. The promise of Indus is tested here. A client calls us on one of the worst days of their year. Our promise is clear. A decision in 10 working days. That promise works only if the journey runs in the right order."
+    },
+    {
+     "speaker": "Daniyal",
+     "text": "First, put the claim journey in order. It has five steps, from the first call of the client to the money in their account. After that, I will give you two live situations. You will judge them."
+    }
+   ],
+   "missionTitle": "The Claim Journey",
+   "missionIntro": "Part 1: tap the five steps in the order they happen. Part 2: judge two live situations.",
+   "steps": [
+    "FNOL. The client reports the loss. We register the claim and give them a claim number",
+    "Documents. Collect what is needed. For theft, the police report or FIR. For a crash, photos and the details of the other driver",
+    "Assessment. The surveyor checks the damage and confirms the loss is real and covered",
+    "Decision. Approve it, or decline it with the exact policy reason, explained to the client in writing",
+    "Payment. The approved amount reaches the client, and the claim is closed"
+   ],
+   "wrongFeedback": "Not yet. Ask yourself one question. What must happen before this step can happen?",
+   "scenarios": [
+    {
+     "text": "A theft claim comes with NO police report, no FIR. The client is upset and wants payment today.",
+     "options": [
+      {
+       "text": "Pay now to make the client happy. Collect the FIR later",
+       "ok": false,
+       "feedback": "Kind, but no. The FIR is a must for theft claims. Without it, we cannot confirm the loss. Tell the client clearly what is needed, and help them get it. That is fast and correct."
+      },
+      {
+       "text": "Explain that the FIR is needed, and help the client arrange it",
+       "ok": true,
+       "why": "Exactly right. Honest about the rule, helpful about the process. The claim moves the moment the document arrives."
+      }
+     ]
+    },
+    {
+     "text": "A crash claim. The surveyor confirms accidental damage. It is fully covered and all documents are complete. Today is day 6 of 10.",
+     "options": [
+      {
+       "text": "Approve and pay. We are inside the promise",
+       "ok": true,
+       "why": "Right. The promise is a decision in 10 working days. A claim that is ready is decided when it is ready."
+      },
+      {
+       "text": "Hold it till day 10, to be more careful",
+       "ok": false,
+       "feedback": "Delay helps no one. Everything is checked. A ready claim should not make a worried client wait for money that is already theirs."
+      }
+     ]
+    }
+   ],
+   "success": "Order right, judgement right. A claim done like this is why clients stay with us. Remember this. We do not pay fast or slow. We pay fair, and we explain everything.",
+   "locked": false
+  },
+  {
+   "id": 5,
+   "name": "Systems Lab (CRM)",
+   "short": "CRM Lab",
+   "mentor": "Hira",
+   "mentorRole": "IT Trainer",
+   "badge": "Systems Navigator",
+   "objective": "Follow the CRM journey of a policy. Lead, quote, issue, renewal.",
+   "intro": [
+    {
+     "speaker": "Hira",
+     "text": "Welcome to the Systems Lab. Everything Indus does with a policy lives in the CRM. If it is not in the CRM, it did not happen. The journey of a policy has five stages. Lead, Quote, Issue, Service, Renewal."
+    },
+    {
+     "speaker": "Hira",
+     "text": "A new lead just came in. Walk it through the system with me. I will tell you what to do, and you will press the right button. The CRM has many buttons. Most of them are wrong for right now."
+    }
+   ],
+   "missionTitle": "Work the CRM",
+   "missionIntro": "Follow the instructions of Hira. One right action at every step. Watch the journey tracker fill up.",
+   "stages": [
+    "Lead",
+    "Quote",
+    "Issue",
+    "Service",
+    "Renewal"
+   ],
+   "crmSteps": [
+    {
+     "instruction": "A website enquiry just arrived. Interested in family health cover.",
+     "action": "Create the lead",
+     "options": [
+      "Create Lead",
+      "Issue Policy",
+      "Send Renewal Notice"
+     ],
+     "correct": 0,
+     "coach": "The enquiry of a stranger is a Lead. Nothing exists yet to issue or renew. Every journey starts at the start."
+    },
+    {
+     "instruction": "You spoke with her and noted the needs of her family. Now she asks: what will it cost?",
+     "action": "Prepare her quote",
+     "options": [
+      "Create Lead",
+      "Prepare Quote",
+      "Close as Lost"
+     ],
+     "correct": 1,
+     "coach": "She asked for the price. That is a Quote. Closing her as lost while she is asking to buy would be a strange achievement."
+    },
+    {
+     "instruction": "She accepted the quote, paid the first premium, and KYC is verified.",
+     "action": "Issue the policy",
+     "options": [
+      "Issue Policy",
+      "Prepare Quote",
+      "Send Renewal Notice"
+     ],
+     "correct": 0,
+     "coach": "Paid and verified means issue the policy. The quote has done its job, and renewal is one year away."
+    },
+    {
+     "instruction": "Two months later, she calls. She has moved house and needs her address updated.",
+     "action": "Log a service request",
+     "options": [
+      "Create Lead",
+      "Log a Service Request",
+      "Issue Policy"
+     ],
+     "correct": 1,
+     "coach": "An old client with a change means a Service request on her record. Her policy does not change. Her details change."
+    },
+    {
+     "instruction": "Month 11. The renewal date of her policy is near.",
+     "action": "Send the renewal notice",
+     "options": [
+      "Send Renewal Notice",
+      "Close as Lost",
+      "Create Lead"
+     ],
+     "correct": 0,
+     "coach": "Renewal time. A polite notice now, with a line about her claim free year, is how a policy lives to year two."
+    }
+   ],
+   "success": "Lead to renewal, with a clean record at every step. This trail helps any advisor open any client file and know exactly where things stand.",
+   "locked": false
+  },
+  {
+   "id": 6,
+   "name": "Client Meeting Room",
+   "short": "Finale",
+   "mentor": "The Sheikh Family",
+   "mentorRole": "Your first clients",
+   "badge": "Licensed Advisor",
+   "objective": "Run a full client meeting, from needs to issued policy.",
+   "intro": [
+    {
+     "speaker": "Mr. Sheikh",
+     "text": "Thank you for meeting us. We are the Sheikh family. Our first grandchild is on the way, so our son told us to sort out our insurance. Honestly, we do not know where to start."
+    },
+    {
+     "speaker": "Mrs. Sheikh",
+     "text": "We only want our family safe if something happens to one of us. And we do not want anyone to sell us something we do not understand."
+    }
+   ],
+   "missionTitle": "The Client Meeting",
+   "missionIntro": "Five moments will decide this meeting. Pick the answer an Indus advisor would be proud of.",
+   "beats": [
+    {
+     "line": "Mr. Sheikh: So, where do we begin?",
+     "options": [
+      {
+       "text": "Tell me about your family and what worries you most. Then we will look at the options together.",
+       "ok": true,
+       "praise": "Mrs. Sheikh smiles. Nobody has ever asked us that first."
+      },
+      {
+       "text": "Let me show you our most popular policy. Most families take it.",
+       "ok": false,
+       "feedback": "Products before needs is selling, not advising. We always start with their life, not our list of products."
+      },
+      {
+       "text": "First, sign this application, so we do not waste time.",
+       "ok": false,
+       "feedback": "Papers before understanding? Never. Nothing is signed until they know what they are choosing, and why."
+      }
+     ]
+    },
+    {
+     "line": "Mrs. Sheikh: Our income is mostly the job of my husband. If something happens to him…",
+     "options": [
+      {
+       "text": "Whole life is our premium product. Let us start there.",
+       "ok": false,
+       "feedback": "Premium for whom? Their need is maximum income protection on a family budget. That is the job of term life. Other products can fit later goals, not this first need."
+      },
+      {
+       "text": "Then the honest first step is to protect that income. Term life gives the biggest cover for the lowest premium while the children are young.",
+       "ok": true,
+       "praise": "Mr. Sheikh nods slowly. That actually makes sense."
+      },
+      {
+       "text": "Do not worry about such things. Think positive.",
+       "ok": false,
+       "feedback": "Kind words do not protect a family. Accept the worry. This worry is exactly why insurance exists."
+      }
+     ]
+    },
+    {
+     "line": "Mr. Sheikh: The premium is more than I expected. Is it worth it?",
+     "options": [
+      {
+       "text": "Everyone says that at first. You will get used to it.",
+       "ok": false,
+       "feedback": "Pushing a real worry away loses trust, and it loses the client. Answer the question he asked. Is it worth it? Show him."
+      },
+      {
+       "text": "I can quietly remove some cover to make it cheaper. No need to mention it.",
+       "ok": false,
+       "feedback": "Never quietly. A change in cover is a change in protection. Every change is explained, agreed and written down, or it does not happen."
+      },
+      {
+       "text": "Let us compare it with what it protects. Your family home and income for 20 years, for about the cost of one family dinner out, every month.",
+       "ok": true,
+       "praise": "Mrs. Sheikh: Put that way, it is the dinner we can skip."
+      }
+     ]
+    },
+    {
+     "line": "Mrs. Sheikh: My cousin said her policy gives good returns, guaranteed. Does yours?",
+     "options": [
+      {
+       "text": "Of course. Excellent returns, guaranteed.",
+       "ok": false,
+       "feedback": "That is the one promise an Indus advisor never makes. It is also not true. This is exactly how selling scandals begin."
+      },
+      {
+       "text": "No. And I will tell you this clearly, right now. This policy gives sure protection. Any growth in savings is a projection, never a promise. Anyone who promises returns is not honest with you.",
+       "ok": true,
+       "praise": "Mr. Sheikh leans back. Honest. That is rare. Please go on."
+      },
+      {
+       "text": "Let us not talk about returns today.",
+       "ok": false,
+       "feedback": "Avoiding a question is not honesty. She asked a straight question, and she deserves a true answer, in simple words."
+      }
+     ]
+    },
+    {
+     "line": "Mr. Sheikh: We are happy. What happens now?",
+     "options": [
+      {
+       "text": "Just sign here, here and here. I will fill the rest later.",
+       "ok": false,
+       "feedback": "Fill later is where disputes are born. Every field is completed together, and read before signing. That is the Indus way."
+      },
+      {
+       "text": "Payment first. Papers whenever we get time.",
+       "ok": false,
+       "feedback": "The order matters. Honest application, checked identity, then payment. Papers done whenever become papers never done."
+      },
+      {
+       "text": "We complete the application together. I check your CNICs for KYC. You read everything before you sign. And I will call you myself when the policy is issued.",
+       "ok": true,
+       "praise": "Both of them sign. Informed, unhurried, and smiling."
+      }
+     ]
+    }
+   ],
+   "success": "Then it is settled. This is the first policy of our family. You explained everything, you promised nothing you could not keep, and we understand what we signed. This is why we will tell our friends about Indus.",
+   "locked": false
+  }
+ ]
+}
