@@ -265,17 +265,24 @@
       .xcard .xc-act .go { font-weight: 800; font-size: 13.5px; color: var(--indigo); }
       .xcard .xc-act .go.disabled { color: var(--faint); font-weight: 600; }
 
-      /* --- 6 · Games --- */
-      .game-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .roadmap-slot {
-        border: 1.5px dashed #cfd4dd; border-radius: var(--r-card);
-        padding: 20px; display: flex; flex-direction: column; gap: 8px; justify-content: center;
-        background: repeating-linear-gradient(45deg, rgba(16,24,40,0.02) 0 10px, transparent 10px 20px);
+      /* --- Brand logo lockups (roster tiles + card media panels) --- */
+      .pill.pipe { background: var(--indigo-soft); color: var(--indigo); }
+      .logo-box {
+        background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+        height: 54px; padding: 8px 16px; min-width: 0; overflow: hidden;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
       }
-      .roadmap-slot .t { font-weight: 800; font-size: 16px; color: var(--graphite); }
-      .roadmap-slot p { font-size: 13.5px; color: var(--faint); }
+      .logo-box img { max-height: 30px; max-width: 150px; width: auto; object-fit: contain; display: block; }
+      .logo-box .wm { font-weight: 800; font-size: 16.5px; letter-spacing: 0.01em; white-space: nowrap; line-height: 1.1; }
+      .media-slot .logo-box { height: 68px; min-width: 190px; padding: 10px 26px; border-radius: 12px; box-shadow: var(--shadow-sm); }
+      .media-slot .logo-box img { max-height: 36px; max-width: 170px; }
+      .media-slot .logo-box .wm { font-size: 19px; }
+      .ms-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px; }
+      .ms-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--graphite); text-align: center; }
+      .media-slot.grad { background: linear-gradient(130deg, var(--indigo) 0%, var(--indigo-games) 60%, #5145d8 100%); border-color: transparent; }
+      .media-slot.grad .ms-note { color: #dcdEFB; font-size: 12px; }
 
-      /* --- 7 · Simulations --- */
+      /* --- 6 · Simulations --- */
       .loop { display: flex; align-items: stretch; gap: 0; margin: 6px 0 22px; flex-wrap: wrap; }
       .loop-step {
         flex: 1 1 150px; border: 1px solid var(--border); border-radius: 14px;
@@ -300,11 +307,12 @@
       .roster-head .lbl { font-family: var(--mono); font-size: 12px; color: var(--graphite); }
       .progress-track { height: 8px; border-radius: 99px; background: var(--fill); border: 1px solid var(--border); margin: 10px 0 16px; overflow: hidden; }
       .progress-fill { height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--amber), #f0a13c); }
-      .roster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .roster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
       .ritem {
-        display: flex; align-items: center; gap: 12px;
-        border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; background: var(--white);
+        display: flex; flex-direction: column; gap: 10px; min-width: 0;
+        border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--white);
       }
+      .ritem .rrow { display: flex; align-items: center; gap: 12px; min-width: 0; }
       .ritem .rn { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--faint); }
       .ritem.first { border-color: #f3ddba; background: var(--amber-soft); }
       .ritem.first .rn { color: var(--amber); }
@@ -317,7 +325,7 @@
       }
       .roster-note b { color: var(--ink); }
 
-      /* --- 8 · Workshop --- */
+      /* --- 7 · Workshop --- */
       .shelf { display: flex; flex-direction: column; }
       .shelf-row {
         display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
@@ -329,7 +337,7 @@
       .shelf-row p { font-size: 13.5px; color: var(--graphite); margin-top: 2px; max-width: 46em; }
       .shelf-row .link { font-weight: 700; font-size: 13px; white-space: nowrap; }
 
-      /* --- 9 · What / Why / How + method --- */
+      /* --- 8 · What / Why / How + method --- */
       .wwh { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 26px; }
       .wwh .col { border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; }
       .wwh .col .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -349,7 +357,7 @@
       .mstep.on { opacity: 1; border-color: var(--indigo); box-shadow: var(--shadow-sm); }
       .mstep.on .n { color: var(--indigo); }
 
-      /* --- 10 · Skills --- */
+      /* --- 9 · Skills --- */
       .skills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
       .skill {
         border: 1px solid var(--border); border-radius: 14px; padding: 15px 16px; background: var(--white);
@@ -362,7 +370,7 @@
       .marquee span { font-family: var(--mono); font-size: 13px; color: var(--faint); white-space: nowrap; letter-spacing: 0.04em; }
       @keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-      /* --- 11 · Log + CTA + footer --- */
+      /* --- 10 · Log + CTA + footer --- */
       .log { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
       .log .col h4 { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.11em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
       .log .col.shipped h4 { color: var(--teal); }
@@ -440,7 +448,6 @@
         .skills { grid-template-columns: repeat(2, 1fr); }
         .method { grid-template-columns: repeat(2, 1fr); }
         .wwh, .log { grid-template-columns: 1fr; }
-        .game-row { grid-template-columns: 1fr; }
         section.wf { padding: 14px 14px 24px; }
         .doc { padding: 22px 14px 50px; }
         .origin { grid-template-columns: 1fr; }
@@ -485,7 +492,6 @@
                 <span class="tag">Learning. Building. Exploring.</span>
               </div>
               <div class="nav-links">
-                <a href="#games">Games</a>
                 <a href="#simulations">Simulations</a>
                 <a href="#workshop">Workshop</a>
                 <a href="#method">Method</a>
@@ -501,7 +507,7 @@
               <div class="stat reveal"><div class="k">Latest shipped</div><div class="v">First Policy</div><div class="s">3D onboarding simulation · live now</div></div>
               <div class="stat reveal"><div class="k">Live experiments</div><div class="v"><span class="n" data-count="3">0</span></div><div class="s">1 simulation + 2 live products</div></div>
               <div class="stat reveal"><div class="k">In production</div><div class="v"><span class="n" data-count="1">0</span></div><div class="s">SharePoint: upload a file</div></div>
-              <div class="stat reveal"><div class="k">Roadmap</div><div class="v"><span class="n" data-count="12">0</span></div><div class="s">Live Simulations planned</div></div>
+              <div class="stat reveal"><div class="k">Pipeline</div><div class="v"><span class="n" data-count="12">0</span></div><div class="s">Live Simulations, built in order</div></div>
             </div>
           </section>
 
@@ -610,7 +616,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Three.js</span><a class="go" href="https://lab.umairismail.online/simulations/first-policy/" target="_blank" rel="noopener">Play →</a></div>
               </article>
               <article class="xcard" data-cat="sims">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">UI REPLICA · IN BUILD</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><img src="https://cdn.simpleicons.org/microsoftsharepoint" alt="Microsoft SharePoint logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#0F6CBD;">SharePoint</span></span><div class="ms-note">UI replica · In build</div></div></div>
                 <div class="xc-top"><span class="xid">SIM-001 · SIMULATION</span><span class="pill prod">In production</span></div>
                 <h3>SharePoint: Upload a File</h3>
                 <p class="prob">Staff freeze the first time they face a document library, so the real library takes the damage.</p>
@@ -618,7 +624,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Simulation</span><span class="go disabled">In build</span></div>
               </article>
               <article class="xcard" data-cat="products">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · ID WORKBENCH</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><span class="wm" style="color:var(--ink);">ID <span style="color:var(--indigo);">Workbench</span></span></span><div class="ms-note">Instructional Design Studio · Live</div></div></div>
                 <div class="xc-top"><span class="xid">PRD-001 · PRODUCT</span><span class="pill live">Live</span></div>
                 <h3>ID Workbench</h3>
                 <p class="prob">Instructional design projects scattered across docs, chats and lost SME feedback.</p>
@@ -626,7 +632,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">app.umairismail.online</span><a class="go" href="https://app.umairismail.online" target="_blank" rel="noopener">Open →</a></div>
               </article>
               <article class="xcard" data-cat="products">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · QUIZCRAFT</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><span class="wm" style="color:var(--ink);">Quiz<span style="color:var(--teal);">Craft</span></span></span><div class="ms-note">Live quizzing · Live now</div></div></div>
                 <div class="xc-top"><span class="xid">PRD-002 · PRODUCT</span><span class="pill live">Live</span></div>
                 <h3>QuizCraft</h3>
                 <p class="prob">Teams can&rsquo;t tell what they know from what they only think they know.</p>
@@ -634,7 +640,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">play.umairismail.online</span><a class="go" href="https://play.umairismail.online" target="_blank" rel="noopener">Open →</a></div>
               </article>
               <article class="xcard" data-cat="workshop">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">PIPELINE · BLENDER → WEB</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><img src="https://cdn.simpleicons.org/blender" alt="Blender logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#E87D0D;">Blender</span><span aria-hidden="true" style="color:var(--faint);font-weight:800;">→</span><img src="https://cdn.simpleicons.org/threedotjs" alt="Three.js logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:var(--ink);">Three.js</span></span><div class="ms-note">Blender → Three.js pipeline</div></div></div>
                 <div class="xc-top"><span class="xid">WRK-001 · WORKSHOP</span><span class="pill live">Proven</span></div>
                 <h3>Character Pipeline</h3>
                 <p class="prob">3D characters too heavy for the web, 19.6 MB of cast that no browser should lift.</p>
@@ -642,7 +648,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go disabled">Proven in First Policy</span></div>
               </article>
               <article class="xcard" data-cat="workshop">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">EXPERIMENT · SCORM</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><span class="wm" style="color:var(--ink);letter-spacing:.05em;">SCORM <span style="color:var(--faint);font-weight:700;">· xAPI</span></span></span><div class="ms-note">Rebuild experiments · In build</div></div></div>
                 <div class="xc-top"><span class="xid">WRK-002 · WORKSHOP</span><span class="pill prod">In development</span></div>
                 <h3>SCORM Rebuild Experiments</h3>
                 <p class="prob">Legacy SCORM packages nobody dares open, rebuilt so they can be studied and improved.</p>
@@ -650,7 +656,7 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go disabled">In build</span></div>
               </article>
               <article class="xcard" data-cat="workshop">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">RESEARCH · AI WORKFLOWS</div></div></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--indigo)" aria-hidden="true"><path d="M12 2l2.1 7.9L22 12l-7.9 2.1L12 22l-2.1-7.9L2 12l7.9-2.1z"/></svg><span class="wm" style="color:var(--indigo);">AI Workflows</span></span><div class="ms-note">Design pipeline research</div></div></div>
                 <div class="xc-top"><span class="xid">WRK-003 · WORKSHOP</span><span class="pill research">Research</span></div>
                 <h3>AI Workflow Experiments</h3>
                 <p class="prob">AI assistance in the design pipeline, tested on real builds before it is trusted on client work.</p>
@@ -658,41 +664,25 @@
                 <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go disabled">Researching</span></div>
               </article>
               <article class="xcard" data-cat="sims">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">ROSTER · SIM-002</div></div></div>
-                <div class="xc-top"><span class="xid">SIM-002 · SIMULATION</span><span class="pill plan">Planned</span></div>
+                <div class="media-slot ratio"><div class="ms-inner"><span class="logo-box"><span class="wm" style="color:#0B2C4A;letter-spacing:.08em;">TEMENOS</span></span><div class="ms-note">Core banking · Under pipeline</div></div></div>
+                <div class="xc-top"><span class="xid">SIM-002 · SIMULATION</span><span class="pill pipe">Under pipeline</span></div>
                 <h3>Temenos Transact: Open a Savings Account</h3>
                 <p class="prob">Bank officers learn the account-opening flow on a safe replica of the core banking system, before a real customer file is on the line.</p>
                 <div class="chip-row"><span class="chip">Roster #2</span><span class="chip">Core banking</span><span class="chip">After SharePoint</span></div>
-                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Simulation</span><span class="go disabled">On the roster</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Simulation</span><span class="go disabled">Under pipeline</span></div>
               </article>
               <article class="xcard" data-cat="games">
-                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">NEXT GAME · UNSCOPED</div></div></div>
-                <div class="xc-top"><span class="xid">EXP-002 · GAME</span><span class="pill plan">Roadmap</span></div>
+                <div class="media-slot ratio grad"><div class="ms-inner"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.26-.006.53 0 .79L4.5 17.5a2 2 0 0 0 3.4 1.4L9.5 16h5l1.6 2.9a2 2 0 0 0 3.4-1.4l1.8-8.11c.006-.26.006-.53 0-.79A4 4 0 0 0 17.32 5Z"/><path d="M6 11h4M8 9v4"/><path d="M15 12h.01M18 10h.01"/></svg><div class="ms-note">Next game: under pipeline</div></div></div>
+                <div class="xc-top"><span class="xid">EXP-002 · GAME</span><span class="pill pipe">Under pipeline</span></div>
                 <h3>The Next Game</h3>
-                <p class="prob">Game #2 gets scoped after First Policy&rsquo;s play-test round, not before, and not faked here.</p>
-                <div class="chip-row"><span class="chip">Scoped after play-tests</span></div>
-                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Games</span><span class="go disabled">Roadmap</span></div>
+                <p class="prob">The follow-up to First Policy, shaped by what its play-test round teaches. Scoping starts the moment that feedback lands.</p>
+                <div class="chip-row"><span class="chip">After First Policy play-tests</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Games</span><span class="go disabled">Under pipeline</span></div>
               </article>
             </div>
           </section>
 
-          <!-- 6 · GAMES -->
-          <section class="wf" id="games">
-            <div class="sec-head reveal">
-              <div class="eyebrow" style="color:var(--indigo-games);">Games</div>
-              <h2>Learn the job by playing it</h2>
-            </div>
-            <div class="game-row">
-              <div class="roadmap-slot reveal">
-                <span class="pill plan" style="align-self:flex-start;">Roadmap</span>
-                <div class="t">Game #2: not scoped yet</div>
-                <p>Deliberately empty. When play-test feedback from First Policy says what learners need next, this slot becomes a real card, with a real problem, a real build and a real link.</p>
-                <p class="mono" style="font-size:11.5px;">No fake screenshots. No “coming soon” theatre.</p>
-              </div>
-            </div>
-          </section>
-
-          <!-- 7 · LIVE SIMULATIONS -->
+          <!-- 6 · LIVE SIMULATIONS -->
           <section class="wf" id="simulations">
             <div class="sec-head reveal">
               <div class="eyebrow" style="color:var(--teal);">Live Simulations</div>
@@ -722,27 +712,27 @@
             </div>
             <div class="roster-head reveal">
               <span class="lbl">THE ROSTER: 12 SIMULATIONS, BUILT IN THIS ORDER</span>
-              <span class="lbl"><b style="color:var(--amber);">1</b> in production · 11 planned</span>
+              <span class="lbl"><b style="color:var(--amber);">1</b> in production · 11 in the pipeline</span>
             </div>
             <div class="progress-track"><div class="progress-fill" id="rosterFill"></div></div>
             <div class="roster reveal">
-              <div class="ritem first"><span class="rn">01</span><div class="rt"><div class="a">SharePoint</div><div class="b">Upload a file to a library</div></div><span class="pill prod">In production</span></div>
-              <div class="ritem"><span class="rn">02</span><div class="rt"><div class="a">Temenos Transact</div><div class="b">Open a savings account</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">03</span><div class="rt"><div class="a">Salesforce</div><div class="b">Register a complaint</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">04</span><div class="rt"><div class="a">Oracle FLEXCUBE</div><div class="b">Process a cheque clearing</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">05</span><div class="rt"><div class="a">Finacle</div><div class="b">Approve a loan application</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">06</span><div class="rt"><div class="a">SWIFT</div><div class="b">Send a cross-border payment</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">07</span><div class="rt"><div class="a">Mambu</div><div class="b">Launch a savings product</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">08</span><div class="rt"><div class="a">Moodle</div><div class="b">Enrol + grade</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">09</span><div class="rt"><div class="a">QuickBooks</div><div class="b">Send an invoice</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">10</span><div class="rt"><div class="a">SAP S/4HANA</div><div class="b">Create an order</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">11</span><div class="rt"><div class="a">Shopify</div><div class="b">Add + fulfil a product</div></div><span class="pill plan">Planned</span></div>
-              <div class="ritem"><span class="rn">12</span><div class="rt"><div class="a">WordPress</div><div class="b">Publish a post</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem first"><span class="logo-box"><img src="https://cdn.simpleicons.org/microsoftsharepoint" alt="Microsoft SharePoint logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#0F6CBD;">SharePoint</span></span><div class="rrow"><span class="rn">01</span><div class="rt"><div class="a">SharePoint</div><div class="b">Upload a file to a library</div></div><span class="pill prod">In production</span></div></div>
+              <div class="ritem"><span class="logo-box"><span class="wm" style="color:#0B2C4A;letter-spacing:.08em;">TEMENOS</span></span><div class="rrow"><span class="rn">02</span><div class="rt"><div class="a">Temenos Transact</div><div class="b">Open a savings account</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/salesforce" alt="Salesforce logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#0176D3;">Salesforce</span></span><div class="rrow"><span class="rn">03</span><div class="rt"><div class="a">Salesforce</div><div class="b">Register a complaint</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/oracle" alt="Oracle logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#C74634;">ORACLE</span></span><div class="rrow"><span class="rn">04</span><div class="rt"><div class="a">Oracle FLEXCUBE</div><div class="b">Process a cheque clearing</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><span class="wm" style="color:#0072BC;">Finacle</span></span><div class="rrow"><span class="rn">05</span><div class="rt"><div class="a">Finacle</div><div class="b">Approve a loan application</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><span class="wm" style="color:#003A70;letter-spacing:.1em;">SWIFT</span></span><div class="rrow"><span class="rn">06</span><div class="rt"><div class="a">SWIFT</div><div class="b">Send a cross-border payment</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><span class="wm" style="color:#00915A;">mambu</span></span><div class="rrow"><span class="rn">07</span><div class="rt"><div class="a">Mambu</div><div class="b">Launch a savings product</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/moodle" alt="Moodle logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#E57200;">Moodle</span></span><div class="rrow"><span class="rn">08</span><div class="rt"><div class="a">Moodle</div><div class="b">Enrol + grade</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/quickbooks" alt="QuickBooks logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#2CA01C;">QuickBooks</span></span><div class="rrow"><span class="rn">09</span><div class="rt"><div class="a">QuickBooks</div><div class="b">Send an invoice</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/sap" alt="SAP logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#0A6ED1;">SAP</span></span><div class="rrow"><span class="rn">10</span><div class="rt"><div class="a">SAP S/4HANA</div><div class="b">Create an order</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/shopify" alt="Shopify logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#008060;">Shopify</span></span><div class="rrow"><span class="rn">11</span><div class="rt"><div class="a">Shopify</div><div class="b">Add + fulfil a product</div></div><span class="pill pipe">Under pipeline</span></div></div>
+              <div class="ritem"><span class="logo-box"><img src="https://cdn.simpleicons.org/wordpress" alt="WordPress logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" /><span class="wm" style="display:none;color:#21759B;">WordPress</span></span><div class="rrow"><span class="rn">12</span><div class="rt"><div class="a">WordPress</div><div class="b">Publish a post</div></div><span class="pill pipe">Under pipeline</span></div></div>
             </div>
             <div class="roster-note reveal"><b>Running custom-made or in-house software?</b> A step-by-step simulation can be built for that too: your screens, your workflow, zero risk.</div>
           </section>
 
-          <!-- 8 · WORKSHOP -->
+          <!-- 7 · WORKSHOP -->
           <section class="wf" id="workshop">
             <div class="sec-head reveal">
               <div class="eyebrow">Workshop</div>
@@ -772,7 +762,7 @@
             </div>
           </section>
 
-          <!-- 9 · WHAT / WHY / HOW -->
+          <!-- 8 · WHAT / WHY / HOW -->
           <section class="wf" id="method">
             <div class="sec-head reveal">
               <div class="eyebrow">The mindset</div>
@@ -798,7 +788,7 @@
             </div>
           </section>
 
-          <!-- 10 · SKILLSET -->
+          <!-- 9 · SKILLSET -->
           <section class="wf">
             <div class="sec-head reveal">
               <div class="eyebrow">Skillset</div>
@@ -821,7 +811,7 @@
             </div>
           </section>
 
-          <!-- 11 · LOG + CTA + FOOTER -->
+          <!-- 10 · LOG + CTA + FOOTER -->
           <section class="wf" id="work">
             <div class="sec-head reveal">
               <div class="eyebrow">Build log</div>
@@ -846,7 +836,7 @@
                 <ul>
                   <li><b>Temenos Transact: Open a savings account</b>: Live Simulation #2</li>
                   <li><b>Salesforce: Register a Complaint</b>: Live Simulation #3</li>
-                  <li><b>Game #2</b>: scoping after the First Policy play-test round</li>
+                  <li><b>The Next Game</b>: under pipeline, shaped by First Policy play-tests</li>
                 </ul>
               </div>
             </div>
