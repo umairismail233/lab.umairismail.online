@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Umair's Technology Lab: Experiments in AI, Learning and Digital Systems" />
+    <link rel="icon" href="data:," />
+    <title>Umair's Technology Lab: Experiments in AI, Learning and Digital Systems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* --- Lab brand system --- */
+        --porcelain: #f7f6f3;
+        --white: #ffffff;
+        --ink: #101828;
+        --graphite: #475467;
+        --faint: #667085;
+        --indigo: #3730a3;
+        --indigo-games: #4338ca;
+        --indigo-soft: #eef2ff;
+        --teal: #0f766e;
+        --teal-soft: #e6f4f1;
+        --amber: #d97706;
+        --amber-soft: #fdf3e3;
+        --border: #e4e7ec;
+        --fill: #f2f4f7;
+        --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+        --shadow-md: 0 8px 24px -8px rgba(16, 24, 40, 0.14), 0 2px 6px rgba(16, 24, 40, 0.05);
+        --shadow-lg: 0 20px 44px -16px rgba(16, 24, 40, 0.22), 0 4px 10px rgba(16, 24, 40, 0.05);
+        --r-card: 16px;
+        --r-frame: 22px;
+        --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--porcelain);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: 16.5px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      ::selection { background: var(--indigo); color: #fff; }
+      h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -0.01em; }
+      p { margin: 0; }
+      a { color: var(--indigo); text-decoration: none; }
+      .mono { font-family: var(--mono); }
+
+      /* --------- Page shell --------- */
+      .doc {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 26px 22px 56px;
+      }
+
+      /* --------- Page frame --------- */
+      .frame {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--r-frame);
+        box-shadow: var(--shadow-md);
+      }
+
+      section.wf { padding: 16px 22px 30px; border-bottom: 1px solid var(--border); }
+      section.wf:last-child { border-bottom: none; }
+
+      /* --- 1 · Nav --- */
+      .wf-nav {
+        position: sticky; top: 10px; z-index: 30;
+        display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border); border-radius: 14px;
+        padding: 12px 16px; box-shadow: var(--shadow-sm);
+      }
+      .brand { display: flex; flex-direction: column; line-height: 1.15; }
+      .brand .wm { font-weight: 800; font-size: 15.5px; letter-spacing: 0.02em; }
+      .brand .wm em { font-style: normal; color: var(--indigo); }
+      .brand .tag { font-size: 11.5px; color: var(--faint); font-weight: 500; letter-spacing: 0.04em; }
+      .nav-links { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+      .nav-links a {
+        color: var(--graphite); font-size: 13.5px; font-weight: 600;
+        padding: 6px 10px; border-radius: 8px;
+      }
+      .nav-links a:hover { background: var(--fill); color: var(--ink); }
+      .nav-links a.cta { background: var(--indigo); color: #fff; }
+      .nav-links a.cta:hover { background: var(--indigo-games); color: #fff; }
+      .status-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+        color: var(--ink); background: var(--amber-soft);
+        border: 1px solid #f3ddba; border-radius: 999px; padding: 6px 12px;
+        white-space: nowrap;
+      }
+      .pulse-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+      .pulse-dot::after {
+        content: ""; position: absolute; inset: -4px; border-radius: 50%;
+        border: 2px solid var(--amber); opacity: 0.55;
+        animation: pulse 2s ease-out infinite;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.45); opacity: 0.7; }
+        70% { transform: scale(1.15); opacity: 0; }
+        100% { transform: scale(1.15); opacity: 0; }
+      }
+
+      /* --- 2 · Status board --- */
+      .status-board {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      }
+      .stat {
+        border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px;
+        background: var(--white);
+      }
+      .stat .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+      .stat .v { font-weight: 800; font-size: 19px; margin-top: 4px; display: flex; align-items: baseline; gap: 6px; }
+      .stat .v .n { font-size: 26px; }
+      .stat .s { font-size: 12.5px; color: var(--graphite); margin-top: 2px; }
+
+      /* --- Shared bits --- */
+      .eyebrow {
+        font-family: var(--mono); font-size: 12px; letter-spacing: 0.13em;
+        text-transform: uppercase; color: var(--indigo); font-weight: 500;
+      }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-family: var(--mono); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.04em; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+      }
+      .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+      .pill.live { background: var(--teal-soft); color: var(--teal); }
+      .pill.prod { background: var(--amber-soft); color: var(--amber); }
+      .pill.plan { background: var(--fill); color: var(--graphite); }
+      .pill.research { background: var(--indigo-soft); color: var(--indigo); }
+      .chip {
+        font-size: 12px; font-weight: 600; color: var(--graphite);
+        background: var(--fill); border: 1px solid var(--border);
+        border-radius: 999px; padding: 4px 10px; white-space: nowrap;
+      }
+      .chip.teal { background: var(--teal-soft); border-color: #cdeae4; color: var(--teal); }
+      .chip.indigo { background: var(--indigo-soft); border-color: #d9defc; color: var(--indigo); }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-weight: 700; font-size: 14.5px; border-radius: 11px;
+        padding: 11px 20px; border: 1px solid transparent; cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+      .btn.primary { background: var(--indigo); color: #fff; box-shadow: var(--shadow-sm); }
+      .btn.primary:hover { background: var(--indigo-games); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+      .btn.ghost { background: var(--white); color: var(--ink); border-color: var(--border); }
+      .btn.ghost:hover { border-color: var(--ink); transform: translateY(-1px); }
+      .btn.teal { background: var(--teal); color: #fff; }
+      .btn.teal:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+      .btn.small { padding: 8px 14px; font-size: 13px; border-radius: 9px; }
+
+      /* Media slot: framed visual panel for screenshots */
+      .media-slot {
+        position: relative; border-radius: 12px; overflow: hidden;
+        background:
+          repeating-linear-gradient(45deg, rgba(16,24,40,0.045) 0 10px, transparent 10px 20px),
+          linear-gradient(150deg, #eef2ff 0%, #e6f4f1 100%);
+        border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        min-height: 120px;
+      }
+      .media-slot .ms-label {
+        text-align: center; padding: 14px;
+      }
+      .media-slot .ms-label .t { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--graphite); }
+      .media-slot .ms-label .d { font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 4px; }
+      .media-slot .ms-play {
+        position: absolute; right: 12px; bottom: 12px;
+        width: 38px; height: 38px; border-radius: 50%;
+        background: var(--ink); color: #fff; display: grid; place-items: center;
+        font-size: 13px; box-shadow: var(--shadow-md);
+      }
+      .media-slot.ratio { aspect-ratio: 16 / 10; min-height: 0; width: 100%; }
+
+      /* --- 3 · Hero --- */
+      .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 30px; align-items: center; padding-top: 8px; }
+      .hero h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.02em; margin: 14px 0 16px; }
+      .hero h1 .hl { color: var(--indigo); }
+      .h-mask { display: block; overflow: hidden; }
+      .h-line { display: block; }
+      .hero .support { color: var(--graphite); font-size: 17.5px; max-width: 30em; }
+      .hero .support b { color: var(--ink); }
+      .hero-ctas { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+      .hero-card {
+        border: 1px solid var(--border); border-radius: var(--r-card);
+        box-shadow: var(--shadow-md); padding: 14px; background: var(--white);
+        will-change: transform;
+      }
+      .hero-card .hc-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 2px 6px; }
+      .hero-card h3 { font-size: 19px; font-weight: 800; }
+      .hero-card .hc-sub { font-size: 13.5px; color: var(--graphite); margin: 0 2px 12px; }
+      .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+      /* --- 4 · Featured build --- */
+      .sec-head { margin-bottom: 18px; }
+      .sec-head h2 { font-size: 36px; font-weight: 800; letter-spacing: -0.015em; margin-top: 8px; }
+      .sec-head p { color: var(--graphite); margin-top: 6px; max-width: 44em; }
+      .featured {
+        display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 26px; align-items: stretch;
+        border: 1px solid var(--border); border-radius: var(--r-card);
+        padding: 18px; box-shadow: var(--shadow-sm); background: var(--white);
+      }
+      .featured .media-slot { height: 100%; min-height: 260px; }
+      .pwo { display: flex; flex-direction: column; gap: 14px; }
+      .pwo .row { display: grid; grid-template-columns: 118px 1fr; gap: 12px; }
+      .pwo .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); padding-top: 3px; }
+      .pwo .v { font-size: 15px; color: var(--graphite); }
+      .pwo .v b { color: var(--ink); }
+      .pwo .actions { display: flex; gap: 10px; margin-top: auto; flex-wrap: wrap; }
+
+      /* --- 5 · Experiment universe --- */
+      .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+      .tab {
+        font-family: var(--font); font-weight: 700; font-size: 13.5px;
+        padding: 8px 16px; border-radius: 999px; cursor: pointer;
+        background: var(--white); color: var(--graphite); border: 1px solid var(--border);
+        transition: all 0.18s ease;
+      }
+      .tab:hover { border-color: var(--ink); color: var(--ink); }
+      .tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .grid-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .xcard {
+        border: 1px solid var(--border); border-radius: var(--r-card); background: var(--white);
+        padding: 12px; display: flex; flex-direction: column; gap: 10px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+        will-change: transform;
+      }
+      .xcard:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+      .xcard:hover .media-slot { transform: scale(1.0); }
+      .xcard .media-slot { transition: transform 0.3s ease; }
+      .xcard:hover .media-slot .ms-inner { transform: scale(1.03); }
+      .ms-inner { transition: transform 0.3s ease; text-align: center; }
+      .xcard .xc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .xcard .xid { font-family: var(--mono); font-size: 11.5px; color: var(--faint); letter-spacing: 0.06em; }
+      .xcard h3 { font-size: 17.5px; font-weight: 800; }
+      .xcard .prob { font-size: 13.5px; color: var(--graphite); flex: 1; }
+      .xcard .xc-act { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
+      .xcard .xc-act .go { font-weight: 800; font-size: 13.5px; color: var(--indigo); }
+      .xcard .xc-act .go.disabled { color: var(--faint); font-weight: 600; }
+
+      /* --- 6 · Games --- */
+      .game-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .roadmap-slot {
+        border: 1.5px dashed #cfd4dd; border-radius: var(--r-card);
+        padding: 20px; display: flex; flex-direction: column; gap: 8px; justify-content: center;
+        background: repeating-linear-gradient(45deg, rgba(16,24,40,0.02) 0 10px, transparent 10px 20px);
+      }
+      .roadmap-slot .t { font-weight: 800; font-size: 16px; color: var(--graphite); }
+      .roadmap-slot p { font-size: 13.5px; color: var(--faint); }
+
+      /* --- 7 · Simulations --- */
+      .loop { display: flex; align-items: stretch; gap: 0; margin: 6px 0 22px; flex-wrap: wrap; }
+      .loop-step {
+        flex: 1 1 150px; border: 1px solid var(--border); border-radius: 14px;
+        padding: 14px 16px; background: var(--white); position: relative;
+      }
+      .loop-step .n { font-family: var(--mono); font-size: 11px; color: var(--teal); letter-spacing: 0.1em; }
+      .loop-step .t { font-weight: 800; font-size: 15.5px; margin-top: 3px; }
+      .loop-step p { font-size: 12.5px; color: var(--graphite); margin-top: 3px; }
+      .loop-arrow { align-self: center; padding: 0 7px; color: var(--faint); font-weight: 800; }
+      .origin {
+        display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start;
+        background: var(--ink); color: #eef1f6; border-radius: var(--r-card); padding: 22px 24px;
+        margin-bottom: 22px;
+      }
+      .origin .mark { font-size: 34px; font-weight: 800; color: var(--amber); line-height: 1; font-family: var(--mono); }
+      .origin h3 { color: #fff; font-size: 20px; margin-bottom: 6px; }
+      .origin p { color: #c6cdd8; font-size: 15px; max-width: 52em; }
+      .origin p b { color: #fff; }
+      .origin .punch { margin-top: 10px; font-weight: 800; color: #fff; font-size: 16.5px; }
+      .origin .punch span { color: var(--amber); }
+      .roster-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+      .roster-head .lbl { font-family: var(--mono); font-size: 12px; color: var(--graphite); }
+      .progress-track { height: 8px; border-radius: 99px; background: var(--fill); border: 1px solid var(--border); margin: 10px 0 16px; overflow: hidden; }
+      .progress-fill { height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--amber), #f0a13c); }
+      .roster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .ritem {
+        display: flex; align-items: center; gap: 12px;
+        border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; background: var(--white);
+      }
+      .ritem .rn { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--faint); }
+      .ritem.first { border-color: #f3ddba; background: var(--amber-soft); }
+      .ritem.first .rn { color: var(--amber); }
+      .ritem .rt { flex: 1; min-width: 0; }
+      .ritem .rt .a { font-weight: 700; font-size: 14.5px; }
+      .ritem .rt .b { font-size: 12px; color: var(--graphite); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* --- 8 · Workshop --- */
+      .shelf { display: flex; flex-direction: column; }
+      .shelf-row {
+        display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+        padding: 15px 4px; border-bottom: 1px solid var(--border);
+      }
+      .shelf-row:last-child { border-bottom: none; }
+      .shelf-row .t { font-weight: 800; font-size: 16.5px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+      .shelf-row .t .mono { font-size: 11.5px; color: var(--faint); font-weight: 500; }
+      .shelf-row p { font-size: 13.5px; color: var(--graphite); margin-top: 2px; max-width: 46em; }
+      .shelf-row .link { font-weight: 700; font-size: 13px; white-space: nowrap; }
+
+      /* --- 9 · What / Why / How + method --- */
+      .wwh { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 26px; }
+      .wwh .col { border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; }
+      .wwh .col .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+      .wwh .col.what .k { color: var(--indigo); }
+      .wwh .col.why .k { color: var(--amber); }
+      .wwh .col.how .k { color: var(--teal); }
+      .wwh .col h3 { font-size: 19px; margin: 6px 0 8px; }
+      .wwh .col p { font-size: 14px; color: var(--graphite); }
+      .method { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+      .mstep {
+        border: 1px solid var(--border); border-radius: 12px; padding: 12px 12px 14px;
+        background: var(--white); opacity: 0.45; transition: opacity 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      }
+      .mstep .n { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+      .mstep .t { font-weight: 800; font-size: 13.5px; margin-top: 4px; line-height: 1.3; }
+      .mstep p { font-size: 11.5px; color: var(--graphite); margin-top: 4px; line-height: 1.45; }
+      .mstep.on { opacity: 1; border-color: var(--indigo); box-shadow: var(--shadow-sm); }
+      .mstep.on .n { color: var(--indigo); }
+
+      /* --- 10 · Skills --- */
+      .skills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .skill {
+        border: 1px solid var(--border); border-radius: 14px; padding: 15px 16px; background: var(--white);
+      }
+      .skill .t { font-weight: 800; font-size: 15px; }
+      .skill p { font-size: 12.5px; color: var(--graphite); margin-top: 4px; }
+      .skill .proof { font-family: var(--mono); font-size: 11px; color: var(--teal); margin-top: 8px; display: block; }
+      .marquee-wrap { overflow: hidden; margin-top: 18px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 0; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+      .marquee { display: flex; gap: 44px; width: max-content; animation: mq 46s linear infinite; }
+      .marquee span { font-family: var(--mono); font-size: 13px; color: var(--faint); white-space: nowrap; letter-spacing: 0.04em; }
+      @keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+      /* --- 11 · Log + CTA + footer --- */
+      .log { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .log .col h4 { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.11em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+      .log .col.shipped h4 { color: var(--teal); }
+      .log .col.progress h4 { color: var(--amber); }
+      .log .col.next h4 { color: var(--graphite); }
+      .log ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+      .log li { font-size: 14px; color: var(--graphite); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; background: var(--white); }
+      .log li b { color: var(--ink); }
+      .cta-band {
+        margin-top: 26px; border-radius: var(--r-card); padding: 30px 28px;
+        background: linear-gradient(120deg, var(--indigo) 0%, var(--indigo-games) 60%, #5145d8 100%);
+        color: #fff; display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+      }
+      .cta-band h3 { font-size: 26px; font-weight: 800; }
+      .cta-band p { color: #d7d9fb; font-size: 15px; margin-top: 5px; max-width: 34em; }
+      .cta-band .btn { background: #fff; color: var(--indigo); margin-left: auto; }
+      .cta-band .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+      .wf-footer {
+        display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+        padding-top: 18px; font-size: 13px; color: var(--faint);
+      }
+      .wf-footer .mono { font-size: 12px; }
+
+      /* Reveal defaults (JS animates in; no-JS still readable) */
+      .reveal { opacity: 1; }
+
+      /* --------- Responsive --------- */
+      @media (max-width: 900px) {
+        .hero { grid-template-columns: 1fr; }
+        .hero h1 { font-size: 38px; }
+        .featured { grid-template-columns: 1fr; }
+        .grid-cards { grid-template-columns: repeat(2, 1fr); }
+        .status-board { grid-template-columns: repeat(2, 1fr); }
+        .roster { grid-template-columns: repeat(2, 1fr); }
+        .skills { grid-template-columns: repeat(2, 1fr); }
+        .method { grid-template-columns: repeat(2, 1fr); }
+        .wwh, .log { grid-template-columns: 1fr; }
+        .game-row { grid-template-columns: 1fr; }
+        section.wf { padding: 14px 14px 24px; }
+        .doc { padding: 22px 14px 50px; }
+        .origin { grid-template-columns: 1fr; }
+        .pwo .row { grid-template-columns: 1fr; gap: 2px; }
+      }
+      @media (max-width: 560px) {
+        .grid-cards, .roster, .skills { grid-template-columns: 1fr; }
+        .status-board { grid-template-columns: 1fr 1fr; }
+        .nav-links { display: none; }
+        .sec-head h2 { font-size: 27px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .marquee { animation: none; }
+        .pulse-dot::after { animation: none; opacity: 0; }
+        .xcard, .btn { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc">
+
+
+        <!-- ================= HOMEPAGE ================= -->
+        <div class="frame" id="top">
+
+          <!-- 1 · NAV -->
+          <section class="wf" style="border-bottom:none; padding-bottom:8px;">
+            <nav class="wf-nav" id="wfNav">
+              <div class="brand">
+                <span class="wm">UMAIR&rsquo;S <em>TECHNOLOGY LAB</em></span>
+                <span class="tag">Learning. Building. Exploring.</span>
+              </div>
+              <div class="nav-links">
+                <a href="#games">Games</a>
+                <a href="#simulations">Simulations</a>
+                <a href="#workshop">Workshop</a>
+                <a href="#method">Method</a>
+                <a href="#work" class="cta">Contact</a>
+              </div>
+              <span class="status-pill"><span class="pulse-dot"></span>Now building: SharePoint Simulation</span>
+            </nav>
+          </section>
+
+          <!-- 2 · STATUS BOARD -->
+          <section class="wf">
+            <div class="status-board">
+              <div class="stat reveal"><div class="k">Latest shipped</div><div class="v">First Policy</div><div class="s">3D onboarding game · live now</div></div>
+              <div class="stat reveal"><div class="k">Live experiments</div><div class="v"><span class="n" data-count="3">0</span></div><div class="s">1 game + 2 live products</div></div>
+              <div class="stat reveal"><div class="k">In production</div><div class="v"><span class="n" data-count="1">0</span></div><div class="s">SharePoint: upload a file</div></div>
+              <div class="stat reveal"><div class="k">Roadmap</div><div class="v"><span class="n" data-count="12">0</span></div><div class="s">Live Simulations planned</div></div>
+            </div>
+          </section>
+
+          <!-- 3 · HERO -->
+          <section class="wf">
+            <div class="hero">
+              <div>
+                <div class="eyebrow">Experiments in AI, Learning and Digital Systems</div>
+                <h1>
+                  <span class="h-mask"><span class="h-line">Complex work,</span></span>
+                  <span class="h-mask"><span class="h-line">made <span class="hl">playable.</span></span></span>
+                </h1>
+                <p class="support">
+                  I turn real workplace systems into <b>games and risk-free simulations</b> people can
+                  practise on, before the real moment, when a mistake still costs nothing.
+                </p>
+                <div class="hero-ctas">
+                  <a class="btn primary" href="#universe">Explore experiments</a>
+                  <a class="btn ghost" href="#method">See how I work</a>
+                </div>
+              </div>
+              <div class="hero-card" id="heroCard">
+                <div class="media-slot ratio">
+                  <div class="ms-label">
+                    <div class="t">Media slot · 16:10</div>
+                    <div class="d">Real screenshot: First Policy, Station 1 lobby</div>
+                  </div>
+                  <span class="ms-play">▶</span>
+                </div>
+                <div class="hc-top">
+                  <h3>First Policy</h3>
+                  <span class="pill live">Live</span>
+                </div>
+                <p class="hc-sub">A new insurance agent&rsquo;s first week, as a 3D game, learn the job by doing the job.</p>
+                <div class="chip-row">
+                  <span class="chip">7 stations</span>
+                  <span class="chip">EN / اردو</span>
+                  <span class="chip">Three.js</span>
+                  <span class="chip teal">Playable now</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4 · FEATURED BUILD -->
+          <section class="wf" id="featured">
+            <div class="sec-head reveal">
+              <div class="eyebrow">Featured build</div>
+              <h2>First Policy: onboarding you can play</h2>
+            </div>
+            <div class="featured reveal">
+              <div class="media-slot">
+                <div class="ms-label">
+                  <div class="t">Media slot · gameplay capture</div>
+                  <div class="d">Real in-game footage / screenshot set</div>
+                </div>
+                <span class="ms-play">▶</span>
+              </div>
+              <div class="pwo">
+                <div class="row"><div class="k">The problem</div><p class="v">New insurance agents learn products from PDFs and shadowing. Their first real customer is also their first practice. <b>Mistakes land on real policies.</b></p></div>
+                <div class="row"><div class="k">What was built</div><p class="v">A 3D onboarding adventure: <b>7 stations</b> covering a new agent&rsquo;s first week, with a full character cast, in <b>English and Urdu</b>.</p></div>
+                <div class="row"><div class="k">Learning outcome</div><p class="v">Agents rehearse the whole first-week workflow, greeting, needs analysis, policy basics, <b>before</b> they ever face a customer.</p></div>
+                <div class="chip-row">
+                  <span class="chip indigo">Game-based learning</span>
+                  <span class="chip">Three.js / WebGL</span>
+                  <span class="chip">English and Urdu</span>
+                </div>
+                <div class="actions">
+                  <a class="btn primary small" href="https://umairismail233.github.io/first-policy-onboarding-game/" target="_blank" rel="noopener">▶ Play it</a>
+                  <a class="btn ghost small" href="#featured">Read the case study</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5 · EXPERIMENT UNIVERSE -->
+          <section class="wf" id="universe">
+            <div class="sec-head reveal">
+              <div class="eyebrow">The universe</div>
+              <h2>Every experiment, one grid</h2>
+              <p>Games, live simulations, workshop builds and shipped products, each card carries its status honestly and its proof up front.</p>
+            </div>
+            <div class="tabs" role="tablist" aria-label="Filter experiments">
+              <button class="tab active" data-filter="all" role="tab">All</button>
+              <button class="tab" data-filter="games" role="tab">Games</button>
+              <button class="tab" data-filter="sims" role="tab">Live Simulations</button>
+              <button class="tab" data-filter="workshop" role="tab">Workshop</button>
+              <button class="tab" data-filter="products" role="tab">Live Products</button>
+            </div>
+            <div class="grid-cards" id="cardGrid">
+              <article class="xcard" data-cat="games">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · FIRST POLICY</div></div></div>
+                <div class="xc-top"><span class="xid">EXP-001 · GAME</span><span class="pill live">Live</span></div>
+                <h3>First Policy</h3>
+                <p class="prob">New agents practising on real customers, and real policies paying for it.</p>
+                <div class="chip-row"><span class="chip">7 stations</span><span class="chip">EN / اردو</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Three.js</span><a class="go" href="https://umairismail233.github.io/first-policy-onboarding-game/" target="_blank" rel="noopener">Play →</a></div>
+              </article>
+              <article class="xcard" data-cat="sims">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">UI REPLICA · IN BUILD</div></div></div>
+                <div class="xc-top"><span class="xid">SIM-001 · SIMULATION</span><span class="pill prod">In production</span></div>
+                <h3>SharePoint: Upload a File</h3>
+                <p class="prob">Staff freeze the first time they face a document library, so the real library takes the damage.</p>
+                <div class="chip-row"><span class="chip">Step tracking</span><span class="chip">Confidence %</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Simulation</span><span class="go disabled">In build</span></div>
+              </article>
+              <article class="xcard" data-cat="products">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · ID WORKBENCH</div></div></div>
+                <div class="xc-top"><span class="xid">PRD-001 · PRODUCT</span><span class="pill live">Live</span></div>
+                <h3>ID Workbench</h3>
+                <p class="prob">Instructional design projects scattered across docs, chats and lost SME feedback.</p>
+                <div class="chip-row"><span class="chip">15-stage flow</span><span class="chip">Quality gate</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">app.umairismail.online</span><a class="go" href="https://app.umairismail.online" target="_blank" rel="noopener">Open →</a></div>
+              </article>
+              <article class="xcard" data-cat="products">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · QUIZCRAFT</div></div></div>
+                <div class="xc-top"><span class="xid">PRD-002 · PRODUCT</span><span class="pill live">Live</span></div>
+                <h3>QuizCraft</h3>
+                <p class="prob">Teams can&rsquo;t tell what they know from what they only think they know.</p>
+                <div class="chip-row"><span class="chip">Confidence voting</span><span class="chip">Live sessions</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">play.umairismail.online</span><a class="go" href="https://play.umairismail.online" target="_blank" rel="noopener">Open →</a></div>
+              </article>
+              <article class="xcard" data-cat="workshop">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">PIPELINE · BLENDER → WEB</div></div></div>
+                <div class="xc-top"><span class="xid">WRK-001 · WORKSHOP</span><span class="pill live">Proven</span></div>
+                <h3>Character Pipeline</h3>
+                <p class="prob">3D characters too heavy for the web, 19.6 MB of cast that no browser should lift.</p>
+                <div class="chip-row"><span class="chip">19.6 → 4.1 MB</span><span class="chip">Blender · meshopt</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go">See how →</span></div>
+              </article>
+              <article class="xcard" data-cat="workshop">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">EXPERIMENT · SCORM</div></div></div>
+                <div class="xc-top"><span class="xid">WRK-002 · WORKSHOP</span><span class="pill prod">In development</span></div>
+                <h3>SCORM Rebuild Experiments</h3>
+                <p class="prob">Legacy SCORM packages nobody dares open, rebuilt so they can be studied and improved.</p>
+                <div class="chip-row"><span class="chip">scorm-again</span><span class="chip">xAPI</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go disabled">In build</span></div>
+              </article>
+              <article class="xcard" data-cat="workshop">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">RESEARCH · AI WORKFLOWS</div></div></div>
+                <div class="xc-top"><span class="xid">WRK-003 · WORKSHOP</span><span class="pill research">Research</span></div>
+                <h3>AI Workflow Experiments</h3>
+                <p class="prob">AI assistance in the design pipeline, tested on real builds before it is trusted on client work.</p>
+                <div class="chip-row"><span class="chip">Prototyping</span><span class="chip">Asset pipelines</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Workshop</span><span class="go disabled">Researching</span></div>
+              </article>
+              <article class="xcard" data-cat="sims">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">ROSTER · SIM-002</div></div></div>
+                <div class="xc-top"><span class="xid">SIM-002 · SIMULATION</span><span class="pill plan">Planned</span></div>
+                <h3>Zendesk: Resolve a Ticket</h3>
+                <p class="prob">Support agents learn the ticket flow live, on customers who are already unhappy.</p>
+                <div class="chip-row"><span class="chip">Roster #2</span><span class="chip">After SharePoint</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Simulation</span><span class="go disabled">On the roster</span></div>
+              </article>
+              <article class="xcard" data-cat="games">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">NEXT GAME · UNSCOPED</div></div></div>
+                <div class="xc-top"><span class="xid">EXP-002 · GAME</span><span class="pill plan">Roadmap</span></div>
+                <h3>The Next Game</h3>
+                <p class="prob">Game #2 gets scoped after First Policy&rsquo;s play-test round, not before, and not faked here.</p>
+                <div class="chip-row"><span class="chip">Scoped after play-tests</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">Games</span><span class="go disabled">Roadmap</span></div>
+              </article>
+            </div>
+          </section>
+
+          <!-- 6 · GAMES -->
+          <section class="wf" id="games">
+            <div class="sec-head reveal">
+              <div class="eyebrow" style="color:var(--indigo-games);">Games</div>
+              <h2>Learn the job by playing it</h2>
+            </div>
+            <div class="game-row">
+              <article class="xcard reveal">
+                <div class="media-slot ratio"><div class="ms-inner"><div class="t mono" style="font-size:11px; letter-spacing:.1em; color:var(--graphite);">SCREENSHOT · FIRST POLICY</div></div><span class="ms-play">▶</span></div>
+                <div class="xc-top"><span class="xid">EXP-001</span><span class="pill live">Live · playable now</span></div>
+                <h3>First Policy</h3>
+                <p class="prob">A new agent&rsquo;s first week at an insurance company, as a 3D adventure. 7 stations, full cast, English + Urdu.</p>
+                <div class="chip-row"><span class="chip">7 stations</span><span class="chip">Three.js</span><span class="chip">EN / اردو</span></div>
+                <div class="xc-act"><span class="mono" style="font-size:11px; color:var(--faint);">~15 min run</span><a class="go" href="https://umairismail233.github.io/first-policy-onboarding-game/" target="_blank" rel="noopener">Play the game →</a></div>
+              </article>
+              <div class="roadmap-slot reveal">
+                <span class="pill plan" style="align-self:flex-start;">Roadmap</span>
+                <div class="t">Game #2: not scoped yet</div>
+                <p>Deliberately empty. When play-test feedback from First Policy says what learners need next, this slot becomes a real card, with a real problem, a real build and a real link.</p>
+                <p class="mono" style="font-size:11.5px;">No fake screenshots. No “coming soon” theatre.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 7 · LIVE SIMULATIONS -->
+          <section class="wf" id="simulations">
+            <div class="sec-head reveal">
+              <div class="eyebrow" style="color:var(--teal);">Live Simulations</div>
+              <h2>Practice where nothing can break</h2>
+              <p>Pixel-faithful replicas of real workplace software, with the Lab&rsquo;s signature mechanics in every single one:</p>
+            </div>
+            <div class="loop reveal">
+              <div class="loop-step"><div class="n">STEP 1</div><div class="t">Step tracking</div><p>Every action followed, in order, like the real workflow.</p></div>
+              <div class="loop-arrow">→</div>
+              <div class="loop-step"><div class="n">STEP 2</div><div class="t">Timer</div><p>Time taken, shown honestly; speed is part of competence.</p></div>
+              <div class="loop-arrow">→</div>
+              <div class="loop-step"><div class="n">STEP 3</div><div class="t">Confidence %</div><p>Earned by performance: errors and hints lower it.</p></div>
+              <div class="loop-arrow">→</div>
+              <div class="loop-step"><div class="n">STEP 4</div><div class="t">Confetti</div><p>A clean, error-free run gets celebrated. Screenshotted, shared.</p></div>
+            </div>
+            <div class="origin reveal">
+              <div class="mark">&ldquo;</div>
+              <div>
+                <h3>Why this shelf exists</h3>
+                <p>Early in my career I trained customer-care staff at <b>PTCL</b>, on the <b>live CRM</b>. There was no practice environment. Every trainee click was real: one wrong move generated an actual customer complaint or a real service order. I watched careful people make expensive mistakes simply because <b>their first try was the real thing</b>.</p>
+                <p class="punch">So I build the practice version first. <span>Practice where nothing can break.</span></p>
+              </div>
+            </div>
+            <div class="roster-head reveal">
+              <span class="lbl">THE ROSTER: 12 SIMULATIONS, BUILT IN THIS ORDER</span>
+              <span class="lbl"><b style="color:var(--amber);">1</b> in production · 11 planned</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="rosterFill"></div></div>
+            <div class="roster reveal">
+              <div class="ritem first"><span class="rn">01</span><div class="rt"><div class="a">SharePoint</div><div class="b">Upload a file to a library</div></div><span class="pill prod">In production</span></div>
+              <div class="ritem"><span class="rn">02</span><div class="rt"><div class="a">Zendesk</div><div class="b">Resolve a ticket</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">03</span><div class="rt"><div class="a">Salesforce</div><div class="b">Register a complaint</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">04</span><div class="rt"><div class="a">ServiceNow</div><div class="b">Raise an incident</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">05</span><div class="rt"><div class="a">Jira</div><div class="b">Move an issue across the board</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">06</span><div class="rt"><div class="a">Workday</div><div class="b">Apply for leave</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">07</span><div class="rt"><div class="a">HubSpot</div><div class="b">Add a contact + deal</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">08</span><div class="rt"><div class="a">Moodle</div><div class="b">Enrol + grade</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">09</span><div class="rt"><div class="a">QuickBooks</div><div class="b">Send an invoice</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">10</span><div class="rt"><div class="a">SAP S/4HANA</div><div class="b">Create an order</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">11</span><div class="rt"><div class="a">Shopify</div><div class="b">Add + fulfil a product</div></div><span class="pill plan">Planned</span></div>
+              <div class="ritem"><span class="rn">12</span><div class="rt"><div class="a">WordPress</div><div class="b">Publish a post</div></div><span class="pill plan">Planned</span></div>
+            </div>
+          </section>
+
+          <!-- 8 · WORKSHOP -->
+          <section class="wf" id="workshop">
+            <div class="sec-head reveal">
+              <div class="eyebrow">Workshop</div>
+              <h2>Where the tools get made</h2>
+            </div>
+            <div class="shelf reveal">
+              <div class="shelf-row">
+                <div><div class="t">ID Workbench <span class="mono">app.umairismail.online</span></div><p>The Instructional Design Studio, a 15-stage ADDIE/SAM command centre with SME review rounds and a 12-point quality delivery gate.</p></div>
+                <div style="text-align:right;"><span class="pill live">Live product</span><div class="link" style="margin-top:6px;"><a href="https://app.umairismail.online" target="_blank" rel="noopener">Visit →</a></div></div>
+              </div>
+              <div class="shelf-row">
+                <div><div class="t">QuizCraft <span class="mono">play.umairismail.online</span></div><p>Evidence-based live quizzing: answer with confidence, debate with a partner, watch the replay. Built to expose what teams only think they know.</p></div>
+                <div style="text-align:right;"><span class="pill live">Live product</span><div class="link" style="margin-top:6px;"><a href="https://play.umairismail.online" target="_blank" rel="noopener">Visit →</a></div></div>
+              </div>
+              <div class="shelf-row">
+                <div><div class="t">Blender → Three.js Character Pipeline</div><p>The compression and delivery pipeline behind First Policy&rsquo;s cast: 19.6 MB of characters down to 4.1 MB, streamed from CDN with graceful fallbacks.</p></div>
+                <div style="text-align:right;"><span class="pill live">Proven in First Policy</span></div>
+              </div>
+              <div class="shelf-row">
+                <div><div class="t">SCORM Rebuild Experiments</div><p>Opening up legacy SCORM packages to study, rebuild and modernise them, structure first, polish later.</p></div>
+                <div style="text-align:right;"><span class="pill prod">In development</span></div>
+              </div>
+              <div class="shelf-row">
+                <div><div class="t">AI Workflow Experiments</div><p>Where AI assistance earns its place in the design-and-build pipeline, tested on the Lab&rsquo;s own builds before it touches client work.</p></div>
+                <div style="text-align:right;"><span class="pill research">Research</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 9 · WHAT / WHY / HOW -->
+          <section class="wf" id="method">
+            <div class="sec-head reveal">
+              <div class="eyebrow">The mindset</div>
+              <h2>What I do, why, and how</h2>
+            </div>
+            <div class="wwh reveal">
+              <div class="col what"><div class="k">What</div><h3>Practice, built like the real thing</h3><p>Games and simulations that mirror real workplace systems closely enough that skill transfers, not cartoons of the job, the job itself, made safe.</p></div>
+              <div class="col why"><div class="k">Why</div><h3>First tries shouldn&rsquo;t be expensive</h3><p>People learn by doing, but real systems punish the learning. I remove the punishment, keep the learning. Confidence is built by succeeding at the real task.</p></div>
+              <div class="col how"><div class="k">How</div><h3>A method, not a mood</h3><p>Every build runs the same disciplined loop, from discovering the real workflow to measuring the confidence it produced.</p></div>
+            </div>
+            <div class="method" id="methodSteps">
+              <div class="mstep"><div class="n">STEP 1</div><div class="t">Discover the real workflow</div><p>Watch the job as it is actually done, not as the manual says.</p></div>
+              <div class="mstep"><div class="n">STEP 2</div><div class="t">Find the risky moment</div><p>The click, call or decision where a beginner does real damage.</p></div>
+              <div class="mstep"><div class="n">STEP 3</div><div class="t">Design the practice</div><p>Turn that moment into a scenario with real choices and real consequences.</p></div>
+              <div class="mstep"><div class="n">STEP 4</div><div class="t">Build it interactive</div><p>Working software, not slides about software.</p></div>
+              <div class="mstep"><div class="n">STEP 5</div><div class="t">Test with users</div><p>Unaided, observed, timed: where they hesitate is the lesson.</p></div>
+              <div class="mstep"><div class="n">STEP 6</div><div class="t">Measure confidence</div><p>Time, errors, hints, confidence %: evidence over opinion.</p></div>
+              <div class="mstep"><div class="n">STEP 7</div><div class="t">Refine</div><p>Fix the friction, ship again, log it in public.</p></div>
+            </div>
+          </section>
+
+          <!-- 10 · SKILLSET -->
+          <section class="wf">
+            <div class="sec-head reveal">
+              <div class="eyebrow">Skillset</div>
+              <h2>Claims, with exhibits</h2>
+            </div>
+            <div class="skills reveal">
+              <div class="skill"><div class="t">Learning Experience Design</div><p>End-to-end design from workflow analysis to measurable practice.</p><span class="proof">EXHIBIT → ID WORKBENCH</span></div>
+              <div class="skill"><div class="t">Simulation Design</div><p>Faithful software replicas with step tracking and confidence scoring.</p><span class="proof">EXHIBIT → SIM-001, IN BUILD</span></div>
+              <div class="skill"><div class="t">Game-Based Learning</div><p>Objectives carried by mechanics, not points pasted onto content.</p><span class="proof">EXHIBIT → FIRST POLICY</span></div>
+              <div class="skill"><div class="t">Three.js / WebGL</div><p>Performant 3D in the browser, compressed, streamed, with fallbacks.</p><span class="proof">EXHIBIT → CHARACTER PIPELINE</span></div>
+              <div class="skill"><div class="t">UX / UI Systems</div><p>One design language across games, sims and products.</p><span class="proof">EXHIBIT → THIS LAB ITSELF</span></div>
+              <div class="skill"><div class="t">Assessment &amp; Confidence</div><p>Calibration-based measurement: what people know vs. think they know.</p><span class="proof">EXHIBIT → QUIZCRAFT</span></div>
+              <div class="skill"><div class="t">SCORM / xAPI</div><p>Standards-literate packaging and rebuilds of legacy content.</p><span class="proof">EXHIBIT → SCORM LAB, WORKSHOP</span></div>
+              <div class="skill"><div class="t">AI-Assisted Prototyping</div><p>AI in the pipeline where it is proven, tested before trusted.</p><span class="proof">EXHIBIT → WORKSHOP RESEARCH</span></div>
+            </div>
+            <div class="marquee-wrap" aria-hidden="true">
+              <div class="marquee" id="marquee">
+                <span>LEARNING EXPERIENCE DESIGN</span><span>·</span><span>SIMULATION DESIGN</span><span>·</span><span>GAME-BASED LEARNING</span><span>·</span><span>THREE.JS / WEBGL</span><span>·</span><span>UX / UI SYSTEMS</span><span>·</span><span>CONFIDENCE MEASUREMENT</span><span>·</span><span>SCORM / XAPI</span><span>·</span><span>AI-ASSISTED PROTOTYPING</span><span>·</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 11 · LOG + CTA + FOOTER -->
+          <section class="wf" id="work">
+            <div class="sec-head reveal">
+              <div class="eyebrow">Build log</div>
+              <h2>Shipped, building, next</h2>
+            </div>
+            <div class="log reveal">
+              <div class="col shipped"><h4>● Shipped</h4>
+                <ul>
+                  <li><b>First Policy</b>: 3D onboarding game, 7 stations, EN + Urdu</li>
+                  <li><b>ID Workbench</b>: live at app.umairismail.online</li>
+                  <li><b>QuizCraft</b>: live at play.umairismail.online</li>
+                  <li><b>This Lab</b>: live at lab.umairismail.online</li>
+                </ul>
+              </div>
+              <div class="col progress"><h4>● In progress</h4>
+                <ul>
+                  <li><b>SharePoint: Upload a File</b>: Live Simulation #1</li>
+                  <li><b>SCORM Rebuild Experiments</b>: in development</li>
+                </ul>
+              </div>
+              <div class="col next"><h4>● Up next</h4>
+                <ul>
+                  <li><b>Zendesk: Resolve a Ticket</b>: Live Simulation #2</li>
+                  <li><b>Salesforce: Register a Complaint</b>: Live Simulation #3</li>
+                  <li><b>Game #2</b>: scoping after the First Policy play-test round</li>
+                </ul>
+              </div>
+            </div>
+            <div class="cta-band reveal">
+              <div>
+                <h3>Have a team that learns on live systems?</h3>
+                <p>I design the practice version, a game or simulation your people can fail safely in, before the real moment.</p>
+              </div>
+              <a class="btn" href="https://umairismail.online" target="_blank" rel="noopener">Work with me →</a>
+            </div>
+            <div class="wf-footer">
+              <span><b style="color:var(--ink);">Umair&rsquo;s Technology Lab</b>: experiments in AI, learning and digital systems. Learning. Building. Exploring.</span>
+              <span class="mono">lab.umairismail.online · part of <a href="https://umairismail.online" target="_blank" rel="noopener">umairismail.online</a></span>
+            </div>
+          </section>
+        </div>
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script>
+      (function () {
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* Duplicate marquee content for a seamless loop */
+        var mq = document.getElementById("marquee");
+        if (mq) mq.innerHTML += mq.innerHTML;
+
+        /* Honest counters: count up once, to their true values only */
+        var counters = document.querySelectorAll("[data-count]");
+        function runCounter(el) {
+          var target = parseInt(el.getAttribute("data-count"), 10);
+          if (reduced || !window.gsap) { el.textContent = target; return; }
+          var obj = { v: 0 };
+          gsap.to(obj, {
+            v: target, duration: 1.1, ease: "power2.out",
+            onUpdate: function () { el.textContent = Math.round(obj.v); }
+          });
+        }
+        if ("IntersectionObserver" in window) {
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { runCounter(e.target); io.unobserve(e.target); }
+            });
+          }, { threshold: 0.5 });
+          counters.forEach(function (el) { io.observe(el); });
+        } else {
+          counters.forEach(runCounter);
+        }
+
+        /* Filter tabs: GSAP fade/stagger re-layout */
+        var tabs = document.querySelectorAll(".tab");
+        var cards = Array.prototype.slice.call(document.querySelectorAll("#cardGrid .xcard"));
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            tabs.forEach(function (t) { t.classList.remove("active"); });
+            tab.classList.add("active");
+            var f = tab.getAttribute("data-filter");
+            var show = cards.filter(function (c) { return f === "all" || c.getAttribute("data-cat") === f; });
+            var hide = cards.filter(function (c) { return show.indexOf(c) === -1; });
+            function apply() {
+              hide.forEach(function (c) { c.style.display = "none"; });
+              show.forEach(function (c) { c.style.display = ""; });
+              if (window.gsap && !reduced) {
+                gsap.fromTo(show, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.06, ease: "power2.out", clearProps: "opacity" });
+              }
+            }
+            if (window.gsap && !reduced) {
+              gsap.to(cards, { opacity: 0, y: 8, duration: 0.18, ease: "power1.in", onComplete: function () {
+                gsap.set(cards, { opacity: 1, y: 0 }); apply();
+              }});
+            } else { apply(); }
+          });
+        });
+
+        if (!window.gsap || reduced) {
+          /* Static fallbacks: roster line at its true width, method fully lit */
+          var fill0 = document.getElementById("rosterFill");
+          if (fill0) fill0.style.width = "8.33%";
+          document.querySelectorAll(".mstep").forEach(function (s) { s.classList.add("on"); });
+          return;
+        }
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        /* Hero timeline: nav fade → headline lines rise → card settles → stats stagger */
+        var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        tl.from("#wfNav", { opacity: 0, y: -12, duration: 0.5 })
+          .from(".h-line", { yPercent: 110, duration: 0.7, stagger: 0.12 }, "-=0.2")
+          .from(".hero .support, .hero-ctas", { opacity: 0, y: 14, duration: 0.5, stagger: 0.1 }, "-=0.35")
+          .from("#heroCard", { opacity: 0, y: 26, rotate: 0.6, duration: 0.8, ease: "power2.out" }, "-=0.45")
+          .from(".status-board .stat", { opacity: 0, y: 14, duration: 0.45, stagger: 0.08 }, "-=0.5");
+
+        /* ScrollTrigger section reveals: fade + 16px rise */
+        gsap.utils.toArray(".reveal").forEach(function (el) {
+          gsap.from(el, {
+            opacity: 0, y: 16, duration: 0.65, ease: "power2.out",
+            scrollTrigger: { trigger: el, start: "top 88%", once: true }
+          });
+        });
+
+        /* Roster progress line draws on scroll, to its true value: 1 of 12 */
+        gsap.to("#rosterFill", {
+          width: "8.33%", duration: 1.2, ease: "power2.inOut",
+          scrollTrigger: { trigger: "#rosterFill", start: "top 90%", once: true }
+        });
+
+        /* Method steps highlight in sequence */
+        ScrollTrigger.create({
+          trigger: "#methodSteps", start: "top 82%", once: true,
+          onEnter: function () {
+            var steps = document.querySelectorAll(".mstep");
+            steps.forEach(function (s, i) {
+              setTimeout(function () { s.classList.add("on"); }, i * 260);
+            });
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
