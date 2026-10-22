@@ -175,7 +175,7 @@ export async function loadCharacters(onProgress) {
   loader.setMeshoptDecoder(MeshoptDecoder); // deploy-models/ GLBs are EXT_meshopt_compression + KHR_mesh_quantization
   async function loadFrom(file) {
     for (const b of CHAR_BASES) {
-      try { return await withTimeout(loader.loadAsync(b + file), 25000); } catch (e) { /* try next base */ }
+      try { return await withTimeout(loader.loadAsync(b + file), 15000); } catch (e) { /* try next base */ }
     }
     throw new Error('could not load ' + file);
   }
@@ -195,8 +195,12 @@ export async function loadCharacters(onProgress) {
 
   // ---- per-character GLBs ----
   // Any single failure only costs that character its GLB form (its make()
-  // returns null and the primitive person steps in) — never the whole cast.
+  // returns null and the primitive person steps in), never the whole cast.
+  // All files load in PARALLEL: fetched one by one, a slow host kept the
+  // start screen locked for half a minute or more (audit SF4/B1).
   const sources = {}; // char key -> {kind, scene, meas, bodyName, native}
+  const totalChars = FEMALE_CHARS.length + MALE_CHARS.length;
+  let charsDone = 0;
   async function loadChar(kind, key, file, bodyName, native) {
     try {
       const g = await loadFrom(file);
@@ -204,10 +208,14 @@ export async function loadCharacters(onProgress) {
       const meas = measureRig(g.scene, 'Head', 'neck_01');
       if (meas) sources[key] = { kind, scene: g.scene, meas, bodyName, native };
     } catch (e) { /* that character falls back to primitives */ }
+    charsDone++;
+    if (onProgress) onProgress(0.4 + 0.55 * (charsDone / totalChars));
   }
-  for (const key of FEMALE_CHARS) await loadChar('female', key, `female_${key}.glb`, 'Superhero_Female', FEMALE_NATIVE_SKIN);
-  for (const key of MALE_CHARS) await loadChar('male', key, `male_${key}.glb`, 'SuperHero_Male', MALE_NATIVE_SKIN);
-  if (onProgress) onProgress(0.85);
+  await Promise.all([
+    ...FEMALE_CHARS.map(key => loadChar('female', key, `female_${key}.glb`, 'Superhero_Female', FEMALE_NATIVE_SKIN)),
+    ...MALE_CHARS.map(key => loadChar('male', key, `male_${key}.glb`, 'SuperHero_Male', MALE_NATIVE_SKIN)),
+  ]);
+  if (onProgress) onProgress(0.95);
 
   function makeChar(kind, cfg) {
     const src = cfg && cfg.char ? sources[cfg.char] : null;

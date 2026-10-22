@@ -143,7 +143,7 @@ button{font:inherit; cursor:pointer}
 .report-table td,.report-table th{border-bottom:1px solid var(--line); padding:8px 6px; text-align:left}
 .report-table th{color:var(--indigo-dark)}
 
-#toast{position:fixed; top:64px; left:50%; transform:translateX(-50%); z-index:40; background:#14532d; color:#fff; padding:13px 20px; border-radius:14px; font-weight:700; box-shadow:var(--shadow); max-width:92vw; text-align:center}
+#toast{position:fixed; top:64px; left:50%; transform:translateX(-50%); z-index:40; background:#14532d; color:#fff; padding:13px 20px; border-radius:14px; font-weight:700; box-shadow:var(--shadow); max-width:92vw; text-align:center; pointer-events:none}
 
 @media (max-width:640px){
   .start-card h1{font-size:2rem}

@@ -54,19 +54,22 @@ export async function loadFurniture(onProgress) {
   const loader = new GLTFLoader();
   async function load(file) {
     for (const b of bases) {
-      try { return await withTimeout(loader.loadAsync(b + file), 20000); } catch (e) { /* try next base */ }
+      try { return await withTimeout(loader.loadAsync(b + file), 15000); } catch (e) { /* try next base */ }
     }
     throw new Error('could not load ' + file);
   }
+  // All pieces load in PARALLEL (one file failing everywhere still rejects
+  // the whole set, so the box furniture fallback keeps its all-or-nothing
+  // meaning). Serial fetching was the other half of the slow start screen.
   const sources = {};
   let done = 0;
-  for (const name of FURNITURE_MODELS) {
+  await Promise.all(FURNITURE_MODELS.map(async (name) => {
     const g = await load(name + '.gltf');
     toonify(g.scene);
     sources[name] = g.scene;
     done++;
     if (onProgress) onProgress(done / FURNITURE_MODELS.length);
-  }
+  }));
   return {
     // place(name, x, z, rotY, scale) -> a fresh clone positioned in the world
     make(name) {

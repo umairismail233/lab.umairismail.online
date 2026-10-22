@@ -17,7 +17,7 @@ let muted = false;
 
 function freshState() { return { name: '', avatar: 'ahmed', stations: {}, elapsed: 0, started: false }; }
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ } }
-function load() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.name) return { ...freshState(), ...s }; } catch (e) {} return null; }
+function load() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.name && s.started) return { ...freshState(), ...s }; } catch (e) {} return null; }
 function elapsedNow() { return state.elapsed + (sessionStart ? (Date.now() - sessionStart) / 1000 : 0); }
 
 // ---------- tiny synth sfx ----------
@@ -50,6 +50,9 @@ function celebrate(big) {
   } else {
     window.confetti({ ...base, particleCount: 55, spread: 60, startVelocity: 32, origin: { y: 0.75 } });
   }
+  // The confetti canvas floats above the HUD; it must never eat a click
+  // (a falling-confetti canvas once covered a button for a player, audit B1).
+  setTimeout(() => document.querySelectorAll('canvas').forEach(c => { if (c.id !== 'scene') c.style.pointerEvents = 'none'; }), 0);
 }
 
 // ---------- three setup ----------
@@ -85,7 +88,10 @@ const LOAD_FAIL = {
   en: { btn: 'Content failed to load', err: '⚠️ The office could not load its content file. If you opened this page by double clicking the file, please run it through a local server instead, or open the live version.' },
   ur: { btn: 'مواد لوڈ نہیں ہو سکا', err: '⚠️ آفس اپنی مواد والی فائل لوڈ نہیں کر سکا۔ اگر آپ نے یہ صفحہ فائل پر ڈبل کلک کر کے کھولا ہے تو براہ کرم اسے لوکل سرور سے چلائیں، یا لائیو ورژن کھولیں۔' },
 };
-const playerPos = new THREE.Vector3(-13.5, 0, 2.6);
+// Spawn on open lobby floor. The old spot (z 2.6) stood the avatar inside
+// the coffee table between the couches, at check-in and on Continue alike.
+const SPAWN = new THREE.Vector3(-11.6, 0, 1.5);
+const playerPos = SPAWN.clone();
 let walkTarget = null, pendingStation = null, busy = false;
 const clock = new THREE.Clock();
 // buttery camera state (Pack A): damped position + smoothed look target with velocity look-ahead
@@ -127,7 +133,7 @@ function handleInteract(it) {
   const spot = STATION_SPOTS.find(s => s.id === it.stationId);
   walkTarget = new THREE.Vector3(spot.stand[0], 0, spot.stand[1]);
   pendingStation = it.stationId;
-  showHint(`Walking to ${content.stations[it.stationId].name}…`);
+  showHint(content.ui.walkingTo.replace('{name}', content.stations[it.stationId].name));
 }
 canvas.addEventListener('pointerdown', onTap);
 
@@ -137,6 +143,13 @@ addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
 function showHint(t) { const h = $('hint'); h.textContent = t; h.classList.remove('hidden'); }
 function hideHint() { $('hint').classList.add('hidden'); }
+// After a station, the hint re-aims at the next one (it used to keep its
+// first-day text for the whole game, audit B2). No next station, no hint.
+function refreshHint() {
+  const nx = nextStation();
+  if (nx && content && content.ui.hintNext) showHint(T(content.ui.hintNext, { name: nx.name }));
+  else hideHint();
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -225,24 +238,35 @@ async function startStation(id) {
   const station = content.stations[id];
   if (station.locked) { toast(`🔒 ${station.name}. ${content.ui.openingSoon}`); return; }
   busy = true;
-  if (world && world.npcReact) world.npcReact(id); // the mentor nods along as the conversation opens
-  const already = state.stations[id]?.done;
-  if (already) {
-    await showDialogue([{ speaker: station.intro[0].speaker, text: T(content.ui.replayLine, { name: state.name.split(' ')[0], stars: state.stations[id].stars }) }], sfx);
-  } else {
-    await showDialogue(station.intro, sfx);
+  hideHint(); // the hint never sits under a dialogue or mission panel (audit B2)
+  if (world && world.setNameTagsVisible) world.setNameTagsVisible(false); // tags must not show through dialogue (audit minor b)
+  try {
+    if (world && world.npcReact) world.npcReact(id); // the mentor nods along as the conversation opens
+    const already = state.stations[id]?.done;
+    if (already) {
+      await showDialogue([{ speaker: station.intro[0].speaker, text: T(content.ui.replayLine, { name: state.name.split(' ')[0], stars: state.stations[id].stars }) }], sfx);
+    } else {
+      await showDialogue(station.intro, sfx);
+    }
+    const { errors } = await MISSIONS[id](station, sfx);
+    const stars = starsFor(errors);
+    const best = Math.max(stars, state.stations[id]?.stars || 0);
+    state.stations[id] = { done: true, stars: best, errors };
+    save(); updateHUD();
+    sfx('good');
+    await showDialogue([{ speaker: station.intro[0].speaker, text: station.success }], sfx);
+    toast(`${T(content.ui.badgeToast, { badge: station.badge })} ${'⭐'.repeat(best)}`);
+    celebrate(id === 6);
+  } catch (e) {
+    console.error('station failed', e); // a failed station must never wedge the input lock
+  } finally {
+    // The busy lock ALWAYS clears and the name tags ALWAYS come back, even
+    // if a dialogue or mission threw halfway (audit B1).
+    busy = false;
+    if (world && world.setNameTagsVisible) world.setNameTagsVisible(true);
   }
-  const { errors } = await MISSIONS[id](station, sfx);
-  const stars = starsFor(errors);
-  const best = Math.max(stars, state.stations[id]?.stars || 0);
-  state.stations[id] = { done: true, stars: best, errors };
-  save(); updateHUD();
-  sfx('good');
-  await showDialogue([{ speaker: station.intro[0].speaker, text: station.success }], sfx);
-  toast(`${T(content.ui.badgeToast, { badge: station.badge })} ${'⭐'.repeat(best)}`);
-  celebrate(id === 6);
-  busy = false;
   maybeReport();
+  refreshHint();
 }
 function playableDone() { return content.stations.filter(s => !s.locked).every(s => state.stations[s.id]?.done); }
 function maybeReport() {
@@ -289,7 +313,7 @@ function updateHUD() {
   if (world && world.setNextStation) world.setNextStation(nx ? nx.id : null);
 }
 $('objective-pill').onclick = () => {
-  if (busy) return;
+  if (busy) { if (content && content.ui.busyToast) toast(content.ui.busyToast); return; } // say why, never refuse silently (audit B1)
   const v = $('objective-pill').dataset.station;
   sfx('click');
   if (v === '') { openReport(); return; }
@@ -366,10 +390,15 @@ async function boot() {
   applyLanguage();
   const LS = content.ui.loadSteps;
   setLoad(40, LS.team);
-  try { characters = await loadCharacters(p => setLoad(40 + Math.round(p * 26), LS.team)); }
-  catch (e) { characters = null; } // models unreachable — primitive people step in, the day goes on
-  try { furniture = await loadFurniture(p => setLoad(66 + Math.round(p * 10), LS.furniture)); }
-  catch (e) { furniture = null; } // furniture unreachable — the box furniture stays, the day goes on
+  // Characters and furniture load at the same time, and each loader fetches
+  // its files in parallel now. The old chain (team, then furniture, every
+  // file one by one) kept Start locked for 30 s or more on real hosting,
+  // and for minutes after a language switch if the CDN hiccuped (SF4/B1).
+  let cp = 0, fp = 0;
+  const updLoad = () => setLoad(40 + Math.round((cp + fp) / 2 * 36), cp < 1 ? LS.team : LS.furniture);
+  const charsP = loadCharacters(p => { cp = p; updLoad(); }).catch(() => null); // models unreachable: primitive people step in
+  const furnP = loadFurniture(p => { fp = p; updLoad(); }).catch(() => null); // furniture unreachable: the box furniture stays
+  [characters, furniture] = await Promise.all([charsP, furnP]);
   setLoad(80, LS.desks);
   world = buildWorld(scene, content, characters, furniture);
   camera.position.set(playerPos.x, 9.8, playerPos.z + 11.4);
@@ -433,6 +462,7 @@ function startCheckin() {
 $('btn-handbook').onclick = () => { renderHandbook(state, content); $('handbook').classList.remove('hidden'); popScreen('handbook'); sfx('click'); };
 $('btn-stations').onclick = () => {
   renderStationsMenu(state, content, (id) => {
+    if (busy) { toast(content.ui.busyToast || 'Finish this conversation first, then we will go.'); return; } // a station cannot start mid-conversation; say so instead of a silent no-op (audit B1)
     const spot = STATION_SPOTS.find(s => s.id === id);
     playerPos.set(spot.stand[0], 0, spot.stand[1]); walkTarget = null;
     startStation(id);
@@ -461,7 +491,7 @@ function qaMode(screen) {
     return;
   }
   if (screen === 'game' || screen === 'dialogue') {
-    playerPos.set(-13.5, 0, 2.6); if (player) player.position.copy(playerPos);
+    playerPos.copy(SPAWN); if (player) player.position.copy(playerPos);
     updateHUD(); // shows objective pill + NEXT chevron exactly as real play does
     if (screen === 'dialogue') showDialogue(content.stations[0].intro, sfx);
     showHint(content.ui.hintMission);

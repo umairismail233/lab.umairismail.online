@@ -39,7 +39,7 @@
    "def": "First Notification of Loss. It is the first report a client makes when something goes wrong. Every claim starts here."
   },
   {
-   "term": "In patient",
+   "term": "Inpatient",
    "def": "Treatment where the patient stays in hospital. Most health plans start their cover here."
   },
   {
@@ -97,7 +97,7 @@
   "gameTitle": "First Policy",
   "subtitle": "A first day onboarding adventure",
   "startDesc": "You are a new hire at <strong>Indus Insurance</strong>. Walk around the 3D office, meet your mentors, do one mission in every department, and file your very first policy before the day ends.",
-  "startNote": "Click or tap to walk. There are no fail states. We coach your mistakes, we never punish them.",
+  "startNote": "Click or tap to walk. There are no fail states: a mistake costs stars, never progress, and we coach you through it.",
   "chips": [
    "Click a mentor to talk",
    "Click the floor to walk",
@@ -131,9 +131,11 @@
   "progressOfDay": "{pct}% of first day",
   "nextPill": "Next: {name}. Talk to {mentor}",
   "dayCompletePill": "🎉 Day complete. See your First Day Report",
-  "hintStart": "This is your mentor, Ms. Rahman. She is by the gold ring. Click her to begin Station 0.",
+  "hintStart": "This is Ms. Rahman, your mentor, at the reception desk. Click her to begin Station 0.",
   "hintContinue": "Click a mentor, or use 📍 Stations, to continue your missions.",
-  "hintMission": "Click a mentor by a gold ring to start a mission.",
+  "hintMission": "Click a mentor to start a mission. The gold ▼ marks your next station.",
+  "hintNext": "Well done. Next: {name}. Follow the gold ▼, or tap the gold Next pill at the top.",
+  "busyToast": "Finish this conversation first, then we will go.",
   "badgeToast": "🏅 Badge earned: {badge}",
   "reportReadyToast": "All stations complete. Your First Day Report is ready.",
   "replayLine": "Back again, {name}? Good. The best advisors revise the basics. Do the mission once more and try to beat your {stars} stars.",
@@ -215,6 +217,7 @@
    "nextScenario": "Next scenario ▸"
   },
   "openingSoon": "Opening soon. This department comes in the full game.",
+  "walkingTo": "Walking to {name}…",
   "reportTitle": "First Day Report",
   "startBtn": "Start your first day",
   "welcomeBack": "Welcome back, {name}! Your handbook kept your progress.",
@@ -237,6 +240,10 @@
     {
      "speaker": "Ms. Rahman",
      "text": "On the wall behind me is our journey. It has five milestones, and right now they are in the wrong order. It is a small first day tradition here. Put them in the right order, and the Company Insider badge is yours."
+    },
+    {
+     "speaker": "Ms. Rahman",
+     "text": "One hint from someone who has watched it all happen: we looked after people's health for years before we insured their cars. At Indus, health came first."
     }
    ],
    "missionTitle": "The Indus Timeline",
@@ -602,7 +609,7 @@
    "crmSteps": [
     {
      "instruction": "A website enquiry just arrived. Interested in family health cover.",
-     "action": "Create the lead",
+     "action": "Get her into the system as a new enquiry, so nothing about her is lost",
      "options": [
       "Create Lead",
       "Issue Policy",
@@ -613,7 +620,7 @@
     },
     {
      "instruction": "You spoke with her and noted the needs of her family. Now she asks: what will it cost?",
-     "action": "Prepare her quote",
+     "action": "Work out what her family's cover will cost, so she can decide",
      "options": [
       "Create Lead",
       "Prepare Quote",
@@ -624,7 +631,7 @@
     },
     {
      "instruction": "She accepted the quote, paid the first premium, and KYC is verified.",
-     "action": "Issue the policy",
+     "action": "Make her cover official and active",
      "options": [
       "Issue Policy",
       "Prepare Quote",
@@ -635,7 +642,7 @@
     },
     {
      "instruction": "Two months later, she calls. She has moved house and needs her address updated.",
-     "action": "Log a service request",
+     "action": "Update her record with her new address",
      "options": [
       "Create Lead",
       "Log a Service Request",
@@ -646,7 +653,7 @@
     },
     {
      "instruction": "Month 11. The renewal date of her policy is near.",
-     "action": "Send the renewal notice",
+     "action": "Reach her in good time, so she can renew before the cover runs out",
      "options": [
       "Send Renewal Notice",
       "Close as Lost",

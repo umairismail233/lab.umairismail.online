@@ -57,7 +57,7 @@ export function missionClaimJourney(station, sfx) {
       b.innerHTML = `<span class="timeline-num">?</span><p>${station.steps[idx]}</p>`;
       b.onclick = () => {
         if (idx === nextIdx) {
-          sfx('good'); b.classList.add('picked'); b.disabled = true;
+          sfx('good'); b.classList.remove('shake'); b.classList.add('picked'); b.disabled = true;
           b.querySelector('.timeline-num').textContent = idx + 1;
           nextIdx++;
           if (nextIdx === station.steps.length) {
@@ -67,6 +67,7 @@ export function missionClaimJourney(station, sfx) {
         } else {
           errors++; setErrors(errors); sfx('bad');
           b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+          setTimeout(() => b.classList.remove('shake'), 400); // the red border is feedback for a moment, not a stain
           setFeedback(station.wrongFeedback, 'coach');
         }
       };
@@ -232,7 +233,7 @@ export function missionTimeline(station, sfx) {
       b.onclick = () => {
         if (idx === nextIdx) {
           sfx('good');
-          b.classList.add('picked'); b.disabled = true;
+          b.classList.remove('shake'); b.classList.add('picked'); b.disabled = true;
           b.querySelector('.timeline-num').textContent = station.timeline[idx].year;
           nextIdx++;
           if (nextIdx === station.timeline.length) {
@@ -242,6 +243,7 @@ export function missionTimeline(station, sfx) {
         } else {
           errors++; setErrors(errors); sfx('bad');
           b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+          setTimeout(() => b.classList.remove('shake'), 400); // the red border is feedback for a moment, not a stain
           setFeedback(station.wrongFeedback, 'coach');
         }
       };

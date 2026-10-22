@@ -112,10 +112,10 @@ export const STATION_SPOTS = [
   { id: 0, pos: [-13.5, -3.2], stand: [-13.5, 0.8] },   // Lobby - Ms Rahman
   { id: 1, pos: [7.5, -3.4], stand: [7.5, 0.6] },      // Life desk - Bilal
   { id: 2, pos: [19.5, -3.4], stand: [19.5, 0.6] },    // Health & Motor - Sana/Omar
-  { id: 3, pos: [-16, 7.6], stand: [-16, 4.4] },       // Compliance - Farah
+  { id: 3, pos: [-16, 7.6], stand: [-16, 5.0] },       // Compliance - Farah (stand pulled south: the old spot clipped the lobby couch)
   { id: 4, pos: [-5.5, 7.6], stand: [-5.5, 4.4] },     // Claims - Daniyal
   { id: 5, pos: [5, 7.6], stand: [5, 4.4] },           // CRM Lab - Hira
-  { id: 6, pos: [15.5, 7.6], stand: [15.5, 4.4] },     // Finale - Sheikh family
+  { id: 6, pos: [15.5, 7.6], stand: [15.5, 4.4], mark: [15.5, 6.8] }, // Finale - Sheikh family (arrow belongs over the meeting desk, not the stand)
 ];
 export const AVATAR_STYLES = [
   { key: 'ahmed', label: 'Ahmed', model: 'male', tint: 0x3d5a80, cfg: { char: 'ahmed', skin: 0xc68863, shirt: 0x4f46e5, pants: 0x334155, hair: 0x1f2937, beard: 0x1f2937, h: 1.03, b: 1.0 } },
@@ -278,12 +278,14 @@ export function buildWorld(scene, content, characters = null, furniture = null) 
   ];
   const charInstances = [];
   const npcChars = {}; // stationId -> [character instances]
+  const nameTags = []; // every NPC name sprite, so dialogue can hide them all
   for (const d of npcDefs) {
     let p, charInst = null;
     if (characters) { charInst = characters.make(d.model, d.cfg); if (charInst) p = charInst.group; }
     if (!p) p = makePerson(d.cfg);
     p.position.set(d.pos[0], 0, d.pos[1]); p.rotation.y = d.rotY; // face the player area
     const tag = labelSprite(dispName(d.name)); tag.position.y = charInst ? charInst.labelY : 2.55; p.add(tag);
+    nameTags.push(tag);
     scene.add(p);
     interactables.push({ kind: 'npc', stationId: d.stationId, object3D: p });
     if (charInst) {
@@ -325,8 +327,13 @@ export function buildWorld(scene, content, characters = null, furniture = null) 
     nextRef.id = id;
     const s = STATION_SPOTS.find(x => x.id === id);
     if (!s) { chevron.visible = false; return; }
-    chevron.position.set(s.stand[0], 3.7, s.stand[1]); chevron.visible = true;
+    const m = s.mark || s.stand; // a station may mark its desk instead of its stand spot
+    chevron.position.set(m[0], 3.7, m[1]); chevron.visible = true;
   }
+  // Name tags are translucent sprites: while a dialogue panel fades in they
+  // show through it and confuse the eye (audit minor b). main.js hides them
+  // for the length of a station visit and restores them after.
+  function setNameTagsVisible(v) { for (const t of nameTags) t.visible = v; }
 
-  return { interactables, animated, floorName: 'floor', setNextStation, updateCharacters, npcReact };
+  return { interactables, animated, floorName: 'floor', setNextStation, updateCharacters, npcReact, setNameTagsVisible };
 }
