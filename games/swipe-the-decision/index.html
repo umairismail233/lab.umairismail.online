@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Swipe the Decision: a single player card game from Umair Ismail's Technology Lab. Run a support team, one decision at a time." />
+    <link rel="icon" href="data:," />
+    <title>Swipe the Decision · The Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#F7F6F3;
+        --paper:#FFFFFF;
+        --ink:#101828;
+        --mut:#475467;
+        --faint:#7A8699;
+        --line:#E3E1D9;
+        --indigo:#3730A3;
+        --indigo-deep:#2A2580;
+        --indigo-soft:#ECEAFB;
+        --teal:#0F766E;
+        --teal-soft:#E2F2F0;
+        --amber:#D97706;
+        --amber-soft:#FBF0DC;
+        --danger:#B42318;
+        --shadow-card:0 1px 2px rgba(16,24,40,.05),0 10px 30px -12px rgba(16,24,40,.18);
+        --shadow-phone:0 2px 6px rgba(16,24,40,.12),0 32px 64px -24px rgba(16,24,40,.35);
+      }
+      *{ box-sizing:border-box; }
+      html,body{ height:100%; }
+      body{
+        margin:0; background:var(--bg); color:var(--ink);
+        font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+        -webkit-font-smoothing:antialiased; line-height:1.5;
+        overflow:hidden;
+      }
+      .mono{ font-family:"IBM Plex Mono",ui-monospace,monospace; }
+
+      /* ---------- Page layout: centred stage + side column on desktop ---------- */
+      .layout{
+        height:100dvh; display:grid;
+        grid-template-columns:minmax(0,390px) 320px;
+        justify-content:center; align-content:center;
+      }
+      .stage-col{ display:grid; place-items:center; min-height:0; }
+      .phone{
+        width:min(390px,100vw); height:min(844px,100dvh);
+        background:#0B0F19; border-radius:54px; padding:11px;
+        box-shadow:var(--shadow-phone);
+      }
+      .viewport{
+        position:relative; width:100%; height:100%;
+        background:var(--bg); border-radius:44px; overflow:hidden;
+        container-type:inline-size;
+      }
+      .notch{
+        position:absolute; top:2.6cqw; left:50%; transform:translateX(-50%);
+        width:26cqw; height:6.4cqw; background:#0B0F19; border-radius:99px; z-index:30;
+        pointer-events:none;
+      }
+      .screen{
+        position:absolute; inset:0; display:none;
+        flex-direction:column; padding:13cqw 6.5cqw 6.5cqw;
+      }
+      .screen.active{ display:flex; }
+
+      /* ---------- Side column (desktop framing) ---------- */
+      .side-col{
+        border-left:1px solid var(--line); background:var(--paper);
+        padding:34px 28px; display:flex; flex-direction:column; gap:26px;
+        height:min(844px,100dvh); align-self:center; overflow:hidden;
+      }
+      .side-col .kicker{
+        font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--teal);
+      }
+      .side-col h2{ font-size:19px; font-weight:800; margin:6px 0 4px; letter-spacing:-.01em; }
+      .side-col .sub{ font-size:13.5px; color:var(--mut); margin:0; }
+      .side-steps{ list-style:none; margin:14px 0 0; padding:0; display:grid; gap:12px; }
+      .side-steps li{ display:flex; gap:10px; font-size:13.5px; color:var(--mut); align-items:flex-start; line-height:1.5; }
+      .side-steps .sn{
+        flex:0 0 22px; width:22px; height:22px; border-radius:50%;
+        font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600;
+        display:grid; place-items:center; margin-top:1px;
+      }
+      .side-best{
+        border:1px solid var(--line); border-radius:14px; padding:16px 18px; background:var(--bg);
+      }
+      .side-best .lbl{ font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); }
+      .side-best .val{ font-family:"IBM Plex Mono",monospace; font-size:30px; font-weight:600; margin-top:4px; }
+      .side-best .val small{ font-size:14px; color:var(--mut); font-family:"Plus Jakarta Sans",sans-serif; margin-left:10px; }
+      .side-meters{ display:grid; gap:9px; margin-top:10px; }
+      .side-meters .sm{ display:flex; align-items:center; gap:9px; font-size:13px; font-weight:600; color:var(--mut); }
+      .side-meters .sm svg{ width:17px; height:17px; flex:0 0 auto; }
+      .side-meters .sm .bar{ flex:1; height:7px; border-radius:99px; background:#E7E5DE; overflow:hidden; }
+      .side-meters .sm .fill{ height:100%; border-radius:99px; display:block; transition:width .8s cubic-bezier(.22,.8,.3,1); }
+      .side-meters .sm .mono{ font-size:12.5px; color:var(--ink); width:26px; text-align:right; }
+      .side-foot{ margin-top:auto; font-size:12.5px; color:var(--faint); line-height:1.6; }
+
+      /* ---------- Shared in-phone bits ---------- */
+      .p-btn{
+        font:inherit; border:0; cursor:pointer; font-weight:700;
+        border-radius:4.6cqw; text-align:center; min-height:44px;
+      }
+      .p-btn:focus-visible, .tap-btn:focus-visible{ outline:3px solid rgba(55,48,163,.35); outline-offset:2px; }
+      .btn-primary{ background:var(--indigo); color:#fff; box-shadow:0 3.5cqw 7cqw -3cqw rgba(55,48,163,.55); }
+      .btn-primary:active{ background:var(--indigo-deep); }
+      .btn-ghost{ background:var(--paper); color:var(--ink); border:1px solid var(--line); }
+      .chip{
+        display:inline-flex; align-items:center; gap:2cqw;
+        background:var(--paper); border:1px solid var(--line);
+        border-radius:99px; padding:2cqw 4cqw; font-size:3.7cqw; font-weight:600; color:var(--mut);
+      }
+      .chip .dot{ width:2cqw; height:2cqw; border-radius:50%; background:var(--amber); }
+
+      /* ---------- Title screen ---------- */
+      .scr-title{ align-items:center; text-align:center; }
+      .logo-mark{
+        margin-top:9cqw; width:19cqw; height:19cqw; border-radius:5.5cqw;
+        background:var(--indigo); display:grid; place-items:center;
+        box-shadow:0 4cqw 9cqw -3cqw rgba(55,48,163,.5);
+      }
+      .logo-mark svg{ width:10.5cqw; height:10.5cqw; }
+      .game-logo{ font-size:9.6cqw; font-weight:800; letter-spacing:-.02em; line-height:1.08; margin:6.5cqw 0 0; }
+      .game-logo em{ font-style:normal; color:var(--indigo); }
+      .tagline{ font-size:4.3cqw; color:var(--mut); margin:3cqw 0 0; font-weight:500; }
+      .scr-title .chip{ margin-top:auto; }
+      .title-actions{ margin-top:auto; width:100%; display:grid; gap:3.4cqw; }
+      .btn-play{ font-size:4.9cqw; padding:4.6cqw; width:100%; }
+      .btn-continue{ font-size:4.4cqw; padding:4.2cqw; width:100%; }
+      .btn-how{ font-size:4.2cqw; padding:3.8cqw; width:100%; }
+      .best-run{ font-size:3.7cqw; color:var(--faint); margin-top:1cqw; }
+      .best-run .mono{ color:var(--ink); font-weight:600; }
+
+      /* ---------- How to play ---------- */
+      .scr-how h3, .scr-end h3{ font-size:6.4cqw; font-weight:800; margin:2cqw 0 1.5cqw; letter-spacing:-.01em; }
+      .scr-sub{ font-size:max(16px, 4.15cqw); color:var(--mut); margin:0 0 6cqw; }
+      .how-panels{ display:grid; gap:3.6cqw; }
+      .how-panel{
+        background:var(--paper); border:1px solid var(--line); border-radius:5cqw;
+        padding:4.6cqw 5cqw; display:flex; gap:4cqw; align-items:flex-start;
+        box-shadow:0 1px 2px rgba(16,24,40,.04);
+      }
+      .how-panel .hn{
+        flex:0 0 8.4cqw; width:8.4cqw; height:8.4cqw; border-radius:2.6cqw;
+        display:grid; place-items:center; font-family:"IBM Plex Mono",monospace;
+        font-size:4cqw; font-weight:600;
+      }
+      .hn-1{ background:var(--indigo-soft); color:var(--indigo); }
+      .hn-2{ background:var(--teal-soft); color:var(--teal); }
+      .hn-3{ background:var(--amber-soft); color:var(--amber); }
+      .how-panel b{ display:block; font-size:4.2cqw; margin-bottom:.8cqw; }
+      .how-panel p{ margin:0; font-size:3.7cqw; color:var(--mut); line-height:1.5; }
+      .how-panel p .mono{ font-size:3.5cqw; color:var(--ink); }
+      .scr-how .btn-primary{ margin-top:auto; }
+      .btn-gotit{ font-size:4.6cqw; padding:4.4cqw; width:100%; }
+
+      /* ---------- Game screen ---------- */
+      .scr-game{ padding-top:12cqw; }
+      .g-top{ display:flex; align-items:flex-start; gap:3cqw; }
+      .day-badge{
+        flex:0 0 auto; background:var(--ink); color:#fff; border-radius:3.4cqw;
+        padding:2.2cqw 3.4cqw; text-align:center; line-height:1.15;
+      }
+      .day-badge small{ display:block; font-size:2.7cqw; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#B9C2D0; }
+      .day-badge .mono{ font-size:5cqw; font-weight:600; }
+      .meters{ flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:2.6cqw; }
+      .meter{
+        text-align:left; min-width:0; display:grid; align-content:start;
+        grid-template-rows:4.6cqw 4.2cqw 1.9cqw 2.2cqw; row-gap:1.5cqw;
+      }
+      .meter .m-head{ display:flex; align-items:center; gap:1.4cqw; }
+      .meter .m-head svg{ width:4.4cqw; height:4.4cqw; flex:0 0 auto; }
+      .meter .m-name{ display:block; font-size:2.9cqw; font-weight:700; color:var(--mut); line-height:1.2; align-self:center; }
+      .meter .m-val{ margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:3.3cqw; font-weight:600; }
+      .meter .m-val.warn{ color:var(--amber); }
+      .meter .bar{ height:1.9cqw; background:#E7E5DE; border-radius:99px; overflow:hidden; }
+      .meter .fill{ height:100%; border-radius:99px; transition:width .8s cubic-bezier(.22,.8,.3,1); }
+      .fill-team{ background:var(--indigo); } .ic-team{ color:var(--indigo); }
+      .fill-budget{ background:var(--amber); } .ic-budget{ color:var(--amber); }
+      .fill-quality{ background:var(--teal); } .ic-quality{ color:var(--teal); }
+      .fill-trust{ background:var(--ink); } .ic-trust{ color:var(--ink); }
+      .meter .dots{ display:flex; gap:1.2cqw; height:2.2cqw; align-items:center; }
+      .meter .hint-dot{
+        width:2.2cqw; height:2.2cqw; border-radius:50%;
+        background:var(--amber); opacity:0; transform:scale(.4);
+        transition:opacity .18s ease, transform .18s ease;
+      }
+      .meter .hint-dot.on{ opacity:1; transform:scale(1); }
+
+      .stage{ flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; padding:3cqw 0; }
+      .dcard{
+        position:relative; background:var(--paper); border:1px solid var(--line);
+        border-radius:6.5cqw; box-shadow:var(--shadow-card);
+        padding:5.5cqw; touch-action:none; user-select:none; -webkit-user-select:none;
+        cursor:grab; will-change:transform;
+      }
+      .dcard.dragging{ cursor:grabbing; }
+      .dcard.noanim{ transition:none !important; }
+      .choice-tag{
+        position:absolute; top:4.5cqw; z-index:3;
+        font-size:3.6cqw; font-weight:800; padding:2cqw 3.4cqw; border-radius:2.6cqw;
+        opacity:0; pointer-events:none; max-width:62%;
+        transition:opacity .12s ease;
+      }
+      .tag-left{ left:4.5cqw; background:var(--indigo); color:#fff; transform:rotate(-5deg); }
+      .tag-right{ right:4.5cqw; background:var(--teal); color:#fff; transform:rotate(5deg); }
+      .avatar{ height:44cqw; border-radius:4.5cqw; overflow:hidden; background:var(--amber-soft); }
+      .avatar img{ width:100%; height:100%; display:block; object-fit:cover; object-position:50% 8%; -webkit-user-drag:none; user-select:none; -webkit-user-select:none; }
+      .speaker{ font-size:4.5cqw; font-weight:800; margin-top:4.5cqw; }
+      .speaker-role{ font-size:3.8cqw; color:var(--faint); font-weight:600; margin-top:.4cqw; }
+      .dilemma{ font-size:4.35cqw; line-height:1.55; color:#26314A; margin:2.6cqw 0 1cqw; }
+      .tap-row{ display:grid; grid-template-columns:1fr 1fr; gap:3cqw; margin-top:4.5cqw; }
+      .tap-btn{
+        font:inherit; font-size:max(16px, 4.15cqw); font-weight:700; cursor:pointer;
+        border-radius:3.6cqw; padding:3.4cqw 2.5cqw; line-height:1.3; min-height:44px;
+        display:flex; align-items:center; justify-content:center; gap:1.6cqw;
+      }
+      .tap-btn svg{ width:3.6cqw; height:3.6cqw; flex:0 0 auto; }
+      .tap-left{ background:var(--indigo-soft); color:var(--indigo); border:1px solid #D8D4F5; }
+      .tap-right{ background:var(--teal-soft); color:var(--teal); border:1px solid #C4E4DF; }
+      .tap-btn:active{ filter:brightness(.97); }
+      .g-bottom{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:3.5cqw; color:var(--faint); font-weight:600; padding-top:1cqw;
+      }
+      .g-bottom .mono{ color:var(--mut); font-weight:600; }
+      .prog-dots{ display:flex; gap:1.6cqw; }
+      .prog-dots i{ width:2.1cqw; height:2.1cqw; border-radius:50%; background:#D8D5CC; display:block; }
+      .prog-dots i.done{ background:var(--indigo); }
+      .toast{
+        position:absolute; left:6.5cqw; right:6.5cqw; bottom:17cqw; z-index:20;
+        background:var(--ink); color:#fff; border-radius:3.8cqw;
+        padding:3.6cqw 4.4cqw; font-size:max(16px, 4.3cqw); font-weight:600; line-height:1.45;
+        box-shadow:0 4cqw 10cqw -3cqw rgba(16,24,40,.5);
+        opacity:0; transform:translateY(3cqw); pointer-events:none;
+        transition:opacity .3s ease, transform .3s ease;
+      }
+      .toast.show{ opacity:1; transform:translateY(0); }
+      .toast b{ color:#FBBF24; }
+
+      /* ---------- Run end ---------- */
+      .end-badge{
+        width:15cqw; height:15cqw; border-radius:50%;
+        background:var(--amber-soft); color:var(--amber);
+        display:grid; place-items:center; margin-top:4cqw;
+      }
+      .end-badge svg{ width:7.5cqw; height:7.5cqw; }
+      .end-story{ font-size:4.1cqw; color:var(--mut); line-height:1.55; margin:0; }
+      .end-stats{
+        margin-top:auto; background:var(--paper); border:1px solid var(--line);
+        border-radius:5cqw; overflow:hidden;
+      }
+      .end-stats .row{
+        display:flex; justify-content:space-between; align-items:center;
+        padding:4cqw 5cqw; font-size:3.9cqw; font-weight:600; color:var(--mut);
+      }
+      .end-stats .row + .row{ border-top:1px solid var(--line); }
+      .end-stats .row .mono{ font-size:5cqw; font-weight:600; color:var(--ink); }
+      .end-actions{ margin-top:auto; display:grid; gap:3.2cqw; }
+      .btn-again{ font-size:4.6cqw; padding:4.4cqw; width:100%; }
+      .btn-totitle{ font-size:4.2cqw; padding:3.8cqw; width:100%; }
+
+      @media (min-height:720px){
+        .dcard{ min-height:128cqw; }
+      }
+      @media (max-width:900px){
+        .layout{ grid-template-columns:minmax(0,390px); }
+        .side-col{ display:none; }
+      }
+      @media (max-width:560px){
+        .phone{ border-radius:0; padding:0; box-shadow:none; width:100vw; height:100dvh; }
+        .viewport{ border-radius:0; }
+        .notch{ display:none; }
+      }
+      @media (prefers-reduced-motion: reduce){
+        .meter .fill, .side-meters .sm .fill{ transition:none; }
+        .toast{ transition:none; }
+        .dcard{ transition:none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="stage-col">
+        <div class="phone">
+          <div class="viewport" id="viewport">
+            <div class="notch"></div>
+
+            <section class="screen scr-title active" data-screen="title">
+              <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5L12 13z"/><path d="M5.5 12.5 12 16l6.5-3.5"/><path d="M5.5 16.5 12 20l6.5-3.5"/></svg></div>
+              <h1 class="game-logo" data-s="gameTitle"></h1>
+              <p class="tagline" data-s="tagline"></p>
+              <span class="chip"><span class="dot"></span><span data-s="scenarioChip"></span></span>
+              <div class="title-actions">
+                <button class="p-btn btn-primary btn-play" id="btnPlay" type="button"></button>
+                <button class="p-btn btn-ghost btn-continue" id="btnContinue" type="button" hidden></button>
+                <button class="p-btn btn-ghost btn-how" id="btnHow" type="button"></button>
+                <div class="best-run" id="bestRunLine"></div>
+              </div>
+            </section>
+
+            <section class="screen scr-how" data-screen="how">
+              <h3 data-s="howTitle"></h3>
+              <p class="scr-sub" data-s="howSub"></p>
+              <div class="how-panels" id="howPanels"></div>
+              <button class="p-btn btn-primary btn-gotit" id="btnGotIt" type="button"></button>
+            </section>
+
+            <section class="screen scr-game" data-screen="game">
+              <div class="g-top">
+                <div class="day-badge"><small data-s="dayLabel"></small><span class="mono" id="dayNum">1</span></div>
+                <div class="meters" id="meters"></div>
+              </div>
+              <div class="stage">
+                <div class="dcard" id="dcard">
+                  <span class="choice-tag tag-left" id="tagLeft"></span>
+                  <span class="choice-tag tag-right" id="tagRight"></span>
+                  <div class="avatar"><img id="cardImg" src="" alt="" draggable="false" /></div>
+                  <div class="speaker" id="cardWho"></div>
+                  <div class="speaker-role" id="cardRole"></div>
+                  <p class="dilemma" id="cardText"></p>
+                </div>
+                <div class="tap-row">
+                  <button class="tap-btn tap-left" id="tapLeft" type="button"></button>
+                  <button class="tap-btn tap-right" id="tapRight" type="button"></button>
+                </div>
+              </div>
+              <div class="g-bottom">
+                <span><span class="mono" id="cardsLeft">3</span> <span data-s="cardsLeftText"></span></span>
+                <span class="prog-dots" id="progDots"><i></i><i></i><i></i></span>
+              </div>
+              <div class="toast" id="toast" aria-live="polite"></div>
+            </section>
+
+            <section class="screen scr-end" data-screen="end">
+              <div class="end-badge" id="endBadge"></div>
+              <h3 id="endTitle"></h3>
+              <p class="end-story" id="endStory"></p>
+              <div class="end-stats">
+                <div class="row"><span data-s="daysSurvived"></span><span class="mono" id="statDays">0</span></div>
+                <div class="row"><span data-s="decisionsMade"></span><span class="mono" id="statDecisions">0</span></div>
+                <div class="row"><span data-s="bestRunLabel"></span><span class="mono" id="statBest">0</span></div>
+              </div>
+              <div class="end-actions">
+                <button class="p-btn btn-primary btn-again" id="btnAgain" type="button"></button>
+                <button class="p-btn btn-ghost btn-totitle" id="btnToTitle" type="button"></button>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-col" aria-label="About this game">
+        <div>
+          <span class="kicker" data-s="sideKicker"></span>
+          <h2 data-s="sideHeading"></h2>
+          <p class="sub" data-s="sideSub"></p>
+          <ul class="side-steps" id="sideSteps"></ul>
+        </div>
+        <div class="side-best">
+          <div class="lbl" data-s="bestRunLabel"></div>
+          <div class="val"><span id="sideBest">0</span><small data-s="daysWord"></small></div>
+        </div>
+        <div>
+          <h2 style="font-size:15px" data-s="metersNow"></h2>
+          <div class="side-meters" id="sideMeters"></div>
+        </div>
+        <p class="side-foot" data-s="sideFoot"></p>
+      </aside>
+    </div>
+
+    <script>
+"use strict";
+/* Swipe the Decision: data + pure logic (DOM-free). Mirrors what ships in index.html. */
+
+const METER_KEYS = ["team", "budget", "quality", "trust"];
+
+const ENDINGS = {
+  team0:    { title: "Run over: the team burned out.",
+              story: "Team hit zero on day {day}. One by one your agents stopped showing up, until the floor stood empty and the queue rang out on its own." },
+  team100:  { title: "Run over: the team got too comfortable.",
+              story: "Team filled completely on day {day}. Morale turned into comfort, and comfort into coasting. Nobody would take the hard calls, and the hard calls were the job." },
+  budget0:  { title: "Run over: the budget ran dry.",
+              story: "Budget hit zero on day {day}. Finance froze your spending, overtime stopped in the middle of a shift, and the phones went unanswered." },
+  budget100:{ title: "Run over: Finance took the money back.",
+              story: "Budget filled completely on day {day}. You saved so hard that Finance reclaimed the surplus, and the team got nothing for a month of grinding." },
+  quality0: { title: "Run over: quality fell apart.",
+              story: "Quality hit zero on day {day}. Wrong answers, skipped checks, angry callbacks. The auditors moved in and took the floor out of your hands." },
+  quality100:{ title: "Run over: the checks ate the day.",
+              story: "Quality filled completely on day {day}. Every call was checked twice and every script followed to the letter, while the queue backed up to the door." },
+  trust0:   { title: "Run over: the team lost trust.",
+              story: "Trust hit zero on day {day}. The team stopped believing the roster was fair, and a lead nobody believes cannot run a floor." },
+  trust100: { title: "Run over: nobody questioned anything.",
+              story: "Trust filled completely on day {day}. Everyone trusted you so much that nobody pushed back, and a wrong price went live with the whole floor nodding along." }
+};
+
+/* fx keys: team, budget, quality, trust. requires: {flag, value?} gates chain cards.
+   set: flags written by the choice. chain: true means the card is played at most once per run. */
+const CARDS = [
+  /* ---------- Approved sample cards (from the wireframe) ---------- */
+  { id:"ayesha-sick", who:"Ayesha", role:"Senior Agent", av:"ayesha",
+    text:"Two agents called in sick. The queue is already 40 calls deep. Ayesha asks: can we close the chat channel for today and focus on calls only?",
+    left:{ label:"Yes, close chat", fx:{quality:-9, team:8}, set:{chat:"closed"},
+      result:"Chat closed. The queue breathes, the team settles, and written answers get sloppy by evening." },
+    right:{ label:"No, keep both open", fx:{team:-7, trust:3},
+      result:"Both channels stay open. The team is stretched thin, but customers feel heard on both sides." } },
+  { id:"bilal-script", who:"Bilal", role:"Team Trainer", av:"bilal",
+    text:"The new script confuses everyone. Bilal wants a full retrain day.",
+    left:{ label:"Book the day", fx:{budget:-7, quality:6}, set:{script:"retrained"},
+      result:"Retrain day booked. The budget dips, and by Friday the script finally makes sense on live calls." },
+    right:{ label:"Fix it live on calls", fx:{quality:-6, team:-5}, set:{script:"livefix"},
+      result:"Fixed live. Calls wobble all day and agents grumble, but no training day is lost." } },
+  { id:"customer-charge", who:"Customer", role:"Message from the queue", av:"customer",
+    text:"A customer is shouting about a double charge.",
+    left:{ label:"Refund at once", fx:{budget:-6, trust:6}, set:{refund:"instant"},
+      result:"Refund sent in minutes. The budget dips, and the customer goes quiet, then thanks the agent." },
+    right:{ label:"Check the record first", fx:{trust:-5, quality:3, budget:-3}, set:{refund:"checked"},
+      result:"Record checked first. Slower and colder, but the facts stay straight and the charge was real." } },
+  { id:"hira-id", who:"Hira", role:"Quality Lead", av:"hira",
+    text:"Hira found an agent skipping the ID check to save time.",
+    left:{ label:"Coach in private", fx:{quality:5, team:2, budget:-2}, set:{hira:"coach"},
+      result:"Coached in private. The agent nods, fixes his next calls, and tells two others what he learned." },
+    right:{ label:"Formal warning", fx:{quality:3, team:-7, trust:2}, set:{hira:"warn"},
+      result:"Warning issued. Call handling tightens across the floor, and the room goes a little quieter." } },
+  { id:"finance-overtime", who:"Finance", role:"Note from Finance", av:"finance",
+    text:"Budget review is Friday. Overtime is already 20 percent over.",
+    left:{ label:"Cut weekend shifts", fx:{budget:10, team:-3}, set:{friday:"cut"},
+      result:"Weekend shifts cut. The overtime line heals fast, and the team loses its favourite extra pay." },
+    right:{ label:"Hold and explain Friday", fx:{budget:-8, team:2}, set:{friday:"held"},
+      result:"You hold the line. The team keeps its shifts, and Friday's meeting gets harder to walk into." } },
+  { id:"omar-freezes", who:"Omar", role:"New Agent", av:"omar",
+    text:"Omar passed training but freezes on live calls.",
+    left:{ label:"Pair him with Ayesha", fx:{budget:-4, team:2, quality:3}, set:{omar:"paired"},
+      result:"Paired with Ayesha. She carries two seats for a while, and Omar starts finishing calls." },
+    right:{ label:"Back to the classroom", fx:{budget:-5, quality:2, team:-4}, set:{omar:"class"},
+      result:"Back to the classroom. Omar studies alone while the floor runs one agent short." } },
+  { id:"director-launch", who:"The Director", role:"From upstairs", av:"director",
+    text:"The Director wants the new package prices live tonight, before the help pages are updated.",
+    left:{ label:"Launch tonight", fx:{budget:4, quality:-7, trust:-9}, set:{launch:"early"},
+      result:"Prices go live at nine. Sales ticks up before midnight, and so does a different kind of queue." },
+    right:{ label:"Hold until pages match", fx:{budget:-5, quality:3, trust:5}, set:{launch:"held"},
+      result:"Launch held. The Director is annoyed for an hour, and every price a customer sees is the right one." } },
+
+  /* ---------- Chain cards: follow-ups gated on earlier choices ---------- */
+  { id:"hira-repeat-coach", chain:true, requires:{flag:"hira", value:"coach"}, who:"Hira", role:"Quality Lead", av:"hira",
+    text:"The agent you coached skipped the ID check again. Hira is watching your face, not his.",
+    left:{ label:"Formal warning now", fx:{quality:4, team:-6, trust:2},
+      result:"Warning, second time around. It lands harder because the coaching came first, and the floor knows it." },
+    right:{ label:"Coach once more", fx:{quality:-6, team:2, trust:-7},
+      result:"Coached again. He smiles and promises. Hira writes something down and says nothing." } },
+  { id:"hira-repeat-warn", chain:true, requires:{flag:"hira", value:"warn"}, who:"Hira", role:"Quality Lead", av:"hira",
+    text:"Since the formal warning, two agents asked to move teams. They say the floor feels watched.",
+    left:{ label:"Soften and explain", fx:{team:9, quality:-4, trust:2},
+      result:"You explain the warning was about the check, not the man. Shoulders drop around the floor." },
+    right:{ label:"Hold the line", fx:{quality:2, team:-7},
+      result:"Line held. Checks are perfect this week, and lunch breaks are taken alone, in silence." } },
+  { id:"omar-ready", chain:true, requires:{flag:"omar", value:"paired"}, who:"Ayesha", role:"Senior Agent", av:"ayesha",
+    text:"Omar handled a full shift beside Ayesha without freezing once. She says he is ready to fly solo.",
+    left:{ label:"Give him the hard queue", fx:{quality:2, team:11, trust:2},
+      result:"Omar takes the hard queue and survives it. Ayesha catches your eye and nods once." },
+    right:{ label:"Keep the buddy another week", fx:{budget:-5, team:-5},
+      result:"One more buddy week. Safe, expensive, and Omar's shoulders sink a little at the news." } },
+  { id:"omar-returns", chain:true, requires:{flag:"omar", value:"class"}, who:"Omar", role:"New Agent", av:"omar",
+    text:"Omar is back from the classroom. His test scores are perfect. He has not smiled since he sat down.",
+    left:{ label:"Start him on easy calls", fx:{quality:2, team:2},
+      result:"Easy calls first. By Thursday Omar is laughing at a customer's joke, quietly, like himself." },
+    right:{ label:"Full queue, like everyone", fx:{quality:-7, team:-5, trust:-4},
+      result:"Full queue on day one back. Omar freezes twice before lunch and asks about resigning." } },
+  { id:"director-fallout", chain:true, requires:{flag:"launch", value:"early"}, who:"Customer", role:"Message from the queue", av:"customer",
+    text:"The new prices are live, but the help pages still show the old ones. The queue is full of confused callers.",
+    left:{ label:"Refund every difference", fx:{budget:-7, trust:9},
+      result:"Every difference refunded. It costs real money, and the complaints stop by the weekend." },
+    right:{ label:"Blame the old pages", fx:{trust:-9, quality:-4},
+      result:"You blame the pages. Customers can hear a script when one is being read to them." } },
+  { id:"chat-complaints", chain:true, requires:{flag:"chat", value:"closed"}, who:"Customer", role:"Message from the queue", av:"customer",
+    text:"Chat stayed closed and customers who cannot call are posting complaints in public, with screenshots.",
+    left:{ label:"Reopen chat tonight", fx:{budget:-5, team:-5, trust:4},
+      result:"Chat reopens tonight. The team groans, the posts stop, and two complaints turn into thanks." },
+    right:{ label:"Keep chat closed", fx:{trust:-7, quality:2},
+      result:"Chat stays closed. Call quality stays high, and the public posts keep collecting likes." } },
+  { id:"refund-precedent", chain:true, requires:{flag:"refund", value:"instant"}, who:"Finance", role:"Note from Finance", av:"finance",
+    text:"Word spread about the instant refund. Three customers today demand the same, records unchecked.",
+    left:{ label:"Refund them all", fx:{budget:-7, trust:10},
+      result:"All three refunded. The queue calms down, and Finance starts a folder with your name on it." },
+    right:{ label:"Check every record first", fx:{trust:-6, quality:4},
+      result:"Records checked. Two claims were genuine, one was not, and the wait teaches the queue patience." } },
+  { id:"finance-friday-cut", chain:true, requires:{flag:"friday", value:"cut"}, who:"Finance", role:"Note from Finance", av:"finance",
+    text:"Friday's review. Finance opens the overtime sheet, sees your cuts, and looks up at the Director.",
+    left:{ label:"Ask for training money", fx:{budget:-6, quality:4, trust:2},
+      result:"You trade savings for a training budget. Finance agrees, and the Director actually smiles." },
+    right:{ label:"Bank the praise quietly", fx:{budget:11, trust:2, team:-3},
+      result:"Praise banked. The numbers love you, and the team still misses its weekend pay." } },
+  { id:"finance-friday-held", chain:true, requires:{flag:"friday", value:"held"}, who:"Finance", role:"Note from Finance", av:"finance",
+    text:"Friday's review. The overtime sheet is still 20 percent over, and the room is looking at you.",
+    left:{ label:"Show the quality numbers", fx:{quality:2, trust:3, budget:-3, team:-2},
+      result:"You show what the overtime bought: quality up, complaints down. Finance closes the folder slowly." },
+    right:{ label:"Promise cuts next month", fx:{trust:-7, team:-5},
+      result:"Promise made. Everyone hears the wobble in it, including you." } },
+  { id:"bilal-monthly", chain:true, requires:{flag:"script", value:"retrained"}, who:"Bilal", role:"Team Trainer", av:"bilal",
+    text:"A week after the retrain day, call reviews are climbing. Bilal wants to make it a monthly thing.",
+    left:{ label:"Make it monthly", fx:{budget:-7, quality:10, team:2},
+      result:"Monthly retrain booked. It costs every month, and every month the calls sound better." },
+    right:{ label:"Once was enough", fx:{budget:11, quality:-5},
+      result:"Once was enough, you say. Bilal shrugs and files the idea under things that worked." } },
+
+  /* ---------- Base deck ---------- */
+  { id:"roster-clash", who:"Ayesha", role:"Senior Agent", av:"ayesha",
+    text:"Two agents want the same weekend off. Both have family events, both asked you in the corridor, both are watching.",
+    left:{ label:"First come, first served", fx:{team:5, trust:2},
+      result:"The rule decides, not you. One agent accepts it. The other stops asking you for anything." },
+    right:{ label:"Let them sort it out", fx:{team:3, quality:-4, budget:-2},
+      result:"They sort it out in an hour and owe each other a favour. The roster has one gap you fill yourself." } },
+  { id:"crm-down", who:"Omar", role:"New Agent", av:"omar",
+    text:"The CRM freezes mid-call for the whole floor. Omar whispers: the customer is still on the line, waiting.",
+    left:{ label:"Log everything by hand", fx:{quality:3, team:-6, budget:-4},
+      result:"Paper logs everywhere. Nothing is lost, and the team ends the day with cramped hands and strong opinions." },
+    right:{ label:"Pause calls until it returns", fx:{budget:-5, trust:-5},
+      result:"Calls paused for forty minutes. The team breathes. The queue does not forgive as quickly." } },
+  { id:"vip-client", who:"The Director", role:"From upstairs", av:"director",
+    text:"A business client threatens to leave after three dropped calls this week. The Director forwards you the email, no comment.",
+    left:{ label:"Call the client yourself", fx:{trust:5, team:-6},
+      result:"You call and own every dropped call. The client stays, and your team notices you did their job for them." },
+    right:{ label:"Let the agent call back", fx:{team:4, trust:-4, budget:-2},
+      result:"The agent calls back with shaking hands and saves the account. She walks taller for a week." } },
+  { id:"target-rise", who:"The Director", role:"From upstairs", av:"director",
+    text:"Targets rise 15 percent next month. The Director wants your plan on his desk by morning.",
+    left:{ label:"Push the team harder", fx:{quality:-5, team:-8, budget:12},
+      result:"The plan is aggressive and the numbers nod along. The floor hears about it before you announce it." },
+    right:{ label:"Ask for more staff first", fx:{budget:-6, team:-4, trust:2},
+      result:"You ask for two more agents and get one. The team hears you fought, which counts for something." } },
+  { id:"monday-sick", who:"Hira", role:"Quality Lead", av:"hira",
+    text:"Hira noticed one agent is sick every Monday. Four Mondays running. She puts the pattern on your desk, gently.",
+    left:{ label:"Ask him directly", fx:{trust:2, team:-4, budget:2},
+      result:"You ask, he admits Mondays are his mother's hospital days. The pattern stops being a secret." },
+    right:{ label:"Let it go this month", fx:{team:2, trust:-6, quality:-3, budget:-2},
+      result:"You let it go. Everyone with a real Monday problem notices that patterns get ignored here." } },
+  { id:"bilal-certify", who:"Bilal", role:"Team Trainer", av:"bilal",
+    text:"Bilal can certify two agents this month, not six. He slides you the list of six names and a pen.",
+    left:{ label:"Pick the two strongest", fx:{quality:4, team:-6},
+      result:"The strongest two certify. The other four do the maths on where they stand with you." },
+    right:{ label:"Pick the two who struggle", fx:{quality:2, team:3, budget:-3},
+      result:"You back the strugglers. One blooms. The stars of the team exchange a look you pretend not to see." } },
+  { id:"regular-caller", who:"Customer", role:"Message from the queue", av:"customer",
+    text:"A regular caller asks for you by name. She says she only trusts you now, nobody else on the team.",
+    left:{ label:"Take her calls yourself", fx:{trust:5, team:-6, budget:-3},
+      result:"You take her calls. She is delighted. Your agents learn that escalating to you always works." },
+    right:{ label:"Introduce her to Ayesha", fx:{team:3, trust:-3},
+      result:"Ayesha wins her over in two calls. The caller now asks for Ayesha by name instead." } },
+  { id:"ayesha-nights", who:"Ayesha", role:"Senior Agent", av:"ayesha",
+    text:"Ayesha offers to cover the night shift again. She has already done four nights in a row, and her voice is hoarse.",
+    left:{ label:"Accept, she volunteered", fx:{budget:6, team:-6, quality:-4},
+      result:"She covers the night and makes one tired mistake at 3 a.m. Volunteered is not the same as able." },
+    right:{ label:"Send her home to rest", fx:{budget:-7, team:4},
+      result:"You send your best agent home. The night is rougher, and the whole floor hears why." } },
+  { id:"crying-caller", who:"Hira", role:"Quality Lead", av:"hira",
+    text:"A caller is crying about a lost connection before her daughter's exam. The script says move to the survey question.",
+    left:{ label:"Follow the script", fx:{quality:-7, trust:-6, team:-3},
+      result:"The script is followed. The survey gets one star and a comment that Hira reads to you twice." },
+    right:{ label:"Stay with her, skip script", fx:{quality:2, trust:6, budget:-3},
+      result:"The agent stays until the connection is back. The call runs long, and so does the story on the floor." } },
+  { id:"credits-query", who:"Finance", role:"Note from Finance", av:"finance",
+    text:"Finance queries a stack of goodwill credits you approved last month. Each one needs a reason, in writing.",
+    left:{ label:"Write every reason tonight", fx:{budget:7, trust:3, team:-4},
+      result:"You write until late. Every credit survives review, and your evening does not." },
+    right:{ label:"Defend the big ones only", fx:{budget:2, trust:-5},
+      result:"The small credits get clawed back. Two customers notice before you do." } },
+  { id:"headsets", who:"Bilal", role:"Team Trainer", av:"bilal",
+    text:"Six new agents start Monday. There are four working headsets in the building and a supplier who delivers in ten days.",
+    left:{ label:"Buy two at retail price", fx:{budget:-8, quality:2},
+      result:"Two headsets by courier, at painful prices. Monday starts on time and Finance winces at the receipt." },
+    right:{ label:"Pair up and share headsets", fx:{quality:-6, team:2, budget:2},
+      result:"Sharing works, barely. The new agents bond over the queue for the good headset." } },
+  { id:"quiet-star", who:"Ayesha", role:"Senior Agent", av:"ayesha",
+    text:"Your best agent has gone quiet. Her numbers are fine. Her face, when she thinks nobody is looking, is not.",
+    left:{ label:"Ask her how she is", fx:{team:5, trust:2, budget:-2},
+      result:"You ask, and listen longer than is comfortable. She is carrying a sick parent and three people's queues." },
+    right:{ label:"Numbers are fine, leave her", fx:{team:-7, trust:-5},
+      result:"You leave her to it. Her numbers stay fine for eleven more days, then her resignation lands." } },
+  { id:"survey-dip", who:"The Director", role:"From upstairs", av:"director",
+    text:"Satisfaction scores dipped two points this month. The Director wants a named cause on his desk by Friday.",
+    left:{ label:"Name the script change", fx:{quality:3, trust:-4, team:-3, budget:-2},
+      result:"You name the new script, honestly. Upstairs nods, and Bilal hears his work called the problem." },
+    right:{ label:"Name the staffing gap", fx:{trust:2, budget:-6, team:2},
+      result:"You name the empty seats instead. The Director frowns at the truth and asks for hiring numbers." } }
+];
+
+/* ---------- Pure run logic (shared by page and tests) ---------- */
+function clampMeter(v){ return Math.max(0, Math.min(100, v)); }
+
+function createRun(){
+  return {
+    meters: { team:50, budget:50, quality:50, trust:50 },
+    day: 1, cardInDay: 1, decisions: 0,
+    flags: {}, flagDay: {}, drawnThisCycle: [], chainPlayed: [],
+    currentId: null, over: false, endingKey: null
+  };
+}
+function cardById(id){ return CARDS.find(function(c){ return c.id === id; }); }
+function isEligible(run, card){
+  if (card.chain && run.chainPlayed.indexOf(card.id) >= 0) return false;
+  if (run.drawnThisCycle.indexOf(card.id) >= 0) return false;
+  if (card.requires){
+    var v = run.flags[card.requires.flag];
+    if (card.requires.value !== undefined ? v !== card.requires.value : v === undefined) return false;
+    if (run.day <= (run.flagDay[card.requires.flag] || 1)) return false; /* follow-ups land on a later day */
+  }
+  return true;
+}
+function drawCard(run, rng){
+  var pool = CARDS.filter(function(c){ return isEligible(run, c); });
+  if (!pool.length){
+    run.drawnThisCycle = [];
+    pool = CARDS.filter(function(c){ return isEligible(run, c); });
+  }
+  if (!pool.length) return null;
+  var card = pool[Math.floor(rng() * pool.length)];
+  run.drawnThisCycle.push(card.id);
+  if (card.chain) run.chainPlayed.push(card.id);
+  run.currentId = card.id;
+  return card;
+}
+function applyChoice(run, side){
+  var card = cardById(run.currentId);
+  var choice = card[side];
+  Object.keys(choice.fx || {}).forEach(function(k){ run.meters[k] = clampMeter(run.meters[k] + choice.fx[k]); });
+  if (choice.set) Object.keys(choice.set).forEach(function(f){ run.flags[f] = choice.set[f]; run.flagDay[f] = run.day; });
+  run.decisions += 1;
+  var ended = null;
+  METER_KEYS.forEach(function(k){
+    if (ended) return;
+    if (run.meters[k] === 0) ended = k + "0";
+    else if (run.meters[k] === 100) ended = k + "100";
+  });
+  if (ended){ run.over = true; run.endingKey = ended; return { ended: ended, choice: choice }; }
+  run.cardInDay += 1;
+  if (run.cardInDay > 3){ run.cardInDay = 1; run.day += 1; }
+  return { ended: null, choice: choice };
+}
+if (typeof module !== "undefined") module.exports = { CARDS, ENDINGS, METER_KEYS, createRun, drawCard, applyChoice, cardById };
+
+
+    /* ================= UI strings (single home for a later language pass) ================= */
+    const STRINGS = {
+      gameTitleHTML: 'Swipe the<br/><em>Decision</em>',
+      tagline: "Run the team. One card at a time.",
+      scenarioChip: "Scenario: First Month as Team Lead",
+      play: "Play",
+      how: "How to Play",
+      continueRun: "Continue: Day {day}",
+      bestRun: 'Best run: <span class="mono">{n} days</span>',
+      bestRunNone: "No runs yet. Your best will live here.",
+      howTitle: "How to Play",
+      howSub: "Thirty seconds to learn. The rest is judgement.",
+      howPanels: [
+        { title: "Decide the card", body: "A card shows a problem from the team. Swipe it left or right, or tap a side, to decide." },
+        { title: "Watch the meters", body: "Every choice moves your four meters: Team, Budget, Quality and Trust. Helping one usually costs another." },
+        { title: "Keep all four alive", body: "If any meter empties or fills completely, your run ends on the spot." }
+      ],
+      gotIt: "Got it",
+      dayLabel: "Day",
+      cardsLeftText: "cards left today",
+      daysSurvived: "Days survived",
+      decisionsMade: "Decisions made",
+      bestRunLabel: "Best run",
+      playAgain: "Play again",
+      backToTitle: "Back to title",
+      newRunToast: "<b>Day 1.</b> A fresh team, a full queue. Good luck.",
+      yourCall: "Your call: <b>{label}</b>. ",
+      metersNow: "Meters right now",
+      daysWord: "days",
+      sideKicker: "Umair Ismail's Technology Lab",
+      sideHeading: "How to play",
+      sideSub: "Three steps, the same as on the phone.",
+      sideSteps: [
+        "A card shows a problem. Swipe it, drag it, or click a side to decide.",
+        "Every choice moves your four meters: Team, Budget, Quality and Trust.",
+        "If any meter empties or fills completely, your run ends."
+      ],
+      sideFoot: "A single player card game about leading a support team. Every run is a first month you have to survive."
+    };
+    const METER_NAMES = { team: "Team", budget: "Budget", quality: "Quality", trust: "Trust" };
+
+    /* ================= Icons (inline SVG, stroke style) ================= */
+    function icon(name, sw){
+      sw = sw || 1.8;
+      const paths = {
+        team: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.7c2.3.2 3.9 1.6 4.4 4"/>',
+        budget: '<rect x="3" y="6" width="18" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5h.01M17.5 14.5h.01"/>',
+        quality: '<path d="M12 3l2.3 2 3-.2 1 2.8 2.6 1.6-1 2.9 1 2.9-2.6 1.6-1 2.8-3-.2-2.3 2-2.3-2-3 .2-1-2.8L3.1 15l1-2.9-1-2.9L5.7 7.6l1-2.8 3 .2z"/><path d="M9.3 12.1l2 2 3.6-3.9"/>',
+        trust: '<path d="M12 20s-7-4.3-9-9c-1.1-2.7.4-6 3.4-6 2 0 3.4 1.2 4.1 2.6l1.5 3 1.5-3C14.2 6.2 15.6 5 17.6 5c3 0 4.5 3.3 3.4 6-1.2 2.9-4.5 5.7-9 9z" transform="scale(0.92) translate(1,0.4)"/>',
+        warn: '<path d="M12 4L2.8 20h18.4z"/><path d="M12 10v4.4"/><path d="M12 17.2h.01"/>',
+        left: '<path d="M14.5 5.5L8 12l6.5 6.5"/>',
+        right: '<path d="M9.5 5.5L16 12l-6.5 6.5"/>'
+      };
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || "") + '</svg>';
+    }
+
+    /* ================= DOM layer ================= */
+    const $ = function(s){ return document.querySelector(s); };
+    const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const SAVE_KEY = "sd.run.v1", BEST_KEY = "sd.best.v1";
+
+    document.querySelectorAll("[data-s]").forEach(function(el){
+      const key = el.getAttribute("data-s");
+      if (STRINGS[key] !== undefined && typeof STRINGS[key] === "string") el.textContent = STRINGS[key];
+    });
+    $("[data-s='gameTitle']").innerHTML = STRINGS.gameTitleHTML;
+    $("#btnPlay").textContent = STRINGS.play;
+    $("#btnHow").textContent = STRINGS.how;
+    $("#btnGotIt").textContent = STRINGS.gotIt;
+    $("#btnAgain").textContent = STRINGS.playAgain;
+    $("#btnToTitle").textContent = STRINGS.backToTitle;
+    $("#endBadge").innerHTML = icon("warn", 1.9);
+    $("#howPanels").innerHTML = STRINGS.howPanels.map(function(p, i){
+      return '<div class="how-panel"><span class="hn hn-' + (i + 1) + '">' + (i + 1) + '</span><div><b>' + p.title + '</b><p>' + p.body + '</p></div></div>';
+    }).join("");
+    $("#sideSteps").innerHTML = STRINGS.sideSteps.map(function(t, i){
+      const cls = ["var(--indigo-soft);color:var(--indigo)", "var(--teal-soft);color:var(--teal)", "var(--amber-soft);color:var(--amber)"][i];
+      return '<li><span class="sn" style="background:' + cls + '">' + (i + 1) + '</span><span>' + t + '</span></li>';
+    }).join("");
+
+    $("#meters").innerHTML = METER_KEYS.map(function(k){
+      return '<div class="meter" data-meter="' + k + '">'
+        + '<div class="m-head"><span class="ic-' + k + '">' + icon(k) + '</span><span class="m-val" data-val>50</span></div>'
+        + '<span class="m-name">' + METER_NAMES[k] + '</span>'
+        + '<div class="bar"><div class="fill fill-' + k + '" data-fill style="width:50%"></div></div>'
+        + '<div class="dots"><span class="hint-dot" data-dot></span></div>'
+        + '</div>';
+    }).join("");
+    $("#sideMeters").innerHTML = METER_KEYS.map(function(k){
+      const cls = { team: "var(--indigo)", budget: "var(--amber)", quality: "var(--teal)", trust: "var(--ink)" }[k];
+      return '<div class="sm"><span style="color:' + cls + '">' + icon(k) + '</span><span style="width:52px">' + METER_NAMES[k] + '</span>'
+        + '<span class="bar"><span class="fill" data-sfill style="width:50%;background:' + cls + '"></span></span>'
+        + '<span class="mono" data-sval>50</span></div>';
+    }).join("");
+
+    let run = null, busy = false;
+    let best = parseInt(localStorage.getItem(BEST_KEY) || "0", 10) || 0;
+
+    function showScreen(name){
+      document.querySelectorAll(".screen").forEach(function(s){
+        s.classList.toggle("active", s.getAttribute("data-screen") === name);
+      });
+    }
+    function saveRun(){
+      if (run && !run.over) localStorage.setItem(SAVE_KEY, JSON.stringify(run));
+      else localStorage.removeItem(SAVE_KEY);
+    }
+    function loadSavedRun(){
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return null;
+        const r = JSON.parse(raw);
+        if (!r || r.over || !r.currentId || !cardById(r.currentId)) return null;
+        return r;
+      } catch (e) { return null; }
+    }
+    function renderBest(){
+      $("#bestRunLine").innerHTML = best > 0 ? STRINGS.bestRun.replace("{n}", best) : STRINGS.bestRunNone;
+      $("#sideBest").textContent = best;
+    }
+    function displayMeters(){
+      if (run) return run.meters;
+      const saved = loadSavedRun();
+      return saved ? saved.meters : { team: 50, budget: 50, quality: 50, trust: 50 };
+    }
+    function renderMeters(){
+      const shown = displayMeters();
+      METER_KEYS.forEach(function(k, i){
+        const v = shown[k];
+        const m = document.querySelector('[data-meter="' + k + '"]');
+        const val = m.querySelector("[data-val]");
+        val.textContent = v;
+        val.classList.toggle("warn", v <= 20 || v >= 80);
+        m.querySelector("[data-fill]").style.width = v + "%";
+        const sm = $("#sideMeters").children[i];
+        sm.querySelector("[data-sval]").textContent = v;
+        sm.querySelector("[data-sfill]").style.width = v + "%";
+      });
+    }
+    function renderCard(){
+      /* clear fly-out / lean state left on the card by the previous card */
+      cardEl.style.transition = "none";
+      cardEl.style.transform = "translateX(0) rotate(0deg)";
+      cardEl.style.opacity = "1";
+      $("#tagLeft").style.opacity = 0;
+      $("#tagRight").style.opacity = 0;
+      const c = cardById(run.currentId);
+      $("#cardImg").src = "assets/cast-" + c.av + ".jpg";
+      $("#cardImg").alt = "Portrait of " + c.who;
+      $("#cardWho").textContent = c.who;
+      $("#cardRole").textContent = c.role;
+      $("#cardText").textContent = c.text;
+      $("#tagLeft").textContent = c.left.label;
+      $("#tagRight").textContent = c.right.label;
+      $("#tapLeft").innerHTML = icon("left", 2.2) + "<span>" + c.left.label + "</span>";
+      $("#tapRight").innerHTML = "<span>" + c.right.label + "</span>" + icon("right", 2.2);
+      $("#dayNum").textContent = run.day;
+      $("#cardsLeft").textContent = 3 - run.cardInDay + 1;
+      document.querySelectorAll("#progDots i").forEach(function(d, i){
+        d.classList.toggle("done", i < run.cardInDay - 1);
+      });
+    }
+    function renderAll(){ renderMeters(); renderCard(); }
+    function setDots(side){
+      const c = run && cardById(run.currentId);
+      const fx = (c && side) ? (c[side].fx || {}) : {};
+      METER_KEYS.forEach(function(k){
+        document.querySelector('[data-meter="' + k + '"] [data-dot]')
+          .classList.toggle("on", Object.prototype.hasOwnProperty.call(fx, k));
+      });
+    }
+    function boldLead(text){
+      const parts = text.split(". ");
+      let lead = parts[0];
+      while (parts.length > 1 && / [a-z]$/.test(lead)) { lead += ". " + parts[1]; parts.splice(1, 1); }
+      if (parts.length === 1) return "<b>" + text + "</b>";
+      return "<b>" + lead + ".</b> " + parts.slice(1).join(". ");
+    }
+    let toastTimer = null;
+    function showToast(html, ms){
+      const t = $("#toast");
+      t.innerHTML = html;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){ t.classList.remove("show"); }, ms || 3600);
+    }
+    function showEnd(){
+      const e = ENDINGS[run.endingKey];
+      $("#endTitle").textContent = e.title;
+      $("#endStory").textContent = e.story.replace("{day}", run.day);
+      $("#statDays").textContent = run.day;
+      $("#statDecisions").textContent = run.decisions;
+      if (run.day > best) { best = run.day; localStorage.setItem(BEST_KEY, String(best)); }
+      $("#statBest").textContent = best;
+      run = null;
+      saveRun(); renderBest();
+      showScreen("end");
+    }
+    function blankTapLabels(){
+      $("#tapLeft").innerHTML = "&nbsp;";
+      $("#tapRight").innerHTML = "&nbsp;";
+    }
+    function commit(side){
+      if (busy || !run || run.over) return;
+      busy = true;
+      const card = $("#dcard");
+      setDots(null);
+      /* Apply the choice at once, while the card it belongs to is still on stage.
+         The consequence names the call just made, and the tap labels blank so no
+         stale labels sit over the stage during the changeover. */
+      const chosenLabel = cardById(run.currentId)[side].label;
+      blankTapLabels();
+      $("#tagLeft").style.opacity = 0;
+      $("#tagRight").style.opacity = 0;
+      card.style.transition = REDUCED ? "none" : "transform .3s ease";
+      card.style.transform = "translateX(0) rotate(0deg)";
+      card.style.opacity = "1";
+      const res = applyChoice(run, side);
+      renderMeters();
+      showToast(STRINGS.yourCall.replace("{label}", chosenLabel) + boldLead(res.choice.result));
+      if (res.ended) {
+        setTimeout(function(){ busy = false; showEnd(); }, REDUCED ? 80 : 1100);
+        return;
+      }
+      const deal = function(){
+        drawCard(run, Math.random);
+        saveRun();
+        renderCard();
+        card.style.transition = "none";
+        card.style.transform = "translateX(" + (side === "left" ? 46 : -46) + "px)";
+        card.style.opacity = "0";
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          card.style.transition = REDUCED ? "none" : "transform .32s ease, opacity .32s ease";
+          card.style.transform = "translateX(0) rotate(0deg)";
+          card.style.opacity = "1";
+          setTimeout(function(){ busy = false; }, REDUCED ? 10 : 330);
+        }); });
+      };
+      const flyOut = function(){
+        if (REDUCED) {
+          card.style.transform = "translateX(0) rotate(0deg)";
+          card.style.opacity = "1";
+          deal();
+        } else {
+          card.style.transition = "transform .38s cubic-bezier(.3,.7,.4,1), opacity .38s ease";
+          card.style.transform = "translateX(" + (side === "left" ? "-115%" : "115%") + ") rotate(" + (side === "left" ? -13 : 13) + "deg)";
+          card.style.opacity = "0";
+          setTimeout(deal, 390);
+        }
+      };
+      /* One short beat with the decided card still up, then the changeover. */
+      setTimeout(flyOut, REDUCED ? 450 : 950);
+    }
+    function startRun(resume){
+      run = resume || createRun();
+      if (!resume) { drawCard(run, Math.random); saveRun(); }
+      renderAll();
+      showScreen("game");
+      if (!resume) showToast(STRINGS.newRunToast, 2400);
+    }
+
+    /* Drag the card */
+    const cardEl = $("#dcard");
+    let drag = null;
+    function lean(dx){
+      const r = Math.max(-14, Math.min(14, dx / 16));
+      cardEl.style.transform = "translateX(" + dx + "px) rotate(" + r + "deg)";
+      const p = Math.min(1, Math.abs(dx) / 90);
+      $("#tagLeft").style.opacity = dx < -12 ? p : 0;
+      $("#tagRight").style.opacity = dx > 12 ? p : 0;
+      setDots(dx < -12 ? "left" : (dx > 12 ? "right" : null));
+    }
+    cardEl.addEventListener("pointerdown", function(e){
+      if (busy || !run || run.over) return;
+      drag = { x: e.clientX, dx: 0 };
+      cardEl.setPointerCapture(e.pointerId);
+      cardEl.classList.add("dragging", "noanim");
+    });
+    cardEl.addEventListener("pointermove", function(e){
+      if (!drag) return;
+      drag.dx = e.clientX - drag.x;
+      lean(drag.dx);
+    });
+    function release(){
+      if (!drag) return;
+      const dx = drag.dx; drag = null;
+      cardEl.classList.remove("dragging", "noanim");
+      if (dx <= -90) { commit("left"); return; }
+      if (dx >= 90) { commit("right"); return; }
+      cardEl.style.transition = REDUCED ? "none" : "transform .28s cubic-bezier(.3,.8,.4,1)";
+      cardEl.style.transform = "translateX(0) rotate(0deg)";
+      $("#tagLeft").style.opacity = 0;
+      $("#tagRight").style.opacity = 0;
+      setDots(null);
+    }
+    cardEl.addEventListener("pointerup", release);
+    cardEl.addEventListener("pointercancel", release);
+
+    const tapL = $("#tapLeft"), tapR = $("#tapRight");
+    tapL.addEventListener("click", function(){ commit("left"); });
+    tapR.addEventListener("click", function(){ commit("right"); });
+    [["pointerenter", tapL, "left"], ["pointerenter", tapR, "right"]].forEach(function(cfg){
+      cfg[1].addEventListener(cfg[0], function(){ setDots(cfg[2]); });
+      cfg[1].addEventListener("pointerleave", function(){ setDots(null); });
+      cfg[1].addEventListener("focus", function(){ setDots(cfg[2]); });
+      cfg[1].addEventListener("blur", function(){ setDots(null); });
+    });
+    document.addEventListener("keydown", function(e){
+      if (!document.querySelector('[data-screen="game"]').classList.contains("active")) return;
+      if (e.key === "ArrowLeft") commit("left");
+      else if (e.key === "ArrowRight") commit("right");
+    });
+
+    /* Navigation */
+    function refreshTitle(){
+      renderBest();
+      renderMeters();
+      const saved = loadSavedRun();
+      const btn = $("#btnContinue");
+      if (saved) { btn.hidden = false; btn.textContent = STRINGS.continueRun.replace("{day}", saved.day); }
+      else btn.hidden = true;
+    }
+    $("#btnPlay").addEventListener("click", function(){ startRun(null); });
+    $("#btnContinue").addEventListener("click", function(){ const s = loadSavedRun(); if (s) startRun(s); });
+    $("#btnHow").addEventListener("click", function(){ showScreen("how"); });
+    $("#btnGotIt").addEventListener("click", function(){ refreshTitle(); showScreen("title"); });
+    $("#btnAgain").addEventListener("click", function(){ startRun(null); });
+    $("#btnToTitle").addEventListener("click", function(){ refreshTitle(); showScreen("title"); });
+
+    refreshTitle();
+    renderMeters();
+
+    </script>
+  </body>
+</html>
