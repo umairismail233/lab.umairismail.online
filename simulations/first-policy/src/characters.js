@@ -118,11 +118,17 @@ function relaxOffsets(group) {
   return out;
 }
 
+// The UAL walk clip is a ~1.0 u/s amble (stride measured in-engine); the
+// avatar glides at MOVE_SPEED (main.js), so the clip runs faster by this
+// factor and the feet track the ground instead of skating over it.
+const WALK_TIME_SCALE = 3.5;
+
 // Shared animation controller: idle/walk crossfade + one-shot react.
 function makeController(group, clips, labelY) {
   const mixer = new THREE.AnimationMixer(group);
   const idle = mixer.clipAction(clips.idle);
   const walk = mixer.clipAction(clips.walk);
+  walk.timeScale = WALK_TIME_SCALE;
   const agree = mixer.clipAction(clips.agree);
   agree.setLoop(THREE.LoopOnce); agree.clampWhenFinished = true;
   idle.play(); idle.time = Math.random() * idle.getClip().duration;
