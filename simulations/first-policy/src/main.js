@@ -58,8 +58,8 @@ function celebrate(big) {
 // ---------- three setup ----------
 const canvas = $('scene');
 const LITE = new URLSearchParams(location.search).has('lite'); // QA-only: lighter rendering for software-GPU test rigs
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(LITE ? 1 : Math.min(devicePixelRatio, 1.75));
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(LITE ? 1 : Math.min(devicePixelRatio, 1.5));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -92,7 +92,14 @@ const LOAD_FAIL = {
 // the coffee table between the couches, at check-in and on Continue alike.
 const SPAWN = new THREE.Vector3(-11.6, 0, 1.5);
 const playerPos = SPAWN.clone();
+// Glide speed matched to the walk clip's stride: the clip's feet only cover
+// ~1.0 u/s of ground (measured in-engine: ~85% foot-drag at the old 6.5 u/s),
+// so the avatar skated while its legs ambled — the "straining" walk. At
+// 3.4 u/s with the clip sped up in characters.js (WALK_TIME_SCALE) the feet
+// plant on the ground they cross.
+const MOVE_SPEED = 3.4;
 let walkTarget = null, pendingStation = null, busy = false;
+const kbVec = new THREE.Vector3(), walkVec = new THREE.Vector3(); // walk-loop scratch (no per-frame allocation)
 const clock = new THREE.Clock();
 // buttery camera state (Pack A): damped position + smoothed look target with velocity look-ahead
 const prevPos = playerPos.clone();
@@ -159,17 +166,17 @@ function animate() {
   if (playerChar) playerChar.update(dt);
   if (player) {
     // WASD
-    const kb = new THREE.Vector3(
+    const kb = kbVec.set(
       (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0), 0,
       (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0));
-    if (kb.lengthSq() > 0 && !busy) { walkTarget = null; pendingStation = null; kb.normalize(); playerPos.addScaledVector(kb, dt * 6.5); clampPos(); faceDir(kb); bob(t, true); }
+    if (kb.lengthSq() > 0 && !busy) { walkTarget = null; pendingStation = null; kb.normalize(); playerPos.addScaledVector(kb, dt * MOVE_SPEED); clampPos(); faceDir(kb); bob(t, true); }
     else if (walkTarget) {
-      const to = walkTarget.clone().sub(playerPos); to.y = 0;
+      const to = walkVec.copy(walkTarget).sub(playerPos); to.y = 0;
       const dist = to.length();
       if (dist < 0.25) {
         walkTarget = null; bob(t, false);
         if (pendingStation !== null) { const id = pendingStation; pendingStation = null; hideHint(); startStation(id); }
-      } else { to.normalize(); playerPos.addScaledVector(to, dt * 6.5); faceDir(to); bob(t, true); }
+      } else { to.normalize(); playerPos.addScaledVector(to, dt * MOVE_SPEED); faceDir(to); bob(t, true); }
     } else bob(t, false);
     player.position.copy(playerPos);
     // buttery follow (Gitlantis-style): frame-rate-independent damping + velocity look-ahead
