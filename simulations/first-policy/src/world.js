@@ -146,7 +146,7 @@ export function buildWorld(scene, content, characters = null, furniture = null) 
   const sun = new THREE.DirectionalLight(0xfff2df, 1.5);
   sun.position.set(12, 22, 10);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(1024, 1024); // the map re-renders every frame; 2048 cost ~2x the frame's render work in profiling for no visible gain at this camera distance
   sun.shadow.camera.left = -34; sun.shadow.camera.right = 34;
   sun.shadow.camera.top = 30; sun.shadow.camera.bottom = -30;
   sun.shadow.camera.far = 70; sun.shadow.bias = -0.0004; sun.shadow.radius = 2;
@@ -302,7 +302,16 @@ export function buildWorld(scene, content, characters = null, furniture = null) 
       });
     }
   }
-  function updateCharacters(dt) { for (const c of charInstances) c.update(dt); }
+  // NPC mixers step at half rate (every other frame, dt accumulated): nine
+  // idle rigs do not need 60 Hz bone updates, and this halves their CPU cost.
+  // The player's own mixer stays full-rate in main.js.
+  let npcAcc = 0, npcHalf = false;
+  function updateCharacters(dt) {
+    npcAcc += dt; npcHalf = !npcHalf;
+    if (npcHalf) return;
+    const step = npcAcc; npcAcc = 0;
+    for (const c of charInstances) c.update(step);
+  }
   function npcReact(stationId) { const arr = npcChars[stationId]; if (arr && arr[0]) arr[0].react(); }
 
   // interaction rings at station stands
