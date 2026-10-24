@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pharmacy Journey Sim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/journey.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%2300A651'/><path d='M6 3h4v3h3v4H10v3H6V10H3V6h3z' fill='white'/></svg>">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e8ece9;
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+  #scene { display: block; width: 100%; height: 100%; }
+  #bar { position: fixed; top: 0; left: 0; right: 0; display: flex; gap: 10px;
+    align-items: center; padding: 10px 14px; pointer-events: none; z-index: 5; }
+  #title { background: rgba(16,24,20,.82); color: #eaf5ee; border-radius: 10px;
+    padding: 8px 14px; font-size: 14px; line-height: 1.35; pointer-events: auto; }
+  #title b { color: #35d07f; }
+  #title span { display: block; font-size: 11px; color: #a9bcb0; }
+  #views { margin-left: auto; display: flex; gap: 6px; pointer-events: auto; flex-wrap: wrap; }
+  #views button { border: 1px solid rgba(16,24,20,.25); background: rgba(255,255,255,.92);
+    color: #20302a; border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer; }
+  #views button:hover { background: #fff; }
+  #views button.active { background: #00a651; border-color: #00a651; color: #fff; font-weight: 600; }
+  #hint { position: fixed; left: 14px; bottom: 12px; z-index: 5; font-size: 12px;
+    color: #40534a; background: rgba(255,255,255,.75); padding: 5px 10px; border-radius: 8px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three.module.min.js",
+  "three/addons/": "./vendor/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="bar">
+  <div id="title"><b>Pharmacy Journey Sim</b>
+    <span>Pick a scenario and live the full pharmacy journey: checks, dispensing, counselling, billing.</span></div>
+  <nav id="views">
+    <button data-view="entrance" class="active">Entrance</button>
+    <button data-view="dispensing">Dispensing Counter</button>
+    <button data-view="aisle">OTC Aisle</button>
+    <button data-view="consult">Consultation Corner</button>
+    <button data-view="topdown">Top Down</button>
+    <button id="langbtn" title="Switch language">اردو</button>
+  </nav>
+</div>
+<div id="hint">The journey drives the camera. Sit back and choose.</div>
+<div id="journey-ui">
+  <div id="fade"></div>
+  <div id="hud">
+    <div id="hud-station">Station 0 of 8</div>
+    <div id="hud-row"><span id="hud-timer">00:00</span><span id="hud-conf">Confidence 100%</span></div>
+    <div id="hud-dots"></div>
+  </div>
+  <aside id="jpanel"></aside>
+</div>
+<script src="./vendor/gsap.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
