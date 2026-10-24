@@ -28,103 +28,103 @@ const STATION_NAMES = {
     7: 'Billing counter', 8: 'Exit & report',
   },
   ur: {
-    0: 'داخلہ', 1: 'استقبالیہ کاؤنٹر', 2: 'دوا کی درخواست', 3: 'نسخہ اور جانچ',
-    4: 'ڈسپنسری', 5: 'لیبل اور حتمی جانچ', 6: 'مشاورتی کونا',
-    7: 'بلنگ کاؤنٹر', 8: 'رپورٹ',
+    0: 'داخلہ', 1: 'استقبال کاؤنٹر', 2: 'دوا مانگنا', 3: 'نسخہ اور چیک',
+    4: 'ڈسپنسری', 5: 'لیبل اور آخری چیک', 6: 'مشورے کا کونا',
+    7: 'بل کاؤنٹر', 8: 'رپورٹ',
   },
 };
 const stationName = n => STATION_NAMES[LANG][n] ?? STATION_NAMES.en[n];
 const STRINGS = {
   whoAyesha: { en: 'Ayesha · Pharmacist', ur: 'عائشہ · فارماسسٹ' },
   whoYou: { en: 'You', ur: 'آپ' },
-  continueBtn: { en: 'Continue', ur: 'جاری رکھیں' },
-  learningMoment: { en: 'Learning moment', ur: 'سیکھنے کا نکتہ' },
-  refusalBanner: { en: 'Prescription-only medicine, not supplied without a prescription', ur: 'صرف نسخے والی دوا، نسخے کے بغیر نہیں دی جا سکتی' },
+  continueBtn: { en: 'Continue', ur: 'آگے چلیں' },
+  learningMoment: { en: 'Learning moment', ur: 'سیکھنے کی بات' },
+  refusalBanner: { en: 'Prescription-only medicine, not supplied without a prescription', ur: 'نسخے والی دوا، بغیر نسخے نہیں مل سکتی' },
   yourRequest: { en: 'Your request', ur: 'آپ کی درخواست' },
-  directionsLabel: { en: 'Directions', ur: 'ہدایات' },
+  directionsLabel: { en: 'Directions', ur: 'طریقہ' },
   priceLabel: { en: 'Price', ur: 'قیمت' },
   askAyesha: { en: 'Ask Ayesha', ur: 'عائشہ سے پوچھیں' },
-  rxCardTag: { en: 'Prescription, check it with Ayesha', ur: 'نسخہ، عائشہ کے ساتھ جانچیں' },
+  rxCardTag: { en: 'Prescription, check it with Ayesha', ur: 'نسخہ، عائشہ کو دکھا کر چیک کریں' },
   rxPatient: { en: 'Patient', ur: 'مریض' },
   rxMedicine: { en: 'Medicine', ur: 'دوا' },
-  rxDose: { en: 'Dose', ur: 'خوراک' },
-  rxPrescriber: { en: 'Prescriber', ur: 'تجویز کرنے والا ڈاکٹر' },
+  rxDose: { en: 'Dose', ur: 'ڈوز' },
+  rxPrescriber: { en: 'Prescriber', ur: 'ڈاکٹر' },
   rxDate: { en: 'Date', ur: 'تاریخ' },
-  rxValid: { en: 'All five present and clear, a valid prescription', ur: 'پانچوں چیزیں موجود اور واضح ہیں، یہ درست نسخہ ہے' },
+  rxValid: { en: 'All five present and clear, a valid prescription', ur: 'پانچوں باتیں پوری اور صاف ہیں، نسخہ ٹھیک ہے' },
   rxHand: { en: 'Hand it to Ayesha', ur: 'عائشہ کو دیں' },
-  followAyesha: { en: 'Follow Ayesha', ur: 'عائشہ کے پیچھے جائیں' },
-  pickBoxTitle: { en: 'Pick the box', ur: 'ڈبہ منتخب کریں' },
-  pickBoxBody: { en: 'Two boxes sit side by side. A good pharmacist checks the expiry date on every single pick, assembly is dispensing stage three. Which box do you take?', ur: 'دو ڈبے ساتھ ساتھ رکھے ہیں۔ اچھا فارماسسٹ ہر بار ڈبہ اٹھاتے وقت اس کی آخری تاریخ جانچتا ہے، یہ دوا سازی کا تیسرا مرحلہ ہے۔ آپ کون سا ڈبہ لیں گے؟' },
+  tryBay: { en: 'Try another bay', ur: 'دوسرا خانہ چنیں' },
+  pickBoxTitle: { en: 'Pick the box', ur: 'ڈبہ چنیں' },
+  pickBoxBody: { en: 'Two boxes sit side by side. A good pharmacist checks the expiry date on every single pick, assembly is dispensing stage three. Which box do you take?', ur: 'دو ڈبے ساتھ ساتھ ہیں۔ اچھا فارماسسٹ ہر ڈبہ اٹھاتے وقت اس کی آخری تاریخ چیک کرتا ہے۔ یہ دوا نکالنے کا تیسرا قدم ہے۔ آپ کون سا ڈبہ لیں گے؟' },
   expiresWord: { en: 'expires', ur: 'آخری تاریخ' },
-  pickedLine: { en: 'Box picked. Now I label it for you, and then I check it again against the prescription before it goes anywhere near a bag.', ur: 'ڈبہ لے لیا گیا۔ اب میں اس پر آپ کے نام کا لیبل لگاتی ہوں، اور پھر اسے تھیلے کے قریب جانے سے پہلے نسخے کے ساتھ دوبارہ جانچتی ہوں۔' },
-  toLabelling: { en: 'To labelling', ur: 'لیبل کی طرف' },
-  labelTag: { en: 'Dispensing label, printing…', ur: 'دوا کا لیبل، چھپ رہا ہے…' },
-  labelFoot: { en: 'Lab Pharmacy · Dispensed 21 October 2026 · Keep out of reach of children', ur: 'Lab Pharmacy · 21 اکتوبر 2026 کو دی گئی · بچوں کی پہنچ سے دور رکھیں' },
-  labelExplain: { en: "A label always carries: patient name, medicine and strength, directions, dispensing date and the pharmacy's name.", ur: 'لیبل پر ہمیشہ ہوتا ہے: مریض کا نام، دوا اور اس کی طاقت، ہدایات، دینے کی تاریخ اور فارمیسی کا نام۔' },
-  watchCheck: { en: 'Watch the final check', ur: 'حتمی جانچ دیکھیں' },
+  pickedLine: { en: 'Box picked. Now I label it for you, and then I check it again against the prescription before it goes anywhere near a bag.', ur: 'ڈبہ لے لیا۔ اب میں اس پر آپ کے نام کا لیبل لگاتی ہوں، پھر تھیلے میں ڈالنے سے پہلے اسے نسخے سے دوبارہ ملا کر دیکھتی ہوں۔' },
+  toLabelling: { en: 'To labelling', ur: 'لیبل لگائیں' },
+  labelTag: { en: 'Dispensing label, printing…', ur: 'دوا کا لیبل چھپ رہا ہے…' },
+  labelFoot: { en: 'Lab Pharmacy · Dispensed 21 October 2026 · Keep out of reach of children', ur: 'Lab Pharmacy · 21 اکتوبر 2026 کو دی گئی · بچوں سے دور رکھیں' },
+  labelExplain: { en: "A label always carries: patient name, medicine and strength, directions, dispensing date and the pharmacy's name.", ur: 'لیبل پر ہمیشہ یہ ہوتا ہے: مریض کا نام، دوا اور اس کی طاقت، استعمال کا طریقہ، دینے کی تاریخ اور فارمیسی کا نام۔' },
+  watchCheck: { en: 'Watch the final check', ur: 'آخری چیک دیکھیں' },
   fcMedicine: { en: 'Medicine & strength', ur: 'دوا اور طاقت' },
   fcQuantity: { en: 'Quantity', ur: 'مقدار' },
   fcLabelName: { en: 'Label name', ur: 'لیبل پر نام' },
   fcExpiry: { en: 'Expiry date', ur: 'آخری تاریخ' },
-  expiredLesson: { en: 'The final check caught an expired box before it reached you. Expiry is checked twice on purpose: once at picking, once here, this is why.', ur: 'حتمی جانچ نے مدت ختم ڈبہ آپ تک پہنچنے سے پہلے پکڑ لیا۔ آخری تاریخ جان بوجھ کر دو بار جانچی جاتی ہے: ایک بار اٹھاتے وقت، ایک بار یہاں، یہی وجہ ہے۔' },
-  expiredLine: { en: 'Stop, this box is past its expiry date. Good thing the final check exists: it never leaves this counter. I am replacing it with an in-date box.', ur: 'رکیں، اس ڈبے کی آخری تاریخ گزر چکی ہے۔ اچھا ہے کہ حتمی جانچ موجود ہے: یہ اس کاؤنٹر سے آگے کبھی نہیں جاتا۔ میں اسے مدت کے اندر والے ڈبے سے بدل رہی ہوں۔' },
-  checkedLine: { en: 'Every item checks out. This is the last gate before the medicine is bagged, it happens for every supply, every time.', ur: 'ہر چیز درست ہے۔ یہ دوا تھیلے میں جانے سے پہلے آخری دروازہ ہے، یہ ہر فراہمی پر، ہر بار ہوتا ہے۔' },
-  toCounselling: { en: 'Continue to counselling', ur: 'مشاورت کی طرف جاری رکھیں' },
-  checkQTag: { en: "Ayesha's check question", ur: 'عائشہ کا جانچ سوال' },
-  toBilling: { en: 'Continue to billing', ur: 'بلنگ کی طرف جاری رکھیں' },
-  billTag: { en: 'Billing counter, your bill', ur: 'بلنگ کاؤنٹر، آپ کا بل' },
-  billNoteC: { en: 'The amoxicillin was not supplied. This bill is only for the alternative Ayesha suggested.', ur: 'Amoxicillin نہیں دی گئی۔ یہ بل صرف اس متبادل کے لیے ہے جو عائشہ نے تجویز کیا تھا۔' },
-  payQ: { en: 'Your medicine is in the paper bag. How would you like to pay?', ur: 'آپ کی دوا کاغذی تھیلے میں ہے۔ آپ ادائیگی کیسے کرنا چاہیں گے؟' },
-  payCard: { en: 'Pay by card', ur: 'کارڈ سے ادائیگی' },
-  payCash: { en: 'Pay by cash', ur: 'نقد ادائیگی' },
+  expiredLesson: { en: 'The final check caught an expired box before it reached you. Expiry is checked twice on purpose: once at picking, once here, this is why.', ur: 'آخری چیک نے ایکسپائر ڈبہ آپ تک پہنچنے سے پہلے پکڑ لیا۔ آخری تاریخ جان بوجھ کر دو بار چیک ہوتی ہے: ایک بار اٹھاتے وقت، ایک بار یہاں۔' },
+  expiredLine: { en: 'Stop, this box is past its expiry date. Good thing the final check exists: it never leaves this counter. I am replacing it with an in-date box.', ur: 'رکیں، اس ڈبے کی آخری تاریخ گزر چکی ہے۔ اچھا ہے کہ آخری چیک ہے: یہ اس کاؤنٹر سے آگے نہیں جائے گا۔ میں اسے ٹھیک تاریخ والے ڈبے سے بدل رہی ہوں۔' },
+  checkedLine: { en: 'Every item checks out. This is the last gate before the medicine is bagged, it happens for every supply, every time.', ur: 'سب کچھ ٹھیک ہے۔ یہ دوا تھیلے میں جانے سے پہلے آخری چیک ہے، اور یہ ہر بار ہوتا ہے۔' },
+  toCounselling: { en: 'Continue to counselling', ur: 'مشورے کی طرف چلیں' },
+  checkQTag: { en: "Ayesha's check question", ur: 'عائشہ کا سوال' },
+  toBilling: { en: 'Continue to billing', ur: 'بل کی طرف چلیں' },
+  billTag: { en: 'Billing counter, your bill', ur: 'بل کاؤنٹر، آپ کا بل' },
+  billNoteC: { en: 'The amoxicillin was not supplied. This bill is only for the alternative Ayesha suggested.', ur: 'Amoxicillin نہیں دی گئی۔ یہ بل صرف اس دوا کا ہے جو عائشہ نے بتائی تھی۔' },
+  payQ: { en: 'Your medicine is in the paper bag. How would you like to pay?', ur: 'آپ کی دوا کاغذ کے تھیلے میں ہے۔ آپ پیسے کیسے دیں گے؟' },
+  payCard: { en: 'Pay by card', ur: 'کارڈ سے پیسے دیں' },
+  payCash: { en: 'Pay by cash', ur: 'نقد پیسے دیں' },
   receiptTag: { en: 'Receipt', ur: 'رسید' },
-  paidByLabel: { en: 'Paid by', ur: 'ادائیگی' },
+  paidByLabel: { en: 'Paid by', ur: 'پیسے کیسے دیے' },
   cardWord: { en: 'Card', ur: 'کارڈ' },
   cashWord: { en: 'Cash', ur: 'نقد' },
   pharmacyLabel: { en: 'Pharmacy', ur: 'فارمیسی' },
-  receiptNote: { en: 'Receipt printed and tucked into the bag with your medicine. Keep it, it records what was supplied and when.', ur: 'رسید چھپ کر آپ کی دوا کے ساتھ تھیلے میں رکھ دی گئی ہے۔ اسے سنبھال کر رکھیں، اس میں درج ہے کہ کیا دیا گیا اور کب۔' },
-  leaveBtn: { en: 'Leave the pharmacy', ur: 'فارمیسی سے باہر جائیں' },
+  receiptNote: { en: 'Receipt printed and tucked into the bag with your medicine. Keep it, it records what was supplied and when.', ur: 'رسید چھپ کر آپ کی دوا کے ساتھ تھیلے میں رکھ دی گئی ہے۔ اسے سنبھال کر رکھیں، اس پر لکھا ہے کہ کیا دیا گیا اور کب۔' },
+  leaveBtn: { en: 'Leave the pharmacy', ur: 'فارمیسی سے جائیں' },
   reportTag: { en: 'Journey report', ur: 'سفر کی رپورٹ' },
-  repTime: { en: 'Time taken', ur: 'لگا وقت' },
+  repTime: { en: 'Time taken', ur: 'لگا ہوا وقت' },
   repStations: { en: 'Stations visited', ur: 'دیکھے گئے اسٹیشن' },
   repConfidence: { en: 'Confidence', ur: 'اعتماد' },
-  repLearning: { en: 'Learning moments', ur: 'سیکھنے کے نکات' },
-  refusalNote: { en: 'You asked for a prescription-only medicine without a prescription. It was not supplied, that is the rule working exactly as designed, and you left with a plan instead.', ur: 'آپ نے نسخے کے بغیر صرف نسخے والی دوا مانگی۔ وہ نہیں دی گئی، یہی اصول کا درست کام ہے، اور آپ اس کے بجائے ایک منصوبہ لے کر گئے۔' },
-  cleanNote: { en: 'A clean run, every check done the right way. Well played.', ur: 'ایک صاف دوڑ، ہر جانچ درست طریقے سے ہوئی۔ خوب کھیلا۔' },
+  repLearning: { en: 'Learning moments', ur: 'سیکھنے کی باتیں' },
+  refusalNote: { en: 'You asked for a prescription-only medicine without a prescription. It was not supplied, that is the rule working exactly as designed, and you left with a plan instead.', ur: 'آپ نے بغیر نسخے کے نسخے والی دوا مانگی۔ وہ نہیں دی گئی، یہی اصول کا صحیح کام ہے، اور آپ اس کے بدلے ایک منصوبہ لے کر گئے۔' },
+  cleanNote: { en: 'A clean run, every check done the right way. Well played.', ur: 'صاف کھیل، ہر چیک صحیح طریقے سے ہوا۔ شاباش۔' },
   lessonsTitle: { en: 'What the journey taught', ur: 'اس سفر نے کیا سکھایا' },
   playAnother: { en: 'Play another scenario', ur: 'ایک اور منظر کھیلیں' },
-  backToStart: { en: 'Back to start', ur: 'شروع پر واپس' },
-  goalLine: { en: "Today's goal: get your medicine the right way, checked, labelled, explained and billed properly.", ur: 'آج کا ہدف: اپنی دوا درست طریقے سے حاصل کریں، جانچی ہوئی، لیبل لگی ہوئی، سمجھائی ہوئی اور درست بل کے ساتھ۔' },
+  backToStart: { en: 'Back to start', ur: 'شروع میں واپس' },
+  goalLine: { en: "Today's goal: get your medicine the right way, checked, labelled, explained and billed properly.", ur: 'آج کا ہدف: اپنی دوا صحیح طریقے سے لیں، چیک ہوئی ہوئی، لیبل لگی ہوئی، سمجھائی ہوئی اور صحیح بل کے ساتھ۔' },
   walkIn: { en: 'Walk in', ur: 'اندر چلیں' },
-  introTitle: { en: 'One visit, done properly.', ur: 'ایک آمد، درست طریقے سے۔' },
-  introBody: { en: 'Step into a working pharmacy as a customer. Ask for your medicine, live the checks a good pharmacist runs, prescription, expiry, labelling, counselling, and leave with a journey report.', ur: 'ایک گاہک بن کر چلتی ہوئی فارمیسی میں قدم رکھیں۔ اپنی دوا مانگیں، وہ جانچیں خود محسوس کریں جو ایک اچھا فارماسسٹ کرتا ہے، نسخہ، آخری تاریخ، لیبل، مشاورت، اور سفر کی رپورٹ لے کر جائیں۔' },
+  introTitle: { en: 'One visit, done properly.', ur: 'ایک آمد، صحیح طریقے سے۔' },
+  introBody: { en: 'Step into a working pharmacy as a customer. Ask for your medicine, live the checks a good pharmacist runs, prescription, expiry, labelling, counselling, and leave with a journey report.', ur: 'گاہک بن کر چلتی ہوئی فارمیسی میں آئیں۔ اپنی دوا مانگیں، وہ چیک خود دیکھیں جو ایک اچھا فارماسسٹ کرتا ہے: نسخہ، آخری تاریخ، لیبل، مشورہ، اور سفر کی رپورٹ لے کر جائیں۔' },
   nameLabel: { en: 'Your name (it goes on your medicine label)', ur: 'آپ کا نام (یہ آپ کی دوا کے لیبل پر لکھا جائے گا)' },
-  chooseVisit: { en: 'Choose your visit', ur: 'اپنی آمد منتخب کریں' },
+  chooseVisit: { en: 'Choose your visit', ur: 'اپنی آمد چنیں' },
   pickerTitle: { en: 'What brings you to the pharmacy?', ur: 'آپ فارمیسی کیوں آئے ہیں؟' },
-  pickerFine: { en: 'Three visits, one pharmacy: an over-the-counter request, a prescription to dispense, and a request the pharmacist must refuse, kindly, and with a plan.', ur: 'تین آمدیں، ایک فارمیسی: بغیر نسخے والی درخواست، دینے کے لیے ایک نسخہ، اور ایک درخواست جو فارماسسٹ کو مہربانی سے، اور ایک منصوبے کے ساتھ، رد کرنی ہے۔' },
+  pickerFine: { en: 'Three visits, one pharmacy: an over-the-counter request, a prescription to dispense, and a request the pharmacist must refuse, kindly, and with a plan.', ur: 'تین آمدیں، ایک فارمیسی: بغیر نسخے والی دوا، دینے کے لیے ایک نسخہ، اور ایک مانگ جو فارماسسٹ کو نرمی سے اور ایک منصوبے کے ساتھ منع کرنی ہے۔' },
 };
 const T = k => STRINGS[k][LANG] ?? STRINGS[k].en;
 // formatted strings that carry scenario data
 const F = {
-  hudStation: n => LANG === 'ur' ? `اسٹیشن ${n} از 8 · ${stationName(n)}` : `Station ${n} of 8 · ${stationName(n)}`,
+  hudStation: n => LANG === 'ur' ? `اسٹیشن ${n} / 8 · ${stationName(n)}` : `Station ${n} of 8 · ${stationName(n)}`,
   hudConf: v => LANG === 'ur' ? `اعتماد ${v}%` : `Confidence ${v}%`,
   rackIntro: g => LANG === 'ur'
-    ? `آپ کی ${g} میرے پیچھے ڈسپنسری ریکس میں ہے۔ میرے ساتھ آئیں، ریکس خانوں میں منظم ہیں۔ ${g} کس خانے میں ہے؟`
-    : `Your ${g} is in the dispensary racks behind me. Come with me, the racks are organised in bays. Which bay holds ${g}?`,
+    ? `آپ کی ${g} ڈسپنسری کے ریکس میں ہے۔ ریکس خانوں میں بٹے ہیں۔ ${g} کس خانے میں ہے؟`
+    : `Your ${g} is in the dispensary racks. The racks are organised in bays. Which bay holds ${g}?`,
   bayBtn: b => LANG === 'ur' ? `خانہ ${b}` : `Bay ${b}`,
   rackWrong: b => LANG === 'ur'
-    ? `یہ خانہ نہیں، یہ دوسری دوائیں ہیں۔ ہمارا خانہ ${b} ہے؛ میرے پیچھے آئیں۔`
-    : `Not this bay, these are different medicines. Ours is Bay ${b}; follow me.`,
+    ? `یہ خانہ نہیں، یہ دوسری دوائیں ہیں۔ ہمارا خانہ ${b} ہے۔`
+    : `Not this bay, these are different medicines. Ours is Bay ${b}.`,
   bayLesson: (g, b) => LANG === 'ur'
-    ? `${g} خانہ ${b} میں ہے۔ ریکس کے خانے اس طرح منظم ہوتے ہیں کہ درست دوا پہلی بار میں مل جائے، غلط خانے میں تلاش مریض کا وقت ضائع کرتی ہے۔`
+    ? `${g} خانہ ${b} میں ہے۔ خانے اس لیے بنے ہیں کہ صحیح دوا پہلی بار میں مل جائے۔ غلط خانے میں ڈھونڈنے سے مریض کا وقت ضائع ہوتا ہے۔`
     : `${g} lives in Bay ${b}. Rack bays are organised so the right medicine is found first time, hunting the wrong bay wastes the patient's wait.`,
   finalTag: rx => LANG === 'ur'
-    ? `حتمی جانچ، ڈبہ بمقابلہ ${rx ? 'نسخہ' : 'درخواست'}، ایک ایک چیز`
+    ? `آخری چیک، ڈبہ اور ${rx ? 'نسخہ' : 'مانگ'}، ایک ایک چیز`
     : `Final check, box against ${rx ? 'prescription' : 'request'}, item by item`,
-  fcMatches: rx => LANG === 'ur' ? `${rx ? 'نسخے' : 'درخواست'} کے مطابق ہے` : `matches ${rx ? 'the prescription' : 'the request'}`,
-  fcExpiredVal: e => LANG === 'ur' ? `${e}، مدت ختم` : `${e}, EXPIRED`,
-  fcInDateVal: e => LANG === 'ur' ? `${e}، مدت کے اندر` : `${e}, in date`,
-  scenNeeds: (sub, g) => LANG === 'ur' ? `${sub} · درکار: ${g}` : `${sub} · needs ${g}`,
+  fcMatches: rx => LANG === 'ur' ? `${rx ? 'نسخے' : 'مانگ'} سے ملتا ہے` : `matches ${rx ? 'the prescription' : 'the request'}`,
+  fcExpiredVal: e => LANG === 'ur' ? `${e}، ایکسپائر` : `${e}, EXPIRED`,
+  fcInDateVal: e => LANG === 'ur' ? `${e}، تاریخ کے اندر` : `${e}, in date`,
+  scenNeeds: (sub, g) => LANG === 'ur' ? `${sub} · چاہیے: ${g}` : `${sub} · needs ${g}`,
   scenTop: id => LANG === 'ur' ? `منظر ${id}` : `Scenario ${id}`,
 };
 
@@ -201,9 +201,11 @@ export function initJourney(world) {
   };
   async function stageFor(station) {
     if (station <= 3 || station === 5) { POSTS.playerHome(); POSTS.ayeshaHome(); }
+    // Station 4 story rule: the customer NEVER enters the dispensary.
+    // They wait at the counter while Ayesha fetches alone; only she crosses
+    // the counter line. playRack drives the full fetch-and-return sequence.
     if (station === 4) {
-      await travel('player', -1.5, -4.15, Math.PI);
-      place('ayesha', -2.45, -4.3, Math.PI);
+      await travel('ayesha', -2.45, -4.3, Math.PI);
     }
     if (station === 6) {
       await travel('player', 6.6, -4.9, -0.9);
@@ -251,45 +253,182 @@ export function initJourney(world) {
 
   // ------------------------------------------------------------ panel kit
   function showPanel(html) { panel.innerHTML = html; panel.classList.add('open'); }
-  // draw(build): render now, and remember how to re-render this exact step
-  // (the language toggle calls S.rerender so the step survives a switch).
-  function draw(build) { S.rerender = () => showPanel(build()); showPanel(build()); }
+  // draw(build): render a CARD now, and remember how to re-render this
+  // exact step (the language toggle calls S.rerender so the step survives
+  // a switch). Cards hide the bubble UI: only one voice is on screen.
+  function draw(build) { hideBubbleUI(); S.rerender = () => showPanel(build()); showPanel(build()); }
   function bubble(speaker, text) {
     return `<div class="bubble ${speaker === 'ayesha' ? 'pharm' : 'you'}">
       <div class="who">${speaker === 'ayesha' ? T('whoAyesha') : T('whoYou')}</div>
       <div class="txt">${esc(text)}</div></div>`;
   }
-  function linesHtml(lines) { return lines.map(l => bubble(l.speaker, tx(l))).join(''); }
-  // Panel clicks are delegated: one listener routes the click to whichever
-  // step is currently awaiting one, so re-rendering (language toggle) can
-  // never orphan a pending choice.
+  // Clicks are delegated on #journey-ui (panel cards AND the speech-bubble
+  // choice bar): one listener routes the click to whichever step is
+  // currently awaiting one, so re-rendering (language toggle) can never
+  // orphan a pending choice.
   let clickWaiter = null;
-  panel.addEventListener('click', e => {
+  el('journey-ui').addEventListener('click', e => {
     const b = e.target.closest('button[data-i]');
     if (!b || !clickWaiter) return;
     const { sel, res } = clickWaiter; clickWaiter = null;
-    panel.querySelectorAll(sel).forEach(x => x.disabled = true);
+    document.querySelectorAll('#journey-ui ' + sel).forEach(x => x.disabled = true);
     res(b.dataset.i);
   });
   function awaitClick(selector) {
     return new Promise(res => { clickWaiter = { sel: selector, res }; });
   }
 
+  // ------------------------------------------------------------ speech bubbles
+  // Dialogue no longer lives in the side panel: the speaking character gets
+  // a bubble anchored above their head, typed out character by character,
+  // held for reading, then replaced by the next line. Choices and Continue
+  // live in a bottom choice bar. Cards (medicine, prescription, labelling,
+  // billing, report, intro, picker) stay in the panel: they are documents,
+  // not speech.
+  const bubblesEl = el('bubbles'), choicebar = el('choicebar');
+  const _pv = new THREE.Vector3();
+  let bubbleToken = 0, bubbleDiv = null, bubbleCurrent = null, choiceItems = null;
+  function headWorld(key) {
+    const m = cast.members[key];
+    const head = m && m.bones && m.bones.Head;
+    if (!head) return null;
+    head.getWorldPosition(_pv);
+    return { x: _pv.x, y: _pv.y + 0.34, z: _pv.z };
+  }
+  function trackBubble(div, key, token) {
+    (function frame() {
+      if (token !== bubbleToken || !div.isConnected) return;
+      const hw = headWorld(key);
+      if (hw) {
+        _pv.set(hw.x, hw.y, hw.z).project(world.camera);
+        if (_pv.z <= 1) {
+          const sx = (_pv.x * 0.5 + 0.5) * innerWidth;
+          const sy = (-_pv.y * 0.5 + 0.5) * innerHeight;
+          const w = div.offsetWidth, h = div.offsetHeight;
+          const x = Math.min(Math.max(sx, w / 2 + 8), innerWidth - w / 2 - 8);
+          let y = sy - 14, below = false;
+          if (y - h < 70) { y = sy + 14; below = true; }
+          div.style.left = x + 'px';
+          div.style.top = y + 'px';
+          div.classList.toggle('below', below);
+        }
+      }
+      requestAnimationFrame(frame);
+    })();
+  }
+  function showBubble(key, speaker, getText) {
+    bubbleToken++;
+    const token = bubbleToken;
+    bubbleCurrent = { key, speaker, getText };
+    if (bubbleDiv) bubbleDiv.remove();
+    const div = document.createElement('div');
+    div.className = 'sbubble ' + (speaker === 'ayesha' ? 'pharm' : 'you');
+    div.innerHTML = `<div class="who">${speaker === 'ayesha' ? T('whoAyesha') : T('whoYou')}</div>` +
+      `<div class="sb-txt"></div><div class="tail"></div>`;
+    bubblesEl.appendChild(div);
+    bubbleDiv = div;
+    requestAnimationFrame(() => div.classList.add('show'));
+    trackBubble(div, key, token);
+    return { div, token };
+  }
+  function hideBubble() {
+    bubbleToken++;
+    bubbleCurrent = null;
+    if (bubbleDiv) { bubbleDiv.remove(); bubbleDiv = null; }
+  }
+  function showChoicebar(items, note) {
+    choiceItems = items;
+    let html = '';
+    if (note) html += `<div class="${note.cls}">${note.title ? `<b>${note.title}</b>` : ''}${esc(note.text)}</div>`;
+    html += items.map(it =>
+      `<button class="${it.cls}" data-i="${it.i}">${esc(it.getLabel())}</button>`).join('');
+    choicebar.innerHTML = html;
+    choicebar.classList.add('open');
+  }
+  function hideChoicebar() { choiceItems = null; choicebar.classList.remove('open'); choicebar.innerHTML = ''; }
+  function hideBubbleUI() { hideBubble(); hideChoicebar(); }
+  // Language toggle during a bubble step: finish the current bubble instantly
+  // in the new language and re-label the choice bar; the in-flight line
+  // sequence continues in the new language from the next line.
+  function refreshBubbleUI() {
+    if (!bubbleCurrent) return;
+    bubbleToken++;
+    const token = bubbleToken;
+    if (bubbleDiv) {
+      bubbleDiv.querySelector('.who').textContent =
+        bubbleCurrent.speaker === 'ayesha' ? T('whoAyesha') : T('whoYou');
+      const txt = bubbleDiv.querySelector('.sb-txt');
+      txt.classList.remove('caret');
+      txt.textContent = bubbleCurrent.getText();
+      trackBubble(bubbleDiv, bubbleCurrent.key, token);
+    }
+    if (choiceItems) {
+      choicebar.querySelectorAll('button[data-i]').forEach(b => {
+        const it = choiceItems.find(x => String(x.i) === b.dataset.i && x.cls === b.className);
+        if (it) b.textContent = it.getLabel();
+      });
+    }
+  }
+  function typeCurrent(text, token) {
+    return new Promise(res => {
+      if (!bubbleDiv) { res(); return; }
+      const txtEl = bubbleDiv.querySelector('.sb-txt');
+      txtEl.classList.add('caret');
+      txtEl.textContent = '';
+      let i = 0;
+      const iv = Math.max(12, Math.min(24, Math.floor(2800 / Math.max(1, text.length))));
+      const timer = setInterval(() => {
+        if (token !== bubbleToken || !bubbleDiv) { clearInterval(timer); res(); return; }
+        i++;
+        txtEl.textContent = text.slice(0, i);
+        if (i >= text.length) {
+          clearInterval(timer);
+          txtEl.classList.remove('caret');
+          res();
+        }
+      }, iv);
+    });
+  }
+  const readHold = text => Math.min(3200, Math.max(1400, 900 + 40 * text.length));
+  // Play lines in turn: type, hold, next. The last line's bubble stays up
+  // for the choices that follow. Each line is {speaker, en, ur} or
+  // {speaker, getText}.
+  async function playLines(lines) {
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li];
+      const getText = line.getText || (() => tx(line));
+      const key = line.speaker === 'ayesha' ? 'ayesha' : 'player';
+      const { token } = showBubble(key, line.speaker, getText);
+      await typeCurrent(getText(), token);
+      if (li < lines.length - 1) {
+        await wait(readHold(getText()));
+        hideBubble();
+      }
+    }
+    S.rerender = refreshBubbleUI;
+  }
+  function closePanelForDialogue() {
+    panel.classList.remove('open');
+    S.rerender = refreshBubbleUI;
+  }
+
   async function playDialogue(beat, opts = {}) {
     setStation(beat.station);
     if (beat.id === 'greeting') world.gesture('ayesha', 'wave');
-    draw(() => `${opts.refusal ? `<div class="refusal-banner">${T('refusalBanner')}</div>` : ''}
-      <div class="beat">${linesHtml(beat.lines)}</div><div class="choices">${beat.choices.map((c, i) =>
-        `<button class="choice" data-i="${i}">${esc(tx(c))}</button>`).join('')}</div>`);
+    closePanelForDialogue();
+    await playLines(beat.lines);
+    showChoicebar(
+      beat.choices.map((c, i) => ({ getLabel: () => tx(c), cls: 'choice', i })),
+      opts.refusal ? { cls: 'refusal-note', title: '', text: T('refusalBanner') } : null);
     const pick = Number(await awaitClick('.choice'));
     const c = beat.choices[pick];
-    draw(() => {
-      let out = `<div class="beat">${linesHtml(beat.lines)}</div>` + bubble('you', tx(c)) + bubble('ayesha', tx(c.response));
-      if (!c.ok) out += `<div class="lesson"><b>${T('learningMoment')}</b>${esc(tx(c.lesson))}</div>`;
-      return out + `<button class="primary" data-i="0">${T('continueBtn')}</button>`;
-    });
+    hideChoicebar();
+    await playLines([{ speaker: 'you', en: c.en, ur: c.ur }, { speaker: 'ayesha', en: c.response.en, ur: c.response.ur }]);
     if (!c.ok) penalize('choice', tx(c.lesson), stationName(beat.station));
+    showChoicebar([{ getLabel: () => T('continueBtn'), cls: 'primary', i: 0 }],
+      !c.ok ? { cls: 'lesson-note', title: T('learningMoment'), text: tx(c.lesson) } : null);
     await awaitClick('.primary');
+    hideBubbleUI();
   }
 
   // ------------------------------------------------------------ cards
@@ -323,24 +462,31 @@ export function initJourney(world) {
   // ------------------------------------------------------------ dispensary
   async function playRack(sc) {
     setStation(4);
-    await stageFor(4);
+    // The customer waits at the counter; Ayesha goes into the dispensary
+    // alone. The camera watches her at the racks, never the customer.
+    await travel('ayesha', -2.45, -4.3, Math.PI);
+    world.goView('racks');
     const m = sc.medicine;
     let bayOk = false;
     while (!bayOk) {
-      draw(() => `<div class="beat">${bubble('ayesha', F.rackIntro(tx(m.generic)))}
-        </div><div class="choices">
-        ${['A', 'B', 'C'].map((b, i) => `<button class="choice" data-i="${i}">${F.bayBtn(b)}</button>`).join('')}
-        </div>`);
+      closePanelForDialogue();
+      await playLines([{ speaker: 'ayesha', getText: () => F.rackIntro(tx(m.generic)) }]);
+      showChoicebar(['A', 'B', 'C'].map((b, i) => ({ getLabel: () => F.bayBtn(b), cls: 'choice', i })));
       const pick = ['A', 'B', 'C'][Number(await awaitClick('.choice'))];
+      hideChoicebar();
       if (pick === m.bay) { bayOk = true; }
       else {
         penalize('bay', F.bayLesson(tx(m.generic), m.bay), stationName(4));
-        draw(() => `<div class="beat">${bubble('ayesha', F.rackWrong(m.bay))}</div>
-          <button class="primary" data-i="0">${T('followAyesha')}</button>`);
+        await playLines([{ speaker: 'ayesha', getText: () => F.rackWrong(m.bay) }]);
+        showChoicebar([{ getLabel: () => T('tryBay'), cls: 'primary', i: 0 }]);
         await awaitClick('.primary');
+        hideBubbleUI();
       }
     }
-    world.goView('racksClose');
+    // Ayesha returns behind the counter with the boxes; the pick happens
+    // across the counter, in front of the waiting customer.
+    await travel('ayesha', -1.5, -3.75, 0);
+    world.goView('counter');
     draw(() => `<div class="card">
       <div class="card-tag">${F.bayBtn(m.bay)} · ${esc(tx(m.generic))} ${esc(tx(m.strength))}</div>
       <h3>${T('pickBoxTitle')}</h3>
@@ -352,11 +498,13 @@ export function initJourney(world) {
     const boxPick = Number(await awaitClick('.choice'));
     S.expiredPicked = boxPick === 1;
     props.createJourneyBox(m);
-    props.journeyBox.position.set(-1.5, 1.02, -4.55);
+    props.journeyBox.position.set(-1.5, 1.145, -3.0);
     props.journeyBox.visible = true;
-    draw(() => `<div class="beat">${bubble('ayesha', T('pickedLine'))}</div>
-      <button class="primary" data-i="0">${T('toLabelling')}</button>`);
+    closePanelForDialogue();
+    await playLines([{ speaker: 'ayesha', getText: () => T('pickedLine') }]);
+    showChoicebar([{ getLabel: () => T('toLabelling'), cls: 'primary', i: 0 }]);
     await awaitClick('.primary');
+    hideBubbleUI();
   }
 
   // ------------------------------------------------------------ labelling + final check
@@ -411,20 +559,19 @@ export function initJourney(world) {
     setStation(6);
     await stageFor(6);
     const c = sc.counselling;
-    draw(() => `<div class="beat">${linesHtml(c.lines)}</div>
-      <div class="q-tag">${T('checkQTag')}</div>
-      <div class="beat">${bubble('ayesha', tx(c.question))}</div>
-      <div class="choices">${c.question.choices.map((ch, i) =>
-        `<button class="choice" data-i="${i}">${esc(tx(ch))}</button>`).join('')}</div>`);
+    closePanelForDialogue();
+    // counselling lines, then Ayesha's check question, all as speech
+    await playLines([...c.lines, { speaker: 'ayesha', en: c.question.en, ur: c.question.ur }]);
+    showChoicebar(c.question.choices.map((ch, i) => ({ getLabel: () => tx(ch), cls: 'choice', i })));
     const pick = Number(await awaitClick('.choice'));
     const ch = c.question.choices[pick];
-    draw(() => {
-      let out = `<div class="beat">${linesHtml(c.lines)}</div>` + bubble('you', tx(ch)) + bubble('ayesha', tx(ch.response));
-      if (!ch.ok) out += `<div class="lesson"><b>${T('learningMoment')}</b>${esc(tx(ch.lesson))}</div>`;
-      return out + `<button class="primary" data-i="0">${T('toBilling')}</button>`;
-    });
+    hideChoicebar();
+    await playLines([{ speaker: 'you', en: ch.en, ur: ch.ur }, { speaker: 'ayesha', en: ch.response.en, ur: ch.response.ur }]);
     if (!ch.ok) penalize('question', tx(ch.lesson), stationName(6));
+    showChoicebar([{ getLabel: () => T('toBilling'), cls: 'primary', i: 0 }],
+      !ch.ok ? { cls: 'lesson-note', title: T('learningMoment'), text: tx(ch.lesson) } : null);
     await awaitClick('.primary');
+    hideBubbleUI();
   }
 
   // ------------------------------------------------------------ billing
@@ -502,6 +649,7 @@ export function initJourney(world) {
     props.setPos([['TOTAL', 'Rs 0']]);
     POSTS.playerHome(); POSTS.ayeshaHome();
     hud.classList.remove('on');
+    hideBubbleUI();
     S.mode = 'intro';
     S.rerender = null;
   }

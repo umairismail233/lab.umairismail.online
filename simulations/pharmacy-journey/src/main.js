@@ -539,7 +539,12 @@ const VIEWS = {
   'coat-sara':    { pos: [-0.9, 1.45, -4.55], tgt: [-2.7, 1.05, -4.45] },
   'coat-daniyal': { pos: [5.6, 1.95, 4.7], tgt: [7.7, 0.95, 3.5] },
   // Phase 3 journey cameras
-  counter:        { pos: [-1.5, 1.58, 0.6], tgt: [-1.5, 1.15, -4.2] },
+  // Counter view sits east of the gondola rows (which end at x=-0.07) so
+  // the sightline to the pharmacist clears the easternmost gondola unit
+  // (sightline x=+0.77 at the gondola row) and the customer stands far
+  // left instead of hiding the speaker. A dead-behind angle hid her
+  // behind the player, which breaks the speech-bubble presentation.
+  counter:        { pos: [1.6, 1.58, 0.6], tgt: [-1.5, 1.15, -3.9] },
   counterClose:   { pos: [-0.55, 1.5, -2.35], tgt: [-1.6, 1.1, -3.9] },
   racks:          { pos: [0.9, 1.6, -2.2], tgt: [-1.7, 1.05, -4.9] },
   racksClose:     { pos: [-0.6, 1.35, -3.9], tgt: [-1.5, 1.0, -4.85] },

@@ -31,6 +31,41 @@
 #hud-dots i.done { background: var(--teal); }
 #hud-dots i.now { background: var(--green); }
 
+/* ---------------------------------------------------------- speech bubbles */
+#bubbles { position: fixed; inset: 0; z-index: 25; pointer-events: none; overflow: hidden; }
+.sbubble { position: absolute; transform: translate(-50%, -100%); max-width: 400px; min-width: 140px;
+  background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(18,33,26,.18); padding: 10px 13px;
+  font-size: 14px; line-height: 1.5; opacity: 0; transition: opacity .25s ease; }
+.sbubble.show { opacity: 1; }
+.sbubble.pharm { border-top: 3px solid var(--teal); }
+.sbubble.you { border-top: 3px solid #33609e; }
+.sbubble .who { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 3px; }
+.sbubble.pharm .who { color: var(--teal); }
+.sbubble.you .who { color: #33609e; }
+.sbubble .sb-txt { white-space: pre-wrap; overflow-wrap: break-word; }
+.sbubble .caret::after { content: '▍'; animation: caretblink 1s steps(1) infinite; color: var(--teal); }
+@keyframes caretblink { 50% { opacity: 0; } }
+.sbubble .tail { position: absolute; left: 50%; bottom: -7px; width: 14px; height: 14px; background: #fff;
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  transform: translateX(-50%) rotate(45deg); }
+.sbubble.below { transform: translate(-50%, 0); }
+.sbubble.below .tail { bottom: auto; top: -7px; border: none;
+  border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+
+/* ---------------------------------------------------------- choice bar */
+#choicebar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 32;
+  width: min(520px, calc(100vw - 28px)); display: none; flex-direction: column; gap: 8px; }
+#choicebar.open { display: flex; }
+#choicebar .choice, #choicebar .primary { margin-top: 0; box-shadow: 0 8px 28px rgba(18,33,26,.14); }
+.lesson-note { background: #fff7e8; border: 1px solid var(--amber); border-radius: 12px;
+  padding: 10px 12px; font-size: 13.5px; line-height: 1.5; color: #5c4413;
+  box-shadow: 0 8px 28px rgba(18,33,26,.14); }
+.lesson-note b { display: block; color: #9a6d0f; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 3px; }
+.refusal-note { background: #fdecea; border: 1px solid #e5a19c; color: #8c1d18; border-radius: 12px;
+  padding: 9px 12px; font-size: 13px; font-weight: 700;
+  box-shadow: 0 8px 28px rgba(18,33,26,.14); }
+
 /* ---------------------------------------------------------- panel */
 #jpanel { position: fixed; top: 64px; right: 14px; bottom: 14px; width: 408px; max-width: calc(100vw - 28px);
   z-index: 30; overflow-y: auto; background: var(--card); border: 1px solid var(--line);
@@ -172,3 +207,14 @@ body.lang-ur #jpanel .label-paper .lp-med,
 body.lang-ur #jpanel .label-paper .lp-dir,
 body.lang-ur #jpanel .label-paper .lp-foot { font-family: 'Noto Nastaliq Urdu', serif; line-height: 2; }
 body.lang-ur #hud { font-size: 14px; }
+body.lang-ur #bubbles, body.lang-ur #choicebar {
+  font-family: 'Noto Nastaliq Urdu', 'Plus Jakarta Sans', serif;
+}
+body.lang-ur .sbubble .sb-txt, body.lang-ur #choicebar .choice,
+body.lang-ur #choicebar .primary, body.lang-ur .lesson-note,
+body.lang-ur .refusal-note { line-height: 2.0; }
+body.lang-ur .sbubble .who { letter-spacing: 0; }
+@media (max-width: 760px) {
+  .sbubble { max-width: calc(100vw - 32px); font-size: 13.5px; }
+  #choicebar { bottom: 10px; }
+}
