@@ -10,8 +10,47 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+import { loadModel, pool } from './loader.js';
 
 const MODEL_REPORT_URL = './tools/qa-greybox/model-report.json';
+
+// ---------------------------------------------------------------- loading screen
+// Boot used to be 16 sequential awaits behind a blank pale-gray canvas: the
+// render loop only starts at the bottom of this module, so nothing painted
+// until every model arrived. The overlay below is static HTML, so it paints
+// before any script runs; these 19 steps drive its bar (7 boot items, the
+// donor + 8 cast members, 3 scenario files). A failed boot no longer leaves
+// a silent blank screen: the rejection surfaces as an error line.
+const LOAD_TOTAL = 19;
+let loadDone = 0, loaderHidden = false;
+function step(label) {
+  loadDone++;
+  const pct = Math.min(100, Math.round(loadDone / LOAD_TOTAL * 100));
+  const fill = document.getElementById('loadfill');
+  const pctEl = document.getElementById('loadpct');
+  const fileEl = document.getElementById('loadfile');
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (fileEl) fileEl.textContent = label;
+}
+function hideLoader() {
+  if (loaderHidden) return;
+  loaderHidden = true;
+  const el = document.getElementById('loader');
+  if (!el) return;
+  el.classList.add('done');
+  setTimeout(() => { el.style.display = 'none'; }, 500);
+}
+window.addEventListener('unhandledrejection', () => {
+  if (loaderHidden) return;
+  const err = document.getElementById('loaderr');
+  if (err) {
+    err.hidden = false;
+    err.textContent = 'Could not load the pharmacy. Check your connection and reload the page.';
+  }
+  const fileEl = document.getElementById('loadfile');
+  if (fileEl) fileEl.textContent = 'Loading failed';
+});
 
 // ---------------------------------------------------------------- renderer
 const canvas = document.getElementById('scene');
@@ -113,7 +152,20 @@ const B = (x, y) => [x, -y];
 // ---------------------------------------------------------------- load room
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder); // library GLBs are meshopt-compressed
-const room = await loader.loadAsync('./src/models/pharmacy-room.glb');
+// Boot fetches used to run one by one (room, then report, then each prop,
+// then the lamp, then the donor, then each cast member): with ~1s of server
+// response time per file, the latency stacked instead of overlapping. These
+// 7 independent items now fly together (cap 6 in flight); the setup code
+// below still runs in exactly the original order.
+const [room, report, amber, google, jarA, jarB, lamp] = await pool([
+  ['pharmacy-room.glb', () => loadModel(loader, 'src/models/pharmacy-room.glb')],
+  ['model-report.json', async () => (await fetch(MODEL_REPORT_URL)).json()],
+  ['pill-bottle-amber.glb', () => geoFromGLB('./assets/props/pill-bottle-amber.glb', 0.45)],
+  ['pill-bottle-google.glb', () => geoFromGLB('./assets/props/pill-bottle-google.glb', 1)],
+  ['kaykit-jar-set-a.glb', () => geoFromGLB('./assets/props/vendor/kaykit-jar-set-a.glb', 0.2)],
+  ['kaykit-jar-set-b.glb', () => geoFromGLB('./assets/props/vendor/kaykit-jar-set-b.glb', 0.2)],
+  ['kaykit-lamp-standing.glb', () => loadModel(loader, 'assets/props/vendor/kaykit-lamp-standing.glb')],
+], 6, async ([label, fn]) => { const v = await fn(); step(label); return v; });
 scene.add(room.scene);
 
 // The Blender glass material exports opaque-ish white (alpha does not survive
@@ -218,7 +270,6 @@ setPos([['TOTAL', 'Rs 450']]);
 // Board tops measured from the shelf mesh in Blender (up-face centres,
 // native Z x 0.95 unit scale): 0.183 / 0.807 / 1.445 (+ 2.083 rack tops).
 // The Phase 3 levels (0.22/0.90/1.58) floated stock up to 13 cm: fixed here.
-const report = await (await fetch(MODEL_REPORT_URL)).json();
 const dummy = new THREE.Object3D();
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const rng = mulberry32(20261022);
@@ -381,7 +432,7 @@ async function geoFromGLB(url, wantScale) {
   // Bake the node's world transform into the geometry and take the LARGEST
   // mesh: library GLBs carry node scales (x100, x0.325) and multi-part
   // scenes (the Google bottle ships with loose pills) - raw geometry lies.
-  const g = await loader.loadAsync(url);
+  const g = await loadModel(loader, url);
   g.scene.updateMatrixWorld(true);
   let mesh = null, best = -1;
   g.scene.traverse(o => {
@@ -397,14 +448,10 @@ async function geoFromGLB(url, wantScale) {
   geo.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2);
   return { geo, mat: mesh.material, h: size.y * wantScale, scale: wantScale };
 }
-const amber = await geoFromGLB('./assets/props/pill-bottle-amber.glb', 0.45);
 fillSimple(amber.geo, amber.mat, bottlePlaces.amber, amber.scale);
 fillSimple(amber.geo, new THREE.MeshStandardMaterial({ color: 0xf2f5f2, roughness: 0.35 }), bottlePlaces.white, amber.scale);
-const google = await geoFromGLB('./assets/props/pill-bottle-google.glb', 1);
 fillSimple(google.geo, google.mat, bottlePlaces.google, 1);
-const jarA = await geoFromGLB('./assets/props/vendor/kaykit-jar-set-a.glb', 0.2);
 fillSimple(jarA.geo, jarA.mat, bottlePlaces.jarA, jarA.scale);
-const jarB = await geoFromGLB('./assets/props/vendor/kaykit-jar-set-b.glb', 0.2);
 fillSimple(jarB.geo, jarB.mat, bottlePlaces.jarB, jarB.scale);
 
 // shelf-edge price strips along every stocked board front
@@ -450,8 +497,8 @@ counterProp(jarB.geo, jarB.mat, 7.1, 0.395, -4.55, jarB.scale); // consultation 
 counterProp(boxGeo(...CARTONS[3].s, CARTONS[3].f, CARTONS[3].b), atlasMat, 6.85, 0.395 + CARTONS[3].s[1] / 2, -4.5, 1, 0.3);
 
 // consultation lamp: KayKit floor lamp replaces the ToxSam street-lamp form
+// (fetched in the parallel boot pool above; placed here, in the original spot)
 {
-  const lamp = await loader.loadAsync('./assets/props/vendor/kaykit-lamp-standing.glb');
   lamp.scene.position.set(5.9, 0, -5.55);
   lamp.scene.scale.setScalar(0.615);
   scene.add(lamp.scene);
@@ -463,7 +510,7 @@ counterProp(boxGeo(...CARTONS[3].s, CARTONS[3].f, CARTONS[3].b), atlasMat, 6.85,
 
 // ---------------------------------------------------------------- cast (Phase 2)
 // Blender-built characters at the Phase 1 posts; posts/roles/clips in cast.js.
-const cast = await initCast(scene, blob);
+const cast = await initCast(scene, blob, label => step(label));
 const figures = cast.group; // kept for the ?nofigures=1 toggle
 
 // ---------------------------------------------------------------- Phase 3 journey props
@@ -612,6 +659,7 @@ const journey = initJourney({
   goView: (n, i) => goView(n, i),
   gesture: (k, g) => forceGesture(cast, k, g),
   onLang: lang => applyBoards(lang),
+  onProgress: label => step(label),
   anchors: {},
   props: {
     billBag: billBagAnchor ? billBagAnchor.obj : { visible: false },
@@ -622,7 +670,7 @@ const journey = initJourney({
   },
 });
 window.__journey = journey;
-journey.start();
+journey.start().then(hideLoader); // overlay lifts once the intro is on screen
 window.__rendererInfo = () => { // QA: draw calls + instanced stock count
   let inst = 0;
   scene.traverse(o => { if (o.isInstancedMesh) inst += o.count; });

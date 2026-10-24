@@ -706,10 +706,16 @@ export function initJourney(world) {
 
   // ------------------------------------------------------------ intro & picker
   const SCEN = {};
+  const onProgress = world.onProgress || null;
   async function loadData() {
-    for (const id of ['a', 'b', 'c']) {
-      SCEN[id.toUpperCase()] = await (await fetch(`./src/data/scenario-${id}.json`)).json();
-    }
+    // The three scenario files are independent; fetch together, not one by one.
+    const ids = ['a', 'b', 'c'];
+    const datas = await Promise.all(ids.map(async id => {
+      const d = await (await fetch(`./src/data/scenario-${id}.json`)).json();
+      if (onProgress) onProgress(`scenario-${id}.json`);
+      return d;
+    }));
+    ids.forEach((id, i) => { SCEN[id.toUpperCase()] = datas[i]; });
   }
   function showIntro() {
     S.mode = 'intro';

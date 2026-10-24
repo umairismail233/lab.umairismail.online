@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
+import { loadModel, pool } from './loader.js';
 
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder); // cast GLBs are meshopt-compressed (Phase 4 packaging)
@@ -62,7 +63,7 @@ function measureHeight(root) {
 
 // ------------------------------------------------------------ cast loader
 export async function loadCastMember(url, donorClips, targetH) {
-  const gltf = await loader.loadAsync(url);
+  const gltf = await loadModel(loader, url);
   const root = skeletonClone(gltf.scene);
   toonify(root);
   const { h, minY } = measureHeight(root);
@@ -135,15 +136,24 @@ const POSTS = [
   { key: 'cust_c',  file: 'customer_c',         h: 1.66, pos: [8.08, -0.62], ry: -Math.PI / 2,  base: 'Idle', cycle: 16, gestures: [] },
 ];
 
-export async function initCast(scene, blobFn) {
-  const donor = await loader.loadAsync('./src/models/UAL_clips_plus.glb');
+export async function initCast(scene, blobFn, onProgress) {
+  const donor = await loadModel(loader, './src/models/UAL_clips_plus.glb');
+  if (onProgress) onProgress('UAL_clips_plus.glb');
   const clips = {};
   for (const c of donor.animations) clips[c.name] = c;
   const group = new THREE.Group();
   scene.add(group);
-  const members = {};
-  for (const p of POSTS) {
+  // Members used to load one by one after the donor: 8 more sequential
+  // fetches on top of the boot chain. They only need the donor clips, so
+  // they now load together (cap 6) and are staged in post order below,
+  // which keeps positions, blobs and gesture cycles exactly as before.
+  const loaded = await pool(POSTS, 6, async p => {
     const m = await loadCastMember(`./src/models/${p.file}.glb`, clips, p.h);
+    if (onProgress) onProgress(`${p.file}.glb`);
+    return { p, m };
+  });
+  const members = {};
+  for (const { p, m } of loaded) {
     m.root.position.x = p.pos[0];
     m.root.position.z = p.pos[1];
     m.root.rotation.y = p.ry;
