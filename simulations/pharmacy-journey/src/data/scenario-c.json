@@ -1,0 +1,282 @@
+{
+ "alternative": {
+  "brand": {
+   "en": "Calmpar",
+   "ur": "Calmpar"
+  },
+  "directions": {
+   "en": "1 to 2 tablets every 4 to 6 hours when needed. Max 8 tablets in 24 hours.",
+   "ur": "ضرورت پڑنے پر ہر 4 سے 6 گھنٹے بعد 1 سے 2 گولیاں۔ 24 گھنٹوں میں زیادہ سے زیادہ 8 گولیاں۔"
+  },
+  "generic": {
+   "en": "Paracetamol",
+   "ur": "Paracetamol"
+  },
+  "pack": {
+   "en": "Pack of 16 tablets",
+   "ur": "16 گولیوں کا پیک"
+  },
+  "price": 120,
+  "strength": {
+   "en": "500 mg tablets",
+   "ur": "500 mg گولیاں"
+  }
+ },
+ "beats": [
+  {
+   "choices": [
+    {
+     "en": "I need amoxicillin, please. My friend said it will fix my throat in two days.",
+     "ok": true,
+     "response": {
+      "en": "Let me ask you one important question about that.",
+      "ur": "اس بارے میں میں آپ سے ایک اہم سوال پوچھوں گی۔"
+     },
+     "ur": "مجھے Amoxicillin چاہیے۔ میرے دوست نے کہا تھا کہ یہ دو دن میں میرا گلا ٹھیک کر دے گی۔"
+    },
+    {
+     "en": "Give me the antibiotic. I do not want a lecture with it.",
+     "lesson": {
+      "en": "A refusal is never personal. The pharmacist applies the same law to everyone, for everyone's protection.",
+      "ur": "انکار کبھی ذاتی نہیں ہوتا۔ فارماسسٹ سب پر ایک ہی قانون لاگو کرتا ہے، سب کی حفاظت کے لیے۔"
+     },
+     "ok": false,
+     "response": {
+      "en": "I hear you, feeling ill is miserable. What I explain next is not a lecture; it is the reason the law puts a gate here, and it genuinely protects you.",
+      "ur": "میں آپ کی بات سن رہی ہوں، بیمار ہونا واقعی تکلیف دہ ہے۔ میں آگے جو بتاؤں گی وہ لیکچر نہیں ہے؛ یہ وہ وجہ ہے جس کی بنا پر قانون نے یہاں پابندی رکھی ہے، اور یہ واقعی آپ کی حفاظت کرتی ہے۔"
+     },
+     "ur": "اینٹی بایوٹک دے دیں۔ مجھے اس کے ساتھ لیکچر نہیں چاہیے۔"
+    }
+   ],
+   "id": "greeting",
+   "lines": [
+    {
+     "en": "Assalam o Alaikum, welcome to the pharmacy. I am Ayesha. You look unwell, how can I help?",
+     "speaker": "ayesha",
+     "ur": "السلام علیکم، فارمیسی میں خوش آمدید۔ میں عائشہ ہوں۔ آپ کی طبیعت خراب لگ رہی ہے، میں کیا مدد کر سکتی ہوں؟"
+    }
+   ],
+   "station": 1,
+   "type": "dialogue"
+  },
+  {
+   "choices": [
+    {
+     "en": "No, my friend just recommended it. I have not seen a doctor.",
+     "ok": true,
+     "response": {
+      "en": "Thank you for being honest with me. Let me explain where that leaves us.",
+      "ur": "میرے ساتھ سچ بولنے کا شکریہ۔ اب میں بتاتی ہوں کہ اس صورت میں کیا ہوتا ہے۔"
+     },
+     "ur": "نہیں، میرے دوست نے بس تجویز کی تھی۔ میں نے کسی ڈاکٹر کو نہیں دکھایا۔"
+    },
+    {
+     "en": "My friend has some left over at home, I will just share theirs.",
+     "lesson": {
+      "en": "Never take someone else's antibiotics. Their prescription was checked for them, not for you.",
+      "ur": "کسی اور کی اینٹی بایوٹک کبھی نہ لیں۔ ان کا نسخہ ان کے لیے جانچا گیا تھا، آپ کے لیے نہیں۔"
+     },
+     "ok": false,
+     "response": {
+      "en": "Please do not, leftover antibiotics are never matched to your illness, your dose, or your allergies. Sharing them is one of the most common ways people get harmed by medicines.",
+      "ur": "براہ کرم ایسا نہ کریں۔ بچی ہوئی اینٹی بایوٹک آپ کی بیماری، آپ کی خوراک یا آپ کی الرجی کے مطابق کبھی نہیں ہوتی۔ انہیں بانٹنا دواؤں سے نقصان پہنچنے کی عام ترین وجوہات میں سے ایک ہے۔"
+     },
+     "ur": "میرے دوست کے گھر کچھ بچی ہوئی ہے، میں بس اسی میں سے لے لوں گا۔"
+    }
+   ],
+   "id": "the-question",
+   "lines": [
+    {
+     "en": "Do you have a prescription for the amoxicillin from a doctor?",
+     "speaker": "ayesha",
+     "ur": "کیا آپ کے پاس Amoxicillin کے لیے کسی ڈاکٹر کا نسخہ ہے؟"
+    }
+   ],
+   "station": 3,
+   "type": "dialogue"
+  },
+  {
+   "choices": [
+    {
+     "en": "I understand. So what CAN I do about this throat and fever?",
+     "ok": true,
+     "response": {
+      "en": "Good question, let us make a proper plan, right here.",
+      "ur": "اچھا سوال ہے۔ آئیں یہیں ایک درست منصوبہ بناتے ہیں۔"
+     },
+     "ur": "میں سمجھ گیا۔ تو اس گلے اور بخار کے لیے میں کیا کر سکتا ہوں؟"
+    },
+    {
+     "en": "Other shops sell it without asking. I will just go there.",
+     "lesson": {
+      "en": "A pharmacy that asks questions is protecting you. Supplying POM without a prescription is illegal almost everywhere, and unsafe everywhere.",
+      "ur": "جو فارمیسی سوال پوچھتی ہے وہ آپ کی حفاظت کر رہی ہے۔ نسخے کے بغیر POM دینا تقریباً ہر جگہ غیر قانونی ہے، اور ہر جگہ غیر محفوظ ہے۔"
+     },
+     "ok": false,
+     "response": {
+      "en": "I cannot stop you, but anywhere selling prescription antibiotics without a prescription is breaking the law and gambling with your health. If a seller does not ask questions, they are not protecting you.",
+      "ur": "میں آپ کو روک نہیں سکتی، لیکن جو جگہ نسخے کے بغیر نسخے والی اینٹی بایوٹک بیچتی ہے وہ قانون توڑ رہی ہے اور آپ کی صحت سے جوا کھیل رہی ہے۔ اگر بیچنے والا سوال نہیں پوچھتا تو وہ آپ کی حفاظت نہیں کر رہا۔"
+     },
+     "ur": "دوسری دکانیں بغیر پوچھے بیچ دیتی ہیں۔ میں بس وہیں چلا جاؤں گا۔"
+    }
+   ],
+   "id": "refusal",
+   "lines": [
+    {
+     "en": "Then I am sorry, I cannot supply amoxicillin to you today. It is a prescription-only medicine: by law it may only be supplied against a prescription from an authorised prescriber.",
+     "speaker": "ayesha",
+     "ur": "پھر مجھے افسوس ہے، میں آج آپ کو Amoxicillin نہیں دے سکتی۔ یہ صرف نسخے والی دوا ہے: قانون کے مطابق یہ صرف کسی مجاز ڈاکٹر کے نسخے پر ہی دی جا سکتی ہے۔"
+    },
+    {
+     "en": "And there is a medical reason, not just a legal one. Most sore throats are viral, an antibiotic would do nothing for the illness, while still exposing you to side effects and allergy risk. If it IS bacterial, you need the right antibiotic, at the right dose, after being examined.",
+     "speaker": "ayesha",
+     "ur": "اور اس کی ایک طبی وجہ بھی ہے، صرف قانونی نہیں۔ زیادہ تر گلے کی خراش وائرل ہوتی ہے، اینٹی بایوٹک بیماری پر کوئی اثر نہیں کرے گی، البتہ آپ کو ضمنی اثرات اور الرجی کے خطرے سے دوچار ضرور کرے گی۔ اگر انفیکشن بیکٹیریل ہو تو معائنے کے بعد درست اینٹی بایوٹک درست خوراک میں چاہیے ہوتی ہے۔"
+    },
+    {
+     "en": "Every unnecessary course also feeds antibiotic resistance, the reason these medicines stop working when people truly need them.",
+     "speaker": "ayesha",
+     "ur": "ہر غیر ضروری کورس اینٹی بایوٹک مزاحمت کو بھی بڑھاتا ہے، یہی وجہ ہے کہ جب لوگوں کو واقعی ضرورت ہوتی ہے تو یہ دوائیں کام کرنا چھوڑ دیتی ہیں۔"
+    }
+   ],
+   "station": 3,
+   "type": "refusal"
+  },
+  {
+   "choices": [
+    {
+     "en": "That sounds sensible. I will take the paracetamol, and see a doctor if it gets worse.",
+     "ok": true,
+     "response": {
+      "en": "That is exactly the right call. Let me get it for you and explain how to take it.",
+      "ur": "یہ بالکل درست فیصلہ ہے۔ میں اسے لاتی ہوں اور بتاتی ہوں کہ کیسے لینا ہے۔"
+     },
+     "ur": "یہ سمجھداری کی بات لگتی ہے۔ میں پیراسیٹامول لوں گا، اور حالت بگڑے تو ڈاکٹر کو دکھاؤں گا۔"
+    },
+    {
+     "en": "A plan is fine, but promise me the antibiotic next time I ask?",
+     "lesson": {
+      "en": "The rule does not bend by asking harder. With a valid prescription, supply is quick; without one, the answer is guidance.",
+      "ur": "زیادہ زور سے مانگنے سے اصول نہیں جھکتا۔ درست نسخے کے ساتھ دوا فوراً ملتی ہے؛ اس کے بغیر جواب رہنمائی ہے۔"
+     },
+     "ok": false,
+     "response": {
+      "en": "I promise you something better: honest advice and the right medicine for the situation, with a prescription, the antibiotic the same day. Without one, my answer protects you the same way every time.",
+      "ur": "میں اس سے بہتر وعدہ کرتی ہوں: دیانتدارانہ مشورہ اور صورتحال کے مطابق درست دوا۔ نسخے کے ساتھ اینٹی بایوٹک اسی دن ملے گی۔ اس کے بغیر، میرا جواب ہر بار اسی طرح آپ کی حفاظت کرے گا۔"
+     },
+     "ur": "منصوبہ ٹھیک ہے، لیکن وعدہ کریں کہ اگلی بار مانگوں تو اینٹی بایوٹک ملے گی؟"
+    }
+   ],
+   "id": "guidance",
+   "lines": [
+    {
+     "en": "Here is your plan. One: if the fever passes 38.5°, lasts beyond three days, or you struggle to swallow or breathe, see a doctor the same day, there is a clinic two streets away, and I can write down its hours.",
+     "speaker": "ayesha",
+     "ur": "آپ کا منصوبہ یہ ہے۔ ایک: اگر بخار 38.5° سے بڑھ جائے، تین دن سے زیادہ رہے، یا نگلنے یا سانس لینے میں دشواری ہو، تو اسی دن ڈاکٹر کو دکھائیں۔ دو گلیاں آگے ایک کلینک ہے، میں اس کے اوقات لکھ کر دے سکتی ہوں۔"
+    },
+    {
+     "en": "Two: for the fever and pain right now, I CAN supply paracetamol, no prescription needed. It will not cure an infection, but it will make you comfortable while your body fights it.",
+     "speaker": "ayesha",
+     "ur": "دو: اس وقت بخار اور درد کے لیے میں آپ کو پیراسیٹامول دے سکتی ہوں، نسخے کی ضرورت نہیں۔ یہ انفیکشن کا علاج نہیں کرے گی، لیکن جب تک آپ کا جسم اس سے لڑتا ہے، یہ آپ کو آرام دے گی۔"
+    }
+   ],
+   "station": 3,
+   "type": "dialogue"
+  }
+ ],
+ "counselling": {
+  "lines": [
+   {
+    "en": "For the paracetamol: 1 or 2 tablets with water, every 4 to 6 hours when you need them, no more than 8 tablets in 24 hours. Rest, warm fluids, and honey with lemon genuinely help a sore throat.",
+    "speaker": "ayesha",
+    "ur": "پیراسیٹامول کے لیے: پانی کے ساتھ 1 یا 2 گولیاں، ضرورت پڑنے پر ہر 4 سے 6 گھنٹے بعد، 24 گھنٹوں میں 8 سے زیادہ نہیں۔ آرام، گرم مشروبات، اور لیموں کے ساتھ شہد گلے کی خراش میں واقعی مدد کرتے ہیں۔"
+   }
+  ],
+  "question": {
+   "choices": [
+    {
+     "en": "See a doctor, that was the plan.",
+     "ok": true,
+     "response": {
+      "en": "Exactly. That is when an examination matters, and if you need an antibiotic, the prescription comes with it.",
+      "ur": "بالکل۔ یہی وہ وقت ہے جب معائنہ اہم ہوتا ہے، اور اگر آپ کو اینٹی بایوٹک چاہیے ہو تو نسخہ اسی کے ساتھ آتا ہے۔"
+     },
+     "ur": "ڈاکٹر کو دکھانا، یہی منصوبہ تھا۔"
+    },
+    {
+     "en": "Find somewhere that sells antibiotics without questions.",
+     "lesson": {
+      "en": "Persistent fever means: get examined. A prescription follows the examination, that order is what keeps antibiotics working.",
+      "ur": "مسلسل بخار کا مطلب ہے: معائنہ کروائیں۔ نسخہ معائنے کے بعد آتا ہے، یہی ترتیب اینٹی بایوٹک کو مؤثر رکھتی ہے۔"
+     },
+     "ok": false,
+     "response": {
+      "en": "That route risks the wrong medicine entirely. A high fever on day four is your body asking for an examination, please give it one.",
+      "ur": "اس راستے میں مکمل طور پر غلط دوا کا خطرہ ہے۔ چوتھے دن تیز بخار آپ کے جسم کا معائنے کا مطالبہ ہے، براہ کرم اسے پورا کریں۔"
+     },
+     "ur": "ایسی جگہ تلاش کروں جہاں بغیر سوال اینٹی بایوٹک مل جائے۔"
+    }
+   ],
+   "en": "Quick check before you go: your fever is still high on day four. What is the right move?",
+   "ur": "جانے سے پہلے ایک فوری جانچ: چوتھے دن بھی آپ کا بخار تیز ہے۔ درست قدم کیا ہے؟"
+  }
+ },
+ "ending": {
+  "en": "You leave with a plan, relief for your symptoms, and a clear route to the right treatment. That is a good pharmacy visit, even without the antibiotic.",
+  "ur": "آپ ایک منصوبے، علامات سے آرام، اور درست علاج کے واضح راستے کے ساتھ جاتے ہیں۔ یہ ایک اچھی فارمیسی آمد ہے، اینٹی بایوٹک کے بغیر بھی۔"
+ },
+ "id": "C",
+ "intro": {
+  "en": "You have a sore throat and a fever. A friend swears the antibiotic amoxicillin fixed theirs in two days, and they told you to just buy some. You head to the pharmacy…",
+  "ur": "آپ کے گلے میں خراش اور بخار ہے۔ ایک دوست قسم کھاتا ہے کہ Amoxicillin نے دو دن میں اس کا گلا ٹھیک کر دیا تھا، اور اس نے آپ کو کہا کہ بس خرید لیں۔ آپ فارمیسی کی طرف چل پڑتے ہیں…"
+ },
+ "medicine": {
+  "bay": "C",
+  "brand": {
+   "en": "Moxidel",
+   "ur": "Moxidel"
+  },
+  "category": "POM",
+  "categoryLabel": {
+   "en": "Prescription-only medicine (POM)",
+   "ur": "صرف نسخے والی دوا (POM)"
+  },
+  "directions": {
+   "en": "One capsule three times a day. Finish the whole course.",
+   "ur": "دن میں تین بار ایک کیپسول۔ پورا کورس مکمل کریں۔"
+  },
+  "expiredExpiry": {
+   "en": "03 / 2025",
+   "ur": "03 / 2025"
+  },
+  "generic": {
+   "en": "Amoxicillin",
+   "ur": "Amoxicillin"
+  },
+  "pack": {
+   "en": "Pack of 21 capsules",
+   "ur": "21 کیپسول کا پیک"
+  },
+  "price": 450,
+  "strength": {
+   "en": "250 mg capsules",
+   "ur": "250 mg کیپسول"
+  },
+  "validExpiry": {
+   "en": "11 / 2027",
+   "ur": "11 / 2027"
+  }
+ },
+ "playerName": {
+  "en": "Alex",
+  "ur": "Alex"
+ },
+ "prescription": null,
+ "subtitle": {
+  "en": "The refusal-and-guidance path",
+  "ur": "انکار اور رہنمائی کا راستہ"
+ },
+ "title": {
+  "en": "No prescription",
+  "ur": "نسخہ نہیں ہے"
+ }
+}
