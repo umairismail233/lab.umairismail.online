@@ -1,18 +1,12 @@
 // Pharmacy Journey Sim - model loading: CDN first with same-origin fallback,
 // plus a small concurrency pool so boot fetches overlap instead of queueing.
 //
-// CDN_BASE stays empty while the repo is not publicly readable: jsDelivr only
-// serves public GitHub repos, and unauthenticated reads of
-// umairismail233/lab.umairismail.online return 404 (checked 2026-10-24:
-// api.github.com, raw.githubusercontent.com and the jsDelivr data API all
-// 404). Wiring a CDN base in while the repo reads private would make every
-// load pay a failed CDN attempt before falling back, i.e. slower, not faster.
-// To enable once the repo is public, set CDN_BASE to the verified pinned base:
-//   'https://cdn.jsdelivr.net/gh/umairismail233/lab.umairismail.online@65db2f539145ca1b0a87dc0c6325c647d1930c38/simulations/pharmacy-journey/'
-// and re-verify every file returns 200 with bytes identical to the local copy
-// before shipping. The pin is a commit, not a branch, so bytes cannot move
-// under the URL.
-export const CDN_BASE = '';
+// Models live in the dedicated public repo umairismail233/pharmacy-journey-assets
+// (the Lab repo itself stays private, and jsDelivr only serves public repos).
+// CDN_BASE is pinned to a commit, not a branch, so bytes cannot move under the URL.
+// To update models later: push to the assets repo, then update the pin here.
+// If the CDN ever fails, the same-origin fallback in loadModel still catches it.
+export const CDN_BASE = 'https://cdn.jsdelivr.net/gh/umairismail233/pharmacy-journey-assets@482624c7ca4b641d49dbe0d61ca06c468188b7fb/';
 
 // Load one model, CDN first when enabled, same-origin fallback on any failure.
 // `url` is a repo-relative path like 'src/models/pharmacy-room.glb' (a leading
