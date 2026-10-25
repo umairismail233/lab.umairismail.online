@@ -6,7 +6,21 @@
 // CDN_BASE is pinned to a commit, not a branch, so bytes cannot move under the URL.
 // To update models later: push to the assets repo, then update the pin here.
 // If the CDN ever fails, the same-origin fallback in loadModel still catches it.
+//
+// A fetch that stalls forever must not freeze the boot: each attempt races
+// against a timeout, so a stalled CDN request falls back to same-origin
+// instead of leaving the loader on "Starting..." forever.
 export const CDN_BASE = 'https://cdn.jsdelivr.net/gh/umairismail233/pharmacy-journey-assets@482624c7ca4b641d49dbe0d61ca06c468188b7fb/';
+
+const FETCH_TIMEOUT_MS = 15000;
+
+function withTimeout(promise) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('model load timed out')), FETCH_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
 // Load one model, CDN first when enabled, same-origin fallback on any failure.
 // `url` is a repo-relative path like 'src/models/pharmacy-room.glb' (a leading
@@ -16,12 +30,12 @@ export async function loadModel(loader, url) {
   const rel = url.replace(/^\.\//, '');
   if (CDN_BASE) {
     try {
-      return await loader.loadAsync(CDN_BASE + rel);
+      return await withTimeout(loader.loadAsync(CDN_BASE + rel));
     } catch (e) {
       console.warn('CDN model failed, same-origin fallback:', rel);
     }
   }
-  return loader.loadAsync('./' + rel);
+  return withTimeout(loader.loadAsync('./' + rel));
 }
 
 // Run `fn` over items with at most `limit` in flight, results in input order.

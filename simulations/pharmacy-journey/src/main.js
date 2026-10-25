@@ -52,6 +52,20 @@ window.addEventListener('unhandledrejection', () => {
   if (fileEl) fileEl.textContent = 'Loading failed';
 });
 
+// A synchronous throw during boot (for example, renderer creation failing
+// where no 3D context exists) is an error event, not a rejection, so it needs
+// its own listener or the loader freezes on "Starting..." with no message.
+window.addEventListener('error', () => {
+  if (loaderHidden) return;
+  const err = document.getElementById('loaderr');
+  if (err) {
+    err.hidden = false;
+    err.textContent = 'Could not load the pharmacy. Check your connection and reload the page.';
+  }
+  const fileEl = document.getElementById('loadfile');
+  if (fileEl) fileEl.textContent = 'Loading failed';
+});
+
 // ---------------------------------------------------------------- renderer
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
