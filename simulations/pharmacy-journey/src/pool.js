@@ -11,7 +11,7 @@
 // A fetch that stalls forever must not freeze the boot: each attempt races
 // against a timeout, so a stalled CDN request falls back to same-origin
 // instead of leaving the loader on "Starting..." forever.
-export const CDN_BASE = 'https://cdn.jsdelivr.net/gh/umairismail233/pharmacy-journey-assets@482624c7ca4b641d49dbe0d61ca06c468188b7fb/';
+export const CDN_BASE = 'https://cdn.jsdelivr.net/gh/umairismail233/pharmacy-journey-assets@12494355d0e285afe9b0f4798e82a82475a95bb5/';
 
 const FETCH_TIMEOUT_MS = 15000;
 
