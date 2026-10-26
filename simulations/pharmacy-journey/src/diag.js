@@ -6,7 +6,7 @@
 // It never touches the sim: if loading progresses past 0%, it does nothing.
 (function () {
   var FILES = ['gsap.min.js', 'diag.js', 'main.js', 'three.module.min.js',
-    'orbit.js', 'cast.js', 'journey.js', 'loader.js', 'GLTFLoader.js',
+    'orbit.js', 'cast.js', 'journey.js', 'pool.js', 'GLTFLoader.js',
     'meshopt_decoder.module.js', 'RoomEnvironment.js',
     'BufferGeometryUtils.js', 'SkeletonUtils.js'];
   function render() {
