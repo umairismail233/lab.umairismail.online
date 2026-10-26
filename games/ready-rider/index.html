@@ -1,0 +1,1940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Ready Rider</title>
+<style>
+@font-face{font-family:'Jameel';src:url('assets/jameel.woff2') format('woff2');font-display:swap;}
+:root{
+  color-scheme:light dark;
+  --bg:#FAF7F2; --surface:#FFFFFF; --surface2:#F1EAD9; --ink:#1C1917; --muted:#5D564D;
+  --green:#14532D; --green2:#166534; --green-edge:#0A3319; --green-soft:#E0EFDC;
+  --gold:#C9A227; --gold-edge:#8A6D14; --gold-soft:#F7ECD2;
+  --safe:#166534; --safe-bg:#DFF0DC; --safe-edge:#0A3319;
+  --danger:#B3261E; --danger-edge:#7E1B15; --danger-bg:#FBE7E4;
+  --money:#7A5C00; --money-bg:#F7ECD2;
+  --line:#E3D8C2; --shadow:0 8px 22px rgba(28,25,23,.12);
+  --road:#D9D0BA; --roadline:#FFFDF4; --nodelock:#B7AF9E; --nodelock-edge:#8F8875;
+  --sky1:#CDEBCB; --sky2:#F6ECD0;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#171410; --surface:#262119; --surface2:#322B20; --ink:#F5EFE3; --muted:#C4B8A4;
+    --green:#2E7D46; --green2:#2F8F4E; --green-edge:#14502A; --green-soft:#203626;
+    --gold:#D9B23C; --gold-edge:#8F6E14; --gold-soft:#3A3115;
+    --safe:#7BD88F; --safe-bg:#1E3325; --safe-edge:#14502A;
+    --danger:#FF9A8A; --danger-edge:#7E1B15; --danger-bg:#3E201B;
+    --money:#EBCB6B; --money-bg:#3A3115;
+    --line:#3E372A; --shadow:0 8px 22px rgba(0,0,0,.5);
+    --road:#3B362A; --roadline:#57503E; --nodelock:#5A5344; --nodelock-edge:#3E382C;
+    --sky1:#1D2E20; --sky2:#2A2415;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0;}
+body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:linear-gradient(180deg, var(--sky1) 0%, var(--bg) 340px); background-color:var(--bg); color:var(--ink); font-size:16px; line-height:1.45; min-height:100dvh;}
+body.lang-ur{font-family:'Jameel','Noto Nastaliq Urdu',serif;}
+body.lang-ur .keep-latin{font-family:Inter, system-ui, sans-serif;}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+input{font-family:inherit;}
+img{display:block; max-width:100%;}
+.phone{max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; position:relative; background:var(--bg); box-shadow:0 0 44px rgba(20,40,20,.16);}
+.screen{display:none; flex-direction:column; flex:1; padding:0 16px 26px;}
+.screen.active{display:flex;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}}
+
+/* HUD */
+.hud{display:flex; align-items:center; gap:8px; padding:12px 0 10px;}
+.hud .avatar{width:40px; height:40px; flex:0 0 40px;}
+.hudprog{flex:1; min-width:0;}
+.hudprog .bar{height:14px; background:var(--surface2); border-radius:99px; overflow:hidden; border:1px solid var(--line);}
+.hudprog .bar i{display:block; height:100%; background:var(--green2); border-radius:99px; transition:width .5s ease;}
+.hudprog .cap{font-size:11px; font-weight:700; color:var(--muted); margin-top:3px; line-height:1.3;}
+body.lang-ur .hudprog .cap{font-size:13px; line-height:1.9;}
+.pointspill{display:inline-flex; align-items:center; gap:4px; background:var(--gold-soft); border:1.5px solid var(--gold); color:var(--ink); font-weight:900; font-size:12.5px; padding:6px 8px; border-radius:99px; white-space:nowrap; flex:0 0 auto;}
+.pointspill svg{width:16px; height:16px; color:var(--gold); flex:0 0 16px;}
+.iconbtn{width:44px; height:44px; flex:0 0 44px; border-radius:50%; background:var(--surface); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 var(--line); color:var(--ink);}
+.iconbtn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--line);}
+.iconbtn svg{width:25px; height:25px;}
+.iconbtn.speaker{background:var(--green2); border-color:var(--green-edge); box-shadow:0 3px 0 var(--green-edge); color:#fff;}
+.iconbtn.speaker.playing{background:var(--gold); border-color:var(--gold-edge); box-shadow:0 3px 0 var(--gold-edge); color:#241D05; animation:pulseGlow 1.1s ease-in-out infinite;}
+.iconbtn.speaker.off{background:var(--surface); border-color:var(--danger); box-shadow:0 3px 0 var(--line); color:var(--danger);}
+.iconbtn.leaguebtn{background:var(--gold-soft); border-color:var(--gold); box-shadow:0 3px 0 var(--gold-edge); color:var(--money);}
+.iconbtn.backbtn{width:auto; padding:0 14px; gap:6px; border-radius:14px; font-size:15px; font-weight:800; box-shadow:0 4px 0 var(--line); flex:0 0 auto; height:44px;}
+.iconbtn.backbtn svg{width:22px; height:22px;}
+@keyframes pulseGlow{0%,100%{box-shadow:0 3px 0 var(--gold-edge), 0 0 0 0 rgba(201,162,39,.5);}50%{box-shadow:0 3px 0 var(--gold-edge), 0 0 0 9px rgba(201,162,39,0);}}
+.avatar{border-radius:50%; object-fit:contain; object-position:center center; border:3px solid var(--gold); background:#F3EAD3; flex:0 0 auto; padding:6px;}
+.num{direction:ltr; unicode-bidi:isolate; font-family:Inter, system-ui, sans-serif; font-weight:800; letter-spacing:.4px;}
+
+/* Urdu text blocks */
+.urtext{direction:rtl; text-align:right; font-family:'Jameel','Noto Nastaliq Urdu',serif; line-height:2.05;}
+body.lang-ur .ltr-block{direction:ltr; text-align:left;}
+
+/* Guide bubble */
+.guide-row{display:flex; align-items:flex-start; gap:12px; margin-top:6px;}
+.guide-row .avatar{width:84px; height:84px; padding:9px;}
+.bubble{background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:10px 14px; box-shadow:var(--shadow); position:relative; flex:1; min-width:0;}
+.bubble:before{content:""; position:absolute; left:-9px; top:26px; width:16px; height:16px; background:var(--surface); border-left:1.5px solid var(--line); border-bottom:1.5px solid var(--line); transform:rotate(45deg);}
+.bubble .who{font-size:11px; font-weight:900; letter-spacing:.6px; text-transform:uppercase; color:var(--green2); margin-bottom:2px;}
+body.lang-ur .bubble .who{letter-spacing:0; font-size:14px;}
+.bubble .line{font-size:17px; font-weight:650; line-height:1.5;}
+body.lang-ur .bubble .line{font-size:19px; line-height:2.0;}
+
+/* Buttons */
+.btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:15px 18px; border-radius:16px; font-size:17px; font-weight:900; background:var(--green2); color:#fff; border:1.5px solid var(--green-edge); box-shadow:0 5px 0 var(--green-edge); margin-top:14px;}
+.btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--green-edge);}
+.btn.gold{background:var(--gold); border-color:var(--gold-edge); box-shadow:0 5px 0 var(--gold-edge); color:#241D05;}
+.btn.ghost{background:var(--surface); color:var(--ink); border-color:var(--line); box-shadow:0 5px 0 var(--line);}
+.btn.small{padding:11px 14px; font-size:15px; margin-top:10px;}
+.btn svg{width:22px; height:22px;}
+.btnrow{display:flex; gap:10px;}
+.btnrow .btn{flex:1;}
+
+/* Start screen */
+.hero{border-radius:22px; overflow:hidden; border:1.5px solid var(--line); box-shadow:var(--shadow); margin-top:6px; background:var(--surface2);}
+.hero img{width:100%; height:auto;}
+h1.title{font-size:30px; line-height:1.15; margin:16px 0 4px; font-weight:950; letter-spacing:-.3px;}
+body.lang-ur h1.title{font-size:30px; line-height:1.9;}
+.tagline{color:var(--muted); font-weight:650; font-size:15.5px; margin:0 0 6px;}
+body.lang-ur .tagline{line-height:2;}
+.field{margin-top:12px;}
+.field label{display:block; font-size:12px; font-weight:900; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); margin-bottom:5px;}
+body.lang-ur .field label{letter-spacing:0; font-size:15px;}
+.field input{width:100%; padding:13px 14px; font-size:16px; border-radius:14px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink);}
+.field input:focus{outline:2px solid var(--green2); outline-offset:1px;}
+.langrow{display:flex; gap:10px; margin-top:12px;}
+.langchip{flex:1; padding:12px; border-radius:14px; border:1.5px solid var(--line); background:var(--surface); font-weight:900; font-size:15px; box-shadow:0 3px 0 var(--line);}
+.langchip.on{background:var(--green-soft); border-color:var(--green2); box-shadow:0 3px 0 var(--green-edge); color:var(--green);}
+.note{font-size:12.5px; color:var(--muted); text-align:center; margin-top:12px; font-weight:600;}
+body.lang-ur .note{font-size:14px; line-height:2;}
+
+/* Path */
+.areah{margin:20px 0 4px; display:flex; align-items:baseline; gap:8px;}
+.areah .ano{font-size:11px; font-weight:950; letter-spacing:.8px; color:var(--gold-edge); text-transform:uppercase;}
+body.lang-ur .areah .ano{letter-spacing:0; font-size:14px;}
+.areah .aname{font-size:20px; font-weight:950;}
+body.lang-ur .areah .aname{line-height:1.9;}
+.areah .astars{margin-inline-start:auto; font-size:12.5px; font-weight:800; color:var(--muted); white-space:nowrap;}
+.roadwrap{position:relative; padding:8px 0 2px;}
+.roadwrap:before{content:""; position:absolute; top:0; bottom:0; left:50%; width:34px; transform:translateX(-50%); background:var(--road); border-radius:20px;}
+.roadwrap:after{content:""; position:absolute; top:6px; bottom:6px; left:50%; width:0; transform:translateX(-50%); border-left:4px dashed var(--roadline);}
+.node{display:flex; align-items:center; gap:12px; position:relative; z-index:1; margin:14px 0; width:100%; text-align:start;}
+.node.flip{flex-direction:row-reverse; text-align:end;}
+.node .nbtn{width:74px; height:74px; flex:0 0 74px; border-radius:50%; margin:0 auto; position:relative; border:3px solid var(--green-edge); background:var(--green2); color:#fff; box-shadow:0 6px 0 var(--green-edge); display:flex; align-items:center; justify-content:center;}
+.node .nbtn svg{width:36px; height:36px;}
+.node .nbtn:active{transform:translateY(3px); box-shadow:0 3px 0 var(--green-edge);}
+.node.locked .nbtn{background:var(--nodelock); border-color:var(--nodelock-edge); box-shadow:0 6px 0 var(--nodelock-edge); color:#fff;}
+.node.done .nbtn{background:var(--gold); border-color:var(--gold-edge); box-shadow:0 6px 0 var(--gold-edge); color:#241D05;}
+.node.boss .nbtn{width:86px; height:86px; flex-basis:86px; background:var(--green); }
+.node .ali-on{position:absolute; top:-26px; left:50%; transform:translateX(-50%); width:44px; height:44px; z-index:2;}
+.node .ninfo{flex:1; min-width:0; background:var(--surface); border:1.5px solid var(--line); border-radius:14px; padding:8px 12px; box-shadow:0 3px 0 var(--line);}
+.node .ninfo .nm{font-weight:900; font-size:15.5px; line-height:1.3;}
+body.lang-ur .node .ninfo .nm{line-height:1.95; font-size:16.5px;}
+.node .ninfo .ns{font-size:12px; color:var(--muted); font-weight:700; margin-top:2px;}
+body.lang-ur .node .ninfo .ns{font-size:13.5px; line-height:1.9;}
+.nodestars{display:flex; gap:2px; margin-top:3px;}
+.nodestars svg{width:16px; height:16px; color:var(--line);}
+.nodestars svg.f{color:var(--gold);}
+.tick{position:absolute; top:-6px; inset-inline-end:-4px; width:26px; height:26px; border-radius:50%; background:var(--safe); color:#fff; display:flex; align-items:center; justify-content:center; border:2px solid #fff; z-index:2;}
+.tick svg{width:15px; height:15px;}
+.helpedtag{display:inline-block; font-size:10.5px; font-weight:900; background:var(--gold-soft); color:var(--money); border:1px solid var(--gold); border-radius:99px; padding:1px 7px; margin-top:3px;}
+body.lang-ur .helpedtag{font-size:12.5px;}
+
+/* Intro */
+.kicker{font-size:11.5px; font-weight:950; letter-spacing:.8px; text-transform:uppercase; color:var(--gold-edge); text-align:center; margin-top:14px;}
+body.lang-ur .kicker{letter-spacing:0; font-size:15px;}
+h2.mtitle{font-size:25px; font-weight:950; text-align:center; margin:4px 0 2px; line-height:1.25;}
+body.lang-ur h2.mtitle{line-height:1.9;}
+.msub{text-align:center; color:var(--muted); font-weight:650; margin:0 0 4px;}
+body.lang-ur .msub{line-height:2;}
+.skillchips{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px;}
+.skillchip{font-size:11.5px; font-weight:900; background:var(--green-soft); color:var(--green); border:1px solid var(--green2); border-radius:99px; padding:3px 10px;}
+body.lang-ur .skillchip{font-size:14px;}
+.rulecard{background:var(--surface); border:1.5px solid var(--line); border-radius:16px; padding:12px 14px; margin-top:14px; box-shadow:0 3px 0 var(--line);}
+.rulecard h3{margin:0 0 6px; font-size:14px; font-weight:950;}
+.rulecard ul{margin:0; padding-inline-start:18px; font-size:14px; font-weight:600; color:var(--ink);}
+.rulecard li{margin:3px 0;}
+body.lang-ur .rulecard ul{line-height:2; font-size:15px;}
+
+/* Play */
+.playtop{display:flex; align-items:center; gap:8px; padding:12px 0 4px;}
+.playtop .ptitle{flex:1; min-width:0; font-weight:950; font-size:16px; line-height:1.25;}
+body.lang-ur .playtop .ptitle{line-height:1.9;}
+.rounddots{display:flex; gap:5px; justify-content:center; margin:8px 0 2px; flex-wrap:wrap;}
+.rounddots i{width:11px; height:11px; border-radius:50%; background:var(--surface2); border:1.5px solid var(--line);}
+.rounddots i.done{background:var(--green2); border-color:var(--green-edge);}
+.rounddots i.now{background:var(--gold); border-color:var(--gold-edge); transform:scale(1.25);}
+.scorechip{display:inline-flex; align-items:center; gap:5px; background:var(--surface); border:1.5px solid var(--line); border-radius:99px; padding:6px 11px; font-weight:900; font-size:13px; box-shadow:0 3px 0 var(--line); white-space:nowrap;}
+.scorechip svg{width:16px; height:16px; color:var(--gold);}
+.helpbtn{display:inline-flex; align-items:center; gap:6px; background:var(--gold-soft); border:1.5px solid var(--gold); color:var(--money); border-radius:99px; padding:7px 12px; font-weight:900; font-size:13px; box-shadow:0 3px 0 var(--gold-edge);}
+.helpbtn svg{width:17px; height:17px;}
+.helpbtn.used{opacity:.55;}
+.bossbar{background:var(--green); color:#fff; border-radius:14px; padding:9px 13px; margin-top:10px; display:flex; gap:14px; justify-content:space-between; font-weight:900; font-size:13.5px; flex-wrap:wrap;}
+.bossbar .num{color:#FFE9A8;}
+.promptcard{background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:14px; margin-top:12px; box-shadow:var(--shadow);}
+.promptcard .scene{display:flex; justify-content:center; margin-bottom:8px;}
+.promptcard .scene .sceneic{width:76px; height:76px; border-radius:20px; background:var(--green-soft); color:var(--green); display:flex; align-items:center; justify-content:center;}
+.promptcard .scene .sceneic svg{width:46px; height:46px;}
+.promptcard .ptext{font-size:18px; font-weight:750; line-height:1.5; text-align:center;}
+body.lang-ur .promptcard .ptext{font-size:19px; line-height:2.05;}
+.bigcode{text-align:center; margin:8px 0 2px;}
+.bigcode .num{font-size:30px; background:var(--surface2); border:1.5px dashed var(--gold-edge); border-radius:12px; padding:4px 16px; display:inline-block;}
+
+/* options */
+.opts{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
+.opt{display:flex; align-items:center; gap:12px; width:100%; text-align:start; background:var(--surface); border:1.5px solid var(--line); border-radius:16px; padding:13px 14px; box-shadow:0 4px 0 var(--line); font-size:16px; font-weight:700; line-height:1.4;}
+body.lang-ur .opt{line-height:2; font-size:17px;}
+.opt:active{transform:translateY(2px); box-shadow:0 2px 0 var(--line);}
+.opt .oic{width:44px; height:44px; flex:0 0 44px; border-radius:12px; background:var(--surface2); color:var(--green); display:flex; align-items:center; justify-content:center;}
+.opt .oic svg{width:27px; height:27px;}
+.opt.right{background:var(--safe-bg); border-color:var(--safe-edge); box-shadow:0 4px 0 var(--safe-edge);}
+.opt.wrong{background:var(--danger-bg); border-color:var(--danger-edge); box-shadow:0 4px 0 var(--danger-edge);}
+.opt.hinted{outline:3px solid var(--gold); outline-offset:2px;}
+.opt:disabled{opacity:.85; cursor:default;}
+.opt .num{font-size:19px;}
+
+/* seq + spot grids */
+.cardgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;}
+.pcard{position:relative; background:var(--surface); border:1.5px solid var(--line); border-radius:16px; padding:14px 10px 12px; box-shadow:0 4px 0 var(--line); text-align:center; font-weight:800; font-size:15px; line-height:1.35; min-height:104px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;}
+body.lang-ur .pcard{line-height:1.95; font-size:16px;}
+.pcard .pic{width:46px; height:46px; border-radius:13px; background:var(--surface2); color:var(--green); display:flex; align-items:center; justify-content:center;}
+.pcard .pic svg{width:29px; height:29px;}
+.pcard:active{transform:translateY(2px); box-shadow:0 2px 0 var(--line);}
+.pcard.locked{background:var(--safe-bg); border-color:var(--safe-edge); box-shadow:0 4px 0 var(--safe-edge);}
+.pcard.bad{background:var(--danger-bg); border-color:var(--danger-edge);}
+.pcard.found{background:var(--danger-bg); border-color:var(--danger-edge); box-shadow:0 4px 0 var(--danger-edge);}
+.pcard.hinted{outline:3px solid var(--gold); outline-offset:2px;}
+.pcard .ord{position:absolute; top:-9px; inset-inline-start:-6px; width:28px; height:28px; border-radius:50%; background:var(--green2); color:#fff; font-weight:950; display:flex; align-items:center; justify-content:center; border:2px solid #fff; font-size:14px;}
+.pcard .cond{font-size:11.5px; font-weight:900; padding:2px 8px; border-radius:99px;}
+.cond.ok{background:var(--safe-bg); color:var(--safe);}
+.cond.bad{background:var(--danger); color:#fff;}
+.seqdone{margin-top:12px; background:var(--surface); border:1.5px dashed var(--line); border-radius:14px; padding:10px 12px; font-size:13.5px; font-weight:700;}
+.seqdone div{margin:2px 0;}
+body.lang-ur .seqdone{line-height:2; font-size:14.5px;}
+
+/* cash */
+.cashtarget{text-align:center; margin-top:12px; font-weight:800; font-size:15px;}
+.cashtarget .num{font-size:24px; color:var(--money);}
+.cashhand{min-height:58px; background:var(--surface); border:1.5px dashed var(--gold-edge); border-radius:14px; margin-top:10px; padding:9px; display:flex; flex-wrap:wrap; gap:7px; align-items:center; justify-content:center;}
+.cashhand .empty{color:var(--muted); font-size:13px; font-weight:700;}
+.denom{display:inline-flex; align-items:center; justify-content:center; border-radius:10px; font-weight:950; border:1.5px solid; padding:9px 13px; font-size:15px;}
+.denom.note{background:#EAF3E2; border-color:var(--green2); color:var(--green);}
+.denom.coin{background:var(--gold-soft); border-color:var(--gold-edge); color:var(--money); border-radius:50%; width:52px; height:52px; padding:0;}
+.denom:active{transform:scale(.95);}
+.cashbank{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:14px;}
+.cashtotal{text-align:center; font-weight:950; margin-top:10px; font-size:16px;}
+.cashtotal .num{font-size:21px;}
+
+/* feedback sheet */
+.feedback{position:sticky; bottom:12px; margin-top:16px; border-radius:18px; padding:14px; border:1.5px solid; box-shadow:var(--shadow); display:none; z-index:5;}
+.feedback.show{display:block;}
+.feedback.good{background:var(--safe-bg); border-color:var(--safe-edge);}
+.feedback.bad{background:var(--danger-bg); border-color:var(--danger-edge);}
+.feedback .fhead{display:flex; align-items:center; gap:9px; font-weight:950; font-size:17px;}
+.feedback .fhead svg{width:24px; height:24px; flex:0 0 24px;}
+.feedback.good .fhead{color:var(--safe);}
+.feedback.bad .fhead{color:var(--danger);}
+.feedback .freason{margin-top:5px; font-size:15px; font-weight:650; line-height:1.5;}
+body.lang-ur .feedback .freason{line-height:2;}
+.feedback .fbtn{margin-top:10px; width:100%; padding:12px; border-radius:13px; font-weight:950; font-size:15.5px; background:var(--green2); color:#fff; border:1.5px solid var(--green-edge); box-shadow:0 4px 0 var(--green-edge);}
+.feedback.bad .fbtn{background:var(--surface); color:var(--danger); border-color:var(--danger-edge); box-shadow:0 4px 0 var(--danger-edge);}
+.minus15{margin-inline-start:auto; font-size:12px; font-weight:950; background:var(--danger); color:#fff; border-radius:99px; padding:2px 9px;}
+body.lang-ur .minus15{font-size:13px;}
+
+/* result */
+.starsbig{display:flex; gap:8px; justify-content:center; margin:10px 0 2px;}
+.starsbig svg{width:52px; height:52px; color:var(--line);}
+.starsbig svg.f{color:var(--gold); animation:pop .45s ease both;}
+.starsbig svg.f:nth-child(2){animation-delay:.12s;} .starsbig svg.f:nth-child(3){animation-delay:.24s;}
+@keyframes pop{0%{transform:scale(.4);}70%{transform:scale(1.25);}100%{transform:scale(1);}}
+.scorebig{text-align:center; font-size:44px; font-weight:950; line-height:1.1;}
+.scorebig .num{font-size:44px;}
+.scoremax{text-align:center; color:var(--muted); font-weight:800; font-size:13.5px;}
+.resultcard{background:var(--surface); border:1.5px solid var(--line); border-radius:16px; padding:13px 15px; margin-top:13px; box-shadow:0 3px 0 var(--line); font-size:14.5px; font-weight:650;}
+.resultcard h3{margin:0 0 5px; font-size:13px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted);}
+body.lang-ur .resultcard h3{letter-spacing:0; font-size:15px;}
+body.lang-ur .resultcard{line-height:2;}
+.safetyfail{background:var(--danger-bg); border:1.5px solid var(--danger-edge); color:var(--danger); border-radius:14px; padding:11px 13px; margin-top:12px; font-weight:800; font-size:14.5px;}
+body.lang-ur .safetyfail{line-height:2;}
+
+/* tables / report */
+table.rep{width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;}
+table.rep th, table.rep td{padding:8px 7px; border-bottom:1px solid var(--line); text-align:start; vertical-align:top;}
+table.rep th{font-size:11.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted);}
+body.lang-ur table.rep th{letter-spacing:0; font-size:14px;}
+body.lang-ur table.rep{line-height:1.95;}
+table.rep td.r, table.rep th.r{text-align:end;}
+.passline{border-radius:16px; padding:14px; margin-top:14px; border:1.5px solid; font-weight:750;}
+.passline.ok{background:var(--safe-bg); border-color:var(--safe-edge);}
+.passline.no{background:var(--gold-soft); border-color:var(--gold-edge);}
+.passline .pt{font-size:19px; font-weight:950; margin-bottom:5px;}
+.passline ul{margin:4px 0 0; padding-inline-start:18px; font-size:14px;}
+body.lang-ur .passline{line-height:2;}
+.demolabel{display:inline-block; background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger-edge); font-size:11px; font-weight:950; padding:2px 9px; border-radius:99px; letter-spacing:.4px;}
+body.lang-ur .demolabel{font-size:13px; letter-spacing:0;}
+.secth{font-size:19px; font-weight:950; margin:20px 0 2px;}
+body.lang-ur .secth{line-height:1.9;}
+.sectsub{color:var(--muted); font-size:13px; font-weight:650; margin:0;}
+body.lang-ur .sectsub{line-height:1.95; font-size:14px;}
+
+/* settings sheet */
+.sheet{position:fixed; inset:0; background:rgba(20,16,8,.45); display:none; z-index:50; align-items:flex-end; justify-content:center;}
+.sheet.show{display:flex;}
+.sheet .panel{background:var(--bg); width:100%; max-width:480px; border-radius:22px 22px 0 0; padding:18px 18px 30px; max-height:88dvh; overflow:auto;}
+.sheet .panel h2{margin:2px 0 10px; font-size:21px; font-weight:950;}
+.setrow{display:flex; align-items:center; gap:12px; background:var(--surface); border:1.5px solid var(--line); border-radius:15px; padding:13px 14px; margin-top:10px;}
+.setrow .sl{flex:1; min-width:0;}
+.setrow .sl .t{font-weight:900; font-size:15.5px;}
+.setrow .sl .d{font-size:12.5px; color:var(--muted); font-weight:600;}
+body.lang-ur .setrow .sl .d{line-height:1.95; font-size:13.5px;}
+.switch{width:56px; height:32px; flex:0 0 56px; border-radius:99px; background:var(--surface2); border:1.5px solid var(--line); position:relative;}
+.switch i{position:absolute; top:2px; inset-inline-start:3px; width:24px; height:24px; border-radius:50%; background:#fff; border:1.5px solid var(--line); transition:transform .2s;}
+.switch.on{background:var(--green2); border-color:var(--green-edge);}
+.switch.on i{transform:translateX(23px);}
+/* demo */
+.demoanim{display:flex; gap:10px; justify-content:center; align-items:center; min-height:120px; margin-top:8px; flex-wrap:wrap;}
+.demochip{background:var(--surface); border:1.5px solid var(--line); border-radius:14px; padding:14px 18px; font-weight:950; font-size:16px; box-shadow:0 4px 0 var(--line); position:relative;}
+.demochip.lit{outline:3px solid var(--gold); background:var(--safe-bg); border-color:var(--safe-edge);}
+.demochip .dbadge{position:absolute; top:-9px; inset-inline-start:-6px; width:26px; height:26px; border-radius:50%; background:var(--green2); color:#fff; font-weight:950; display:flex; align-items:center; justify-content:center; border:2px solid #fff; font-size:13px; font-family:Inter, system-ui, sans-serif;}
+.center{text-align:center;}
+.mt8{margin-top:8px;} .mt16{margin-top:16px;}
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <!-- START -->
+  <section class="screen" id="scr-start">
+    <div class="hud">
+      <img class="avatar" src="assets/ali-face.webp" alt="Ali, the rider" />
+      <div class="hudprog"><div class="cap" data-t="startCap"></div></div>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <div class="hero"><img src="assets/ali.webp" alt="Ali on his bike with a parcel box, ready for the shift" /></div>
+    <h1 class="title" data-t="gameTitle"></h1>
+    <p class="tagline" data-t="gameTag"></p>
+    <div class="guide-row">
+      <img class="avatar" src="assets/ustad-face.webp" alt="Ustad Rashid" />
+      <div class="bubble"><div class="who" data-t="ustadName"></div><div class="line" data-t="startLine"></div></div>
+    </div>
+    <div class="field"><label for="inp-name" data-t="nameLabel"></label><input id="inp-name" type="text" autocomplete="name" /></div>
+    <div class="field"><label for="inp-hub" data-t="hubLabel"></label><input id="inp-hub" type="text" /></div>
+    <div class="langrow">
+      <button class="langchip" id="lang-en">English</button>
+      <button class="langchip" id="lang-ur">اردو</button>
+    </div>
+    <button class="btn" id="btn-start"></button>
+    <p class="note" data-t="deviceNote"></p>
+  </section>
+
+  <!-- HOME / PATH -->
+  <section class="screen" id="scr-home">
+    <div class="hud">
+      <img class="avatar" src="assets/ali-face.webp" alt="Ali, the rider" />
+      <div class="hudprog"><div class="bar"><i id="hud-bar"></i></div><div class="cap" id="hud-cap"></div></div>
+      <span class="pointspill" id="hud-points"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+      <button class="iconbtn leaguebtn" id="btn-league" aria-label="Team League"></button>
+      <button class="iconbtn" id="btn-settings" aria-label="Settings"></button>
+    </div>
+    <div id="path"></div>
+    <button class="btn gold" id="btn-report"></button>
+    <p class="note" data-t="pathNote"></p>
+  </section>
+
+  <!-- INTRO -->
+  <section class="screen" id="scr-intro">
+    <div class="hud">
+      <button class="iconbtn backbtn" data-back><span data-ic="back"></span><span data-t="back"></span></button>
+      <div class="hudprog"><div class="cap" id="intro-cap"></div></div>
+      <span class="pointspill" id="intro-points"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <div class="kicker" id="intro-kicker"></div>
+    <h2 class="mtitle" id="intro-title"></h2>
+    <p class="msub" id="intro-sub"></p>
+    <div class="skillchips" id="intro-skills"></div>
+    <div class="guide-row">
+      <img class="avatar" src="assets/ustad-face.webp" alt="Ustad Rashid" />
+      <div class="bubble"><div class="who" data-t="ustadName"></div><div class="line" id="intro-line"></div></div>
+    </div>
+    <div class="rulecard" id="intro-rules"></div>
+    <button class="btn" id="btn-play"></button>
+    <button class="btn ghost small" id="btn-intro-report" data-t="viewReport"></button>
+  </section>
+
+  <!-- DEMO -->
+  <section class="screen" id="scr-demo">
+    <div class="hud">
+      <button class="iconbtn backbtn" data-back><span data-ic="back"></span><span data-t="back"></span></button>
+      <div class="hudprog"><div class="cap" data-t="demoCap"></div></div>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <h2 class="mtitle" data-t="demoTitle"></h2>
+    <p class="msub" id="demo-text"></p>
+    <div class="demoanim" id="demo-anim"></div>
+    <button class="btn" id="btn-demo-go" data-t="demoGo"></button>
+  </section>
+
+  <!-- PLAY -->
+  <section class="screen" id="scr-play">
+    <div class="playtop">
+      <button class="iconbtn" data-back aria-label="Back"><span data-ic="back"></span></button>
+      <div class="ptitle" id="play-title"></div>
+      <span class="scorechip" id="play-score"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <div class="rounddots" id="play-dots"></div>
+    <div class="bossbar hidden" id="boss-bar"></div>
+    <div class="guide-row">
+      <img class="avatar" src="assets/ustad-face.webp" alt="Ustad Rashid" />
+      <div class="bubble"><div class="who" data-t="ustadName"></div><div class="line" id="play-line"></div></div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+      <button class="helpbtn" id="btn-help"></button>
+    </div>
+    <div id="play-body"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="scr-result">
+    <div class="hud">
+      <img class="avatar" id="result-face" src="assets/ali-face.webp" alt="Ali, the rider" />
+      <div class="hudprog"><div class="cap" id="result-cap"></div></div>
+      <span class="pointspill" id="result-points"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <h2 class="mtitle" id="result-title"></h2>
+    <div class="starsbig" id="result-stars"></div>
+    <div class="scorebig"><span class="num" id="result-score"></span></div>
+    <div class="scoremax" id="result-max"></div>
+    <div id="result-extra"></div>
+    <div class="resultcard"><h3 data-t="provedHead"></h3><div id="result-proved"></div></div>
+    <div class="btnrow">
+      <button class="btn ghost" id="btn-replay"></button>
+      <button class="btn" id="btn-next"></button>
+    </div>
+    <button class="btn ghost small" id="btn-result-path" data-t="backToPath"></button>
+  </section>
+
+  <!-- LEAGUE -->
+  <section class="screen" id="scr-league">
+    <div class="hud">
+      <button class="iconbtn backbtn" data-back><span data-ic="back"></span><span data-t="back"></span></button>
+      <div class="hudprog"><div class="cap" data-t="leagueCap"></div></div>
+      <span class="pointspill" id="league-points"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <h2 class="mtitle" data-t="leagueTitle"></h2>
+    <p class="msub" data-t="leagueSub"></p>
+    <div id="league-body"></div>
+    <button class="btn ghost" data-back data-t="backToPath"></button>
+  </section>
+
+  <!-- REPORT -->
+  <section class="screen" id="scr-report">
+    <div class="hud">
+      <button class="iconbtn backbtn" data-back><span data-ic="back"></span><span data-t="back"></span></button>
+      <div class="hudprog"><div class="cap" data-t="reportCap"></div></div>
+      <span class="pointspill" id="report-points"></span>
+      <button class="iconbtn speaker" data-speaker aria-label="Sound on or off"></button>
+    </div>
+    <h2 class="mtitle" data-t="reportTitle"></h2>
+    <div id="report-body"></div>
+    <button class="btn gold" id="btn-copy-report"></button>
+    <button class="btn ghost" data-back data-t="backToPath"></button>
+  </section>
+</div>
+
+<!-- SETTINGS SHEET -->
+<div class="sheet" id="sheet-settings">
+  <div class="panel">
+    <h2 data-t="settingsTitle"></h2>
+    <div class="setrow"><div class="sl"><div class="t" data-t="soundRow"></div><div class="d" data-t="soundRowD"></div></div><button class="switch" id="sw-sound" aria-label="Sound on or off"><i></i></button></div>
+    <div class="setrow"><div class="sl"><div class="t" data-t="langRow"></div><div class="d" data-t="langRowD"></div></div>
+      <div style="display:flex; gap:8px;"><button class="langchip" id="set-lang-en" style="flex:0 0 auto; padding:9px 14px;">English</button><button class="langchip" id="set-lang-ur" style="flex:0 0 auto; padding:9px 14px;">اردو</button></div>
+    </div>
+    <div class="field"><label for="set-name" data-t="nameLabel"></label><input id="set-name" type="text" /></div>
+    <div class="field"><label for="set-hub" data-t="hubLabel"></label><input id="set-hub" type="text" /></div>
+    <button class="btn small" id="btn-save-profile" data-t="saveProfile"></button>
+    <button class="btn ghost small" id="btn-reset"></button>
+    <button class="btn ghost" id="btn-close-settings" data-t="closeSettings"></button>
+  </div>
+</div>
+
+<!-- LEAVE WARNING SHEET -->
+<div class="sheet" id="sheet-leave">
+  <div class="panel">
+    <h2 data-t="leaveTitle"></h2>
+    <p class="msub" style="text-align:start;" data-t="leaveBody"></p>
+    <button class="btn" id="btn-stay"></button>
+    <button class="btn ghost" id="btn-leave"></button>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   READY RIDER: POINTS MODEL (one model, every screen reads it)
+   - 15 missions. Each mission is worth 100 points. Game maximum: 1500.
+   - A run starts at 100. The first wrong tap on any step costs 15
+     points (later wrong taps on the same step cost 0). Floor is 0.
+   - Stars per mission: 90 or more = 3, 70 to 89 = 2, 45 to 69 = 1,
+     below 45 = 0. Game maximum: 45 stars.
+   - Report areas partition the missions with no overlap, so the area
+     stars always add up to the rider total stars.
+   - A mission counts as PASSED when a run scores 45 or more with no
+     safety step left wrong at the end of the run. In sequence and
+     spotting rounds a wrong tap corrected in the same run is a slip,
+     not a miss: it still costs 15 points and keeps its "needed two
+     tries" tag, but the mission passes. A safety step left wrong, or
+     an unsafe action chosen in a scenario round, fails the gate.
+   - READY (report pass line): all 15 missions passed, the safety gate
+     passed on every passing run, and the first attempt average is 70
+     or more. First attempt scores are stored once and never change.
+   - Using Help marks the run as helped. Helped runs are shown apart
+     from first attempt scores in My Report.
+   ===================================================================== */
+var MAX_PER_MISSION = 100, WRONG_COST = 15, PASS_SCORE = 45, READY_FIRST_AVG = 70;
+
+var P = {
+  speaker:'<path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/>',
+  speakerOff:'<path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16 9l6 6M22 9l-6 6"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  play:'<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
+  check:'<path d="M4 12.5l5 5L20 6.5"/>',
+  cross:'<path d="M6 6l12 12M18 6L6 18"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6L12 16.7 6.6 19.6l1.1-6L3.2 9.4l6.1-.8z"/>',
+  starFill:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6L12 16.7 6.6 19.6l1.1-6L3.2 9.4l6.1-.8z" fill="currentColor" stroke="none"/>',
+  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/>',
+  trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4M12 14v3M8 21h8M10 17h4l.6 4H9.4z"/>',
+  helmet:'<path d="M4 13a8 8 0 0 1 16 0v3H4z"/><path d="M4 16h13"/><path d="M14 9a6 6 0 0 1 4 3"/>',
+  strap:'<path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M9 20h6"/><path d="M12 17v3"/>',
+  bag:'<rect x="5" y="8" width="14" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M5 13h14"/>',
+  phone:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  battery:'<rect x="3" y="8" width="15" height="8" rx="2"/><path d="M21 11v2"/><path d="M6 11v2M9.5 11v2"/>',
+  fuel:'<path d="M5 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M3 21h14"/><path d="M15 9h2a2 2 0 0 1 2 2v5a2 2 0 0 0 4 0V9.5L20 6"/><path d="M8 8h4v4H8z"/>',
+  tyre:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>',
+  brake:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="7" r=".8" fill="currentColor"/><circle cx="16.3" cy="14.5" r=".8" fill="currentColor"/><circle cx="7.7" cy="14.5" r=".8" fill="currentColor"/>',
+  light:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.5 10.9c-.7.5-1 1-1 2.1h-5c0-1.1-.3-1.6-1-2.1A6 6 0 0 1 12 3z"/>',
+  child:'<circle cx="12" cy="5.5" r="2.5"/><path d="M12 8v6M8 11l4-2 4 2M9.5 21l2.5-7 2.5 7"/>',
+  bus:'<rect x="4" y="4" width="16" height="13" rx="2"/><path d="M4 11h16"/><circle cx="8" cy="19.5" r="1.6"/><circle cx="16" cy="19.5" r="1.6"/><path d="M8 7.5h3M13 7.5h3"/>',
+  drop:'<path d="M12 3c3.5 4.2 6 7.3 6 10.5a6 6 0 1 1-12 0C6 10.3 8.5 7.2 12 3z"/>',
+  hole:'<ellipse cx="12" cy="17" rx="8" ry="3.5"/><path d="M7 8l2 3M17 7l-2 4M12 5v4"/>',
+  hand:'<path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10m0-5.5v-1a1.5 1.5 0 0 1 3 0V10m0-4.5a1.5 1.5 0 0 1 3 0V12m0-3a1.5 1.5 0 0 1 3 0v5a7 7 0 0 1-7 7h-1c-2.5 0-4-1-5.2-3.2L4.6 14a1.6 1.6 0 0 1 2.6-1.8L8 13.5"/>',
+  shop:'<path d="M4 10l1.5-5h13L20 10"/><path d="M4 10h16v10H4z"/><path d="M9.5 20v-5h5v5"/><path d="M4 10a2.7 2.7 0 0 0 5.3 0A2.7 2.7 0 0 0 14.7 10 2.7 2.7 0 0 0 20 10"/>',
+  box:'<path d="M3 8l9-4 9 4v8l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v8"/>',
+  scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 8v8M10.5 8v8M14 8v5M17 8v8"/>',
+  hub:'<path d="M4 21V8l8-5 8 5v13"/><path d="M2 21h20"/><path d="M9 21v-6h6v6"/><path d="M12 6.5v.5"/>',
+  pin:'<path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>',
+  cash:'<rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.6"/><path d="M6.5 10.5v.5M17.5 14.5v.5"/>',
+  shield:'<path d="M12 3l7 2.6v5.6c0 4.6-3 7.8-7 9.8-4-2-7-5.2-7-9.8V5.6z"/><path d="M9 11.8l2.2 2.2L15.5 9.5"/>',
+  receipt:'<path d="M6 3h12v18l-2-1.4L14 21l-2-1.4L10 21l-2-1.4L6 21z"/><path d="M9 8h6M9 12h6"/>',
+  bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 3h-15z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3A2.6 2.6 0 0 1 12 7.8c1.4 0 2.5 1 2.5 2.2 0 1.7-2.3 1.9-2.3 3.4"/><path d="M12 16.8v.4"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  warn:'<path d="M12 4L2.8 20h18.4z"/><path d="M12 10v4.4M12 17.2v.4"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  ret:'<path d="M8 6L4 10l4 4"/><path d="M4 10h10a6 6 0 0 1 0 12h-3"/>',
+  call:'<path d="M5 4h4l1.5 4.5L8 10.5a12 12 0 0 0 5.5 5.5l2-2.5L20 15v4a1.6 1.6 0 0 1-1.7 1.6C10 20 4 14 3.4 5.7A1.6 1.6 0 0 1 5 4z"/>'
+};
+function icon(name, size){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="'+(size||24)+'" height="'+(size||24)+'">'+(P[name]||P.box)+'</svg>'; }
+function starIcon(filled, size, cls){ return '<svg viewBox="0 0 24 24"'+(cls?' class="f"':"")+' width="'+(size||20)+'" height="'+(size||20)+'" fill="none" stroke="currentColor" stroke-width="1.6">'+(filled?P.starFill:P.star)+'</svg>'; }
+
+/* ================= UI STRINGS ================= */
+var UI = {
+en:{ gameTitle:"Ready Rider", gameTag:"One full shift of a parcel courier rider. Hub, road, doors, cash, and back to the hub.",
+ startCap:"Ready Rider", ustadName:"Ustad Rashid",
+ startLine:"Assalam o Alaikum. I am Ustad Rashid. Today you ride one full shift with me, from the hub in the morning to the cash count at night. Take it step by step.",
+ nameLabel:"Rider name", hubLabel:"Hub or city", namePh:"For example: Ali Raza", hubPh:"For example: Lahore Hub",
+ startBtn:"Start the shift", continueBtn:"Continue the shift",
+ deviceNote:"Your name and hub stay on this phone only. Nothing is sent anywhere.",
+ back:"Back", backToPath:"Back to the path", viewReport:"My Report",
+ pathNote:"Finish a mission to open the next one. The Boss Shift opens when all 14 missions are done.",
+ demoCap:"Watch first, then play", demoTitle:"Watch how it works", demoGo:"Got it. Start the mission",
+ demoChoice:"Tap the one right answer. A wrong first tap costs 15 points.",
+ demoSeq:"Tap the cards in the right order, one by one. Each step tells you why it comes there.",
+ demoSpot:"Tap every card that has a problem. Leave the good ones alone.",
+ demoCash:"Tap notes and coins to make the exact amount. Tap a note in your hand to put it back.",
+ demoMatch:"Read the parcel number on top, then tap the parcel with the same number.",
+ helpBtn:"Help", helpUsed:"Help used. This run counts as helped.",
+ rightPick:"Right pick", wrongPick:"Wrong pick", minus15:"-15 on first tap",
+ tryAgain:"Try again", nextBtn:"Next", finishBtn:"See my result",
+ scoreOf:"Score", of100:"out of 100 for this mission", totalOf:"points in total",
+ provedHead:"What this mission proved",
+ replayBtn:"Play again", nextMissionBtn:"Next mission", bossDoneBtn:"Back to the path",
+ resultFirst:"First attempt score", resultBest:"Best score", resultHelped:"This run used Help, so it counts as a helped run.",
+ safetyFail:"Safety step missed. This run does not pass, even with a high score. Play it again and keep the safety step first.",
+ safetyOk:"Safety gate passed on this run.",
+ leagueCap:"Team League", leagueTitle:"Team League",
+ leagueSub:"Your row is your real score from this phone.",
+ demoLabel:"Demo data", yourTeam:"Your score (this phone)",
+ reportCap:"My Report", reportTitle:"My Report", reportBtn:"See My Report",
+ settingsTitle:"Settings", soundRow:"Sound", soundRowD:"The speaker button and this row are the same switch.",
+ langRow:"Language", langRowD:"One language at a time, English or Urdu.",
+ saveProfile:"Save name and hub", resetBtn:"Reset all progress", resetSure:"Tap again to confirm reset", closeSettings:"Close",
+ copyReport:"Copy report text", copied:"Copied. You can paste it anywhere.",
+ areaWord:"Area", missionWord:"Mission", roundsWord:"rounds", bossWord:"Boss Shift",
+ repRider:"Rider", repHub:"Hub", repDate:"Date", repTotal:"Total points", repStars:"Total stars",
+ repStatus:"Status", repComplete:"Complete", repInProgress:"In progress", repNotStarted:"Not started",
+ repAreas:"Scores by area", repFirst:"First attempt scores", repFirstNote:"First attempt scores never change. They show what you knew the first time.",
+ repHelped:"Helped runs", repHelpedNone:"No helped runs yet. Help is fine for practice. It is only marked, never hidden.",
+ repMistakes:"First attempt mistakes, by skill", repMistakesNone:"No first attempt mistakes recorded yet.",
+ repTime:"Time played", repMinutes:"minutes",
+ repMission:"Mission", repFirstScore:"First", repBestScore:"Best", repPassed:"Passed", repYes:"Yes", repNo:"Not yet",
+ passReady:"READY", passNotReady:"NOT READY YET", passLine1:"All 15 missions passed", passLine2:"Safety gate passed", passLine3:"First attempt average 70 or more",
+ repHonest:"This report is from this phone only. It is a training record, not a licence or a certificate. The final practical test stays with the company or institute.",
+ repStandard:"Pass standard: a mission passes at 45 points or more with no safety step left wrong. A wrong tap that you correct in the same run still passes, with the points lost. Ready means all missions passed, the safety gate passed, and a first attempt average of 70 or more.",
+ speakStart:"Ready Rider. One full shift, from the hub to the last cash count.",
+ locked:"Locked", doneWord:"Done", openWord:"Open",
+ bossParcels:"Parcels delivered", bossCash:"COD cash in hand",
+ missionResult:"Mission Result", startColon:"Start: ",
+ safetyGateLine:"Safety gate: a safety step left wrong fails the mission, however high the score. Correct the slip in the same run and the mission still passes. The points for the wrong tap stay lost.",
+ leaveTitle:"Leave this mission?", leaveBody:"This mission is not finished. If you leave now, the progress in this mission will be lost. Your finished missions and your scores stay safe.",
+ stayBtn:"Stay and finish", leaveBtn:"Leave and lose progress",
+ leagueTeams:["Hub Hawks (demo)","City Runners (demo)","Night Owls (demo)","Old Town Unit (demo)"]
+},
+ur:{ gameTitle:"ریڈی رائیڈر", gameTag:"پارسل کوریئر رائیڈر کی ایک پوری شفٹ۔ ہب، سڑک، دروازے، نقدی، اور واپس ہب۔",
+ startCap:"ریڈی رائیڈر", ustadName:"استاد رشید",
+ startLine:"السلام علیکم۔ میں استاد رشید ہوں۔ آج آپ میرے ساتھ ایک پوری شفٹ کریں گے، صبح ہب سے رات کو نقدی کی گنتی تک۔ آپ قدم بہ قدم آگے بڑھیں۔",
+ nameLabel:"رائیڈر کا نام", hubLabel:"ہب یا شہر", namePh:"مثال: علی رضا", hubPh:"مثال: لاہور ہب",
+ startBtn:"شفٹ شروع کریں", continueBtn:"شفٹ جاری رکھیں",
+ deviceNote:"آپ کا نام اور ہب صرف اسی فون پر رہتا ہے۔ کچھ بھی کہیں نہیں بھیجا جاتا۔",
+ back:"واپس", backToPath:"راستے پر واپس", viewReport:"میری رپورٹ",
+ pathNote:"اگلا مشن کھولنے کے لیے ایک مشن مکمل کریں۔ باس شفٹ اس وقت کھلے گی جب تمام 14 مشن مکمل ہوں گے۔",
+ demoCap:"پہلے دیکھیں، پھر کھیلیں", demoTitle:"دیکھیں کہ یہ کیسے چلتا ہے", demoGo:"سمجھ آ گئی۔ مشن شروع کریں",
+ demoChoice:"ایک درست جواب پر ٹیپ کریں۔ پہلی غلط ٹیپ پر 15 نمبر کٹتے ہیں۔",
+ demoSeq:"کارڈز کو درست ترتیب سے ایک ایک کر کے ٹیپ کریں۔ ہر قدم بتائے گا کہ وہ وہاں کیوں آتا ہے۔",
+ demoSpot:"ہر اس کارڈ پر ٹیپ کریں جس میں مسئلہ ہو۔ درست کارڈز کو چھوڑ دیں۔",
+ demoCash:"نوٹ اور سکے ٹیپ کر کے درست رقم بنائیں۔ ہاتھ میں موجود نوٹ پر ٹیپ کریں تو وہ واپس چلا جائے گا۔",
+ demoMatch:"اوپر دیا گیا پارسل نمبر پڑھیں، پھر اسی نمبر والے پارسل پر ٹیپ کریں۔",
+ helpBtn:"مدد", helpUsed:"مدد استعمال ہوئی۔ یہ رن مدد والا شمار ہوگا۔",
+ rightPick:"درست انتخاب", wrongPick:"غلط انتخاب", minus15:"پہلی ٹیپ پر منفی 15",
+ tryAgain:"دوبارہ کوشش کریں", nextBtn:"اگلا", finishBtn:"میرا نتیجہ دیکھیں",
+ scoreOf:"اسکور", of100:"اس مشن کے 100 میں سے", totalOf:"کل نمبر",
+ provedHead:"اس مشن نے کیا ثابت کیا",
+ replayBtn:"دوبارہ کھیلیں", nextMissionBtn:"اگلا مشن", bossDoneBtn:"راستے پر واپس",
+ resultFirst:"پہلی کوشش کا اسکور", resultBest:"بہترین اسکور", resultHelped:"اس رن میں مدد استعمال ہوئی، اس لیے یہ مدد والا رن شمار ہوتا ہے۔",
+ safetyFail:"حفاظتی قدم رہ گیا۔ یہ رن پاس نہیں ہوتا، اسکور جتنا بھی ہو۔ دوبارہ کھیلیں اور حفاظتی قدم پہلے رکھیں۔",
+ safetyOk:"اس رن میں حفاظتی گیٹ پاس ہوا۔",
+ leagueCap:"ٹیم لیگ", leagueTitle:"ٹیم لیگ",
+ leagueSub:"آپ کی قطار اسی فون سے آپ کا اصلی اسکور ہے۔",
+ demoLabel:"نمونہ ڈیٹا", yourTeam:"آپ کا اسکور (اسی فون سے)",
+ reportCap:"میری رپورٹ", reportTitle:"میری رپورٹ", reportBtn:"میری رپورٹ دیکھیں",
+ settingsTitle:"ترتیبات", soundRow:"آواز", soundRowD:"اسپیکر بٹن اور یہ قطار ایک ہی سوئچ ہے۔",
+ langRow:"زبان", langRowD:"ایک وقت میں ایک زبان، انگریزی یا اردو۔",
+ saveProfile:"نام اور ہب محفوظ کریں", resetBtn:"تمام پیش رفت ختم کریں", resetSure:"تصدیق کے لیے دوبارہ ٹیپ کریں", closeSettings:"بند کریں",
+ copyReport:"رپورٹ کا متن کاپی کریں", copied:"کاپی ہو گیا۔ آپ اسے کہیں بھی چسپاں کر سکتے ہیں۔",
+ areaWord:"حصہ", missionWord:"مشن", roundsWord:"مراحل", bossWord:"باس شفٹ",
+ repRider:"رائیڈر", repHub:"ہب", repDate:"تاریخ", repTotal:"کل نمبر", repStars:"کل ستارے",
+ repStatus:"حالت", repComplete:"مکمل", repInProgress:"جاری ہے", repNotStarted:"شروع نہیں ہوا",
+ repAreas:"حصوں کے حساب سے اسکور", repFirst:"پہلی کوشش کے اسکور", repFirstNote:"پہلی کوشش کے اسکور کبھی نہیں بدلتے۔ یہ بتاتے ہیں کہ پہلی بار آپ کو کتنا آتا تھا۔",
+ repHelped:"مدد والے رن", repHelpedNone:"ابھی تک کوئی مدد والا رن نہیں۔ مشق کے لیے مدد ٹھیک ہے۔ یہ صرف نشان زد ہوتی ہے، چھپائی نہیں جاتی۔",
+ repMistakes:"پہلی کوشش کی غلطیاں، مہارت کے حساب سے", repMistakesNone:"ابھی تک پہلی کوشش کی کوئی غلطی درج نہیں۔",
+ repTime:"کھیل کا وقت", repMinutes:"منٹ",
+ repMission:"مشن", repFirstScore:"پہلی", repBestScore:"بہترین", repPassed:"پاس", repYes:"ہو گیا", repNo:"ابھی نہیں",
+ passReady:"تیار ہے", passNotReady:"ابھی تیار نہیں", passLine1:"تمام 15 مشن پاس", passLine2:"حفاظتی گیٹ پاس", passLine3:"پہلی کوشش کی اوسط 70 یا زیادہ",
+ repHonest:"یہ رپورٹ صرف اسی فون سے ہے۔ یہ تربیت کا ریکارڈ ہے، کوئی لائسنس یا سرٹیفکیٹ نہیں۔ حتمی عملی امتحان کمپنی یا ادارے کے پاس رہتا ہے۔",
+ repStandard:"پاس کا معیار: مشن 45 یا زیادہ نمبروں پر پاس ہوتا ہے بشرطیکہ کوئی حفاظتی قدم غلط نہ رہا ہو۔ غلط ٹیپ اسی رن میں درست کر لیں تو مشن پاس ہو جاتا ہے، نمبر کٹے رہتے ہیں۔ تیار کا مطلب ہے تمام مشن پاس، حفاظتی گیٹ پاس، اور پہلی کوشش کی اوسط 70 یا زیادہ۔",
+ speakStart:"ریڈی رائیڈر۔ ایک پوری شفٹ، ہب سے آخری نقدی گنتی تک۔",
+ locked:"بند ہے", doneWord:"مکمل", openWord:"کھلا ہے",
+ bossParcels:"پارسل پہنچائے", bossCash:"ہاتھ میں COD نقدی",
+ missionResult:"مشن کا نتیجہ", startColon:"شروع کریں: ",
+ safetyGateLine:"حفاظتی گیٹ: حفاظتی قدم غلط رہ جائے تو مشن پاس نہیں ہوتا، اسکور جتنا بھی زیادہ ہو۔ اسی رن میں غلطی درست کر لیں تو مشن پاس ہو جاتا ہے۔ غلط ٹیپ کے نمبر کٹے رہتے ہیں۔",
+ leaveTitle:"یہ مشن چھوڑ دیں؟", leaveBody:"یہ مشن ابھی مکمل نہیں ہوا۔ ابھی چھوڑا تو اس مشن کی پیش رفت ختم ہو جائے گی۔ آپ کے مکمل مشن اور آپ کے اسکور محفوظ رہیں گے۔",
+ stayBtn:"رکیں اور مکمل کریں", leaveBtn:"چھوڑ دیں، پیش رفت ختم",
+ leagueTeams:["ہب ہاکس (نمونہ)","سٹی رنرز (نمونہ)","نائٹ آؤلز (نمونہ)","اولڈ ٹاؤن یونٹ (نمونہ)"]
+}};
+function T(k){ var l=state.settings.lang; return (UI[l] && UI[l][k]) || UI.en[k] || k; }
+function L(o){ if(o==null) return ""; if(typeof o==="string") return o; var l=state.settings.lang; return o[l] || o.en || ""; }
+function fmt(n){ return Number(n).toLocaleString("en-US"); }
+function numHTML(n){ return '<span class="num">'+fmt(n)+'</span>'; }
+
+/* ================= STATE ================= */
+var SKEY = "rr3-state-v1";
+var state = null;
+function defaultState(){ return {
+  profile:{name:"", hub:""},
+  settings:{sound:true, lang:"en"},
+  missions:{}, skillErrors:{}, demoSeen:{}, helpedMissions:{},
+  totalSeconds:0, started:false, firstNoteSeen:false
+};}
+function loadState(){
+  state = defaultState();
+  try{ var raw = localStorage.getItem(SKEY); if(raw){ var s = JSON.parse(raw); if(s && typeof s==="object"){ for(var k in s) state[k]=s[k]; if(!state.settings) state.settings={sound:true,lang:"en"}; if(!state.profile) state.profile={name:"",hub:""}; } } }catch(e){}
+}
+function saveState(){ try{ localStorage.setItem(SKEY, JSON.stringify(state)); }catch(e){} }
+function mrec(mid){ if(!state.missions[mid]) state.missions[mid]={best:0, played:false, passed:false, first:null, firstHelped:false, safetyOk:false}; return state.missions[mid]; }
+
+/* ================= SCORES (single source of truth) ================= */
+function starsFromScore(s){ return s>=90?3 : s>=70?2 : s>=45?1 : 0; }
+function totalPoints(){ var t=0; MISSIONS.forEach(function(m){ t += mrec(m.id).best; }); return t; }
+function totalPointsMax(){ return MISSIONS.length * MAX_PER_MISSION; }
+function totalStars(){ var t=0; MISSIONS.forEach(function(m){ t += starsFromScore(mrec(m.id).best); }); return t; }
+function totalStarsMax(){ return MISSIONS.length * 3; }
+function missionsPassed(){ var t=0; MISSIONS.forEach(function(m){ if(mrec(m.id).passed) t++; }); return t; }
+function pointsText(){ return fmt(totalPoints()) + " / " + fmt(totalPointsMax()); }
+function firstAttemptAvg(){ var sum=0, n=0; MISSIONS.forEach(function(m){ var r=mrec(m.id); if(r.first!=null){ sum+=r.first; n++; } }); return n? Math.round(sum/n) : null; }
+function isReady(){ if(missionsPassed()<MISSIONS.length) return false; for(var i=0;i<MISSIONS.length;i++){ if(!mrec(MISSIONS[i].id).safetyOk) return false; } var a=firstAttemptAvg(); return a!=null && a>=READY_FIRST_AVG; }
+
+/* ================= SOUND ================= */
+var currentSpeak = "";
+/* There is no voice narration in this game. speak() is kept as a no-op so
+   older call sites stay harmless; the speaker button is only the master
+   Sound on/off switch for the game's sound effects. */
+function speak(txt){ currentSpeak = txt || ""; }
+function stopSpeak(){ document.querySelectorAll("[data-speaker]").forEach(function(b){ b.classList.remove("playing"); }); }
+function updateSpeakers(){
+  document.querySelectorAll("[data-speaker]").forEach(function(b){
+    b.innerHTML = icon(state.settings.sound ? "speaker" : "speakerOff");
+    b.classList.toggle("off", !state.settings.sound);
+  });
+  var sw = document.getElementById("sw-sound"); if(sw) sw.classList.toggle("on", !!state.settings.sound);
+}
+function toggleSound(fromSettings){
+  state.settings.sound = !state.settings.sound;
+  saveState(); updateSpeakers();
+  if(!state.settings.sound){ stopSpeak(); }
+}
+/* ================= NAVIGATION ================= */
+var currentScreen = "scr-start";
+function show(id){
+  currentScreen = id;
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.toggle("active", s.id===id); });
+  window.scrollTo(0,0);
+  refreshPoints();
+}
+function refreshPoints(){
+  var html = starIcon(true,16) + " " + numHTML(totalPoints()) + " / " + fmt(totalPointsMax());
+  ["hud-points","intro-points","result-points","league-points","report-points"].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML = html; });
+  var bar = document.getElementById("hud-bar"); if(bar) bar.style.width = (totalPointsMax()? (100*totalPoints()/totalPointsMax()) : 0) + "%";
+  var cap = document.getElementById("hud-cap"); if(cap) cap.innerHTML = T("scoreOf") + ": " + pointsText() + " · ★ " + fmt(totalStars()) + " / " + fmt(totalStarsMax());
+}
+function applyStatic(){
+  document.body.classList.toggle("lang-ur", state.settings.lang==="ur");
+  document.body.style.direction = state.settings.lang==="ur" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(function(el){ el.textContent = T(el.getAttribute("data-t")); });
+  document.querySelectorAll("[data-ic]").forEach(function(el){ el.innerHTML = icon(el.getAttribute("data-ic"),22); });
+  document.getElementById("btn-league").innerHTML = icon("trophy");
+  document.getElementById("btn-settings").innerHTML = icon("gear");
+  document.getElementById("btn-help").innerHTML = icon("help",17) + "<span>"+T("helpBtn")+"</span>";
+  document.getElementById("inp-name").placeholder = T("namePh");
+  document.getElementById("inp-hub").placeholder = T("hubPh");
+  document.getElementById("lang-en").classList.toggle("on", state.settings.lang==="en");
+  document.getElementById("lang-ur").classList.toggle("on", state.settings.lang==="ur");
+  document.getElementById("set-lang-en").classList.toggle("on", state.settings.lang==="en");
+  document.getElementById("set-lang-ur").classList.toggle("on", state.settings.lang==="ur");
+  document.getElementById("btn-start").textContent = state.started ? T("continueBtn") : T("startBtn");
+  document.getElementById("btn-report").textContent = T("reportBtn");
+  document.getElementById("btn-copy-report").textContent = T("copyReport");
+  document.getElementById("btn-stay").textContent = T("stayBtn");
+  document.getElementById("btn-leave").textContent = T("leaveBtn");
+  var rb = document.getElementById("btn-reset"); rb.textContent = T("resetBtn"); rb.dataset.armed="";
+  document.querySelectorAll("[data-speaker]").forEach(function(b){ b.setAttribute("aria-label", T("soundRow")); });
+  document.getElementById("btn-league").setAttribute("aria-label", T("leagueTitle"));
+  document.getElementById("btn-settings").setAttribute("aria-label", T("settingsTitle"));
+  updateSpeakers(); refreshPoints();
+}
+/* Leaving a mission mid run must never wipe progress silently. Back taps
+   and language switches during a live run go through requestExit, which
+   shows the leave warning first; Stay keeps the run, Leave discards it. */
+var pendingExit = null;
+function requestExit(action){
+  if(run && !run.done && currentScreen==="scr-play"){
+    pendingExit = action;
+    document.getElementById("sheet-leave").classList.add("show");
+    return;
+  }
+  action();
+}
+function closeLeaveSheet(){ document.getElementById("sheet-leave").classList.remove("show"); pendingExit = null; }
+function setLang(l){
+  if(run && !run.done && currentScreen==="scr-play" && l!==state.settings.lang){
+    requestExit(function(){ run = null; state.settings.lang = l; saveState(); applyStatic(); renderHome(); show("scr-home"); });
+    return;
+  }
+  state.settings.lang = l; saveState(); applyStatic(); rerender();
+}
+function rerender(){
+  if(currentScreen==="scr-home") renderHome();
+  else if(currentScreen==="scr-league") renderLeague();
+  else if(currentScreen==="scr-report") renderReport();
+  else if(currentScreen==="scr-intro" && curMission) fillIntro(curMission);
+  else if(currentScreen==="scr-result" && lastResult) showResult(lastResult.mid, true);
+}
+
+/* ================= SKILLS AND AREAS ================= */
+var SKILLS = {
+  scan:{en:"Scanning and matching", ur:"اسکین اور ملاپ"},
+  parcel:{en:"Parcel care and loading", ur:"پارسل کی دیکھ بھال اور لوڈنگ"},
+  safety:{en:"Bike and road safety", ur:"بائیک اور سڑک کی حفاظت"},
+  route:{en:"Route sense", ur:"راستے کی سمجھ"},
+  respect:{en:"Customer respect", ur:"کسٹمر سے عزت سے بات"},
+  cash:{en:"Cash and COD care", ur:"نقدی اور COD کی دیکھ بھال"},
+  app:{en:"App steps", ur:"ایپ کے مراحل"},
+  scam:{en:"Scam spotting", ur:"دھوکے کی پہچان"},
+  money:{en:"Money sense", ur:"پیسے کی سمجھ"}
+};
+var AREAS = [
+ {id:"a1", name:{en:"At the Hub", ur:"ہب پر"}, missions:["m1","m2","m3"]},
+ {id:"a2", name:{en:"Pre Ride Check", ur:"سفر سے پہلے جانچ"}, missions:["m4"]},
+ {id:"a3", name:{en:"On the Road", ur:"سڑک پر"}, missions:["m5"]},
+ {id:"a4", name:{en:"The Delivery Run", ur:"ڈیلیوری کا چکر"}, missions:["m6","m7","m8"]},
+ {id:"a5", name:{en:"When Things Go Wrong", ur:"جب مسئلہ آئے"}, missions:["m9","m10"]},
+ {id:"a6", name:{en:"Seller, Scam and Money", ur:"سیلر، دھوکا اور پیسہ"}, missions:["m11","m12","m13"]},
+ {id:"a7", name:{en:"Back at the Hub", ur:"واپس ہب پر"}, missions:["m14"]},
+ {id:"a8", name:{en:"Boss Shift", ur:"باس شفٹ"}, missions:["m15"]}
+];
+function B(en, ur){ return {en:en, ur:ur}; }
+
+/* ================= MISSIONS ================= */
+var MISSIONS = [
+/* ---------- AREA 1: AT THE HUB ---------- */
+{id:"m1", area:"a1", icon:"scan",
+ name:B("Match the Parcel Numbers","پارسل نمبر ملائیں"),
+ sub:B("Every parcel on your bike must be on your day list.","آپ کی بائیک کا ہر پارسل آپ کی دن کی فہرست میں ہونا چاہیے۔"),
+ ustad:B("Morning, janab. Before anything else, we match numbers. A wrong parcel on your bike means a wrong door, an angry customer, and a return trip. Read the number on top, then tap the same parcel.","صبح بخیر جناب۔ سب سے پہلے ہم نمبر ملاتے ہیں۔ غلط پارسل بائیک پر ہو تو غلط دروازہ، ناراض کسٹمر، اور واپسی کا چکر لگتا ہے۔ اوپر دیا نمبر پڑھیں، پھر اسی پارسل پر ٹیپ کریں۔"),
+ prove:B("You can match a parcel number to the day list, digit by digit, before the parcel goes on the bike.","آپ بائیک پر رکھنے سے پہلے پارسل نمبر کو دن کی فہرست سے ہندسہ بہ ہندسہ ملا سکتے ہیں۔"),
+ skills:["scan"],
+ rounds:[
+  {type:"match", icon:"scan", skill:"scan", code:"PK-4821", options:["PK-4281","PK-4821","PK-8421"], prompt:B("Your list says PK-4821. Tap that parcel.","آپ کی فہرست میں PK-4821 ہے۔ اسی پارسل پر ٹیپ کریں۔"), why:B("Digit by digit: 4, 8, 2, 1. The other two swap digits, which is the most common mix up.","ہندسہ بہ ہندسہ: 4، 8، 2، 1۔ باقی دو میں ہندسے الٹے ہیں، یہی سب سے عام غلطی ہے۔")},
+  {type:"match", icon:"scan", skill:"scan", code:"PK-9056", options:["PK-9056","PK-9065","PK-0956"], prompt:B("Next on the list: PK-9056. Tap that parcel.","فہرست میں اگلا: PK-9056۔ اسی پارسل پر ٹیپ کریں۔"), why:B("Same digits, right order. Always read the full number out, never just the first two digits.","وہی ہندسے، درست ترتیب۔ ہمیشہ پورا نمبر پڑھیں، صرف پہلے دو ہندسے نہیں۔")},
+  {type:"match", icon:"scan", skill:"scan", code:"PK-3317", options:["PK-3371","PK-3137","PK-3317"], prompt:B("Last one for this shelf: PK-3317.","اس شیلف کا آخری: PK-3317۔"), why:B("The two wrong ones both hide the swap in the middle digits. Slow reading beats a fast guess.","دونوں غلط میں بیچ کے ہندسے بدلے ہیں۔ آہستہ پڑھنا تیز اندازے سے بہتر ہے۔")},
+  {type:"choice", icon:"hub", skill:"scan", prompt:B("A parcel on your trolley is not on your list at all. What do you do?","آپ کی ٹرالی پر ایک پارسل ہے جو آپ کی فہرست میں بالکل نہیں۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Load it too. One extra parcel will not hurt, and its stop may be on your way.","اسے بھی لوڈ کر لیں۔ ایک اضافی پارسل سے کچھ نہیں ہوتا، اور اس کا اسٹاپ آپ کے راستے میں ہو سکتا ہے۔"), ok:false, why:B("Wrong pick. A parcel that is not on your list is not yours to carry. Its real rider will be marked short, and if it is lost, the last record points to you.","غلط انتخاب۔ جو پارسل آپ کی فہرست میں نہیں، وہ آپ کے لے جانے کے لیے نہیں۔ اس کے اصل رائیڈر کو کمی پڑے گی، اور یہ گم ہوا تو آخری ریکارڈ آپ کی طرف اشارہ کرے گا۔")},
+    {t:B("Scan it and hand it to the hub in-charge.","اسے اسکین کریں اور ہب انچارج کے حوالے کریں۔"), ok:true, why:B("Right pick. Scanning tells the hub where the parcel is, and the in-charge sends it to the right rider.","درست انتخاب۔ اسکین سے ہب کو پتہ چلتا ہے کہ پارسل کہاں ہے، اور انچارج اسے درست رائیڈر کو بھیجتا ہے۔")},
+    {t:B("Put it back on any shelf. The hub staff will sort it out.","اسے کسی بھی شیلف پر رکھ دیں۔ ہب کا عملہ خود دیکھ لے گا۔"), ok:false, why:B("Wrong pick. A parcel left anywhere without a scan can sit lost for hours, and the last person seen with it is you.","غلط انتخاب۔ بغیر اسکین کہیں بھی رکھا پارسل گھنٹوں گم رہ سکتا ہے، اور آخری بار وہ آپ کے پاس دیکھا گیا تھا۔")}
+   ]}
+ ]},
+{id:"m2", area:"a1", icon:"eye",
+ name:B("Scan and Spot","اسکین کریں اور مسئلہ تلاش کریں"),
+ sub:B("One wrong parcel and one damaged parcel are hiding in your load.","آپ کے لوڈ میں ایک غلط پارسل اور ایک خراب پارسل چھپا ہے۔"),
+ ustad:B("Scan every parcel as it comes to you. Then look with your eyes: a parcel for another rider, or a parcel that is torn or wet, must never go on your bike. Tap every card that has a problem.","ہر پارسل آتے ہی اسکین کریں۔ پھر آنکھوں سے دیکھیں: دوسرے رائیڈر کا پارسل، یا پھٹا ہوا یا گیلا پارسل، آپ کی بائیک پر کبھی نہ جائے۔ ہر اس کارڈ پر ٹیپ کریں جس میں مسئلہ ہو۔"),
+ prove:B("You can scan a load and spot the wrong parcel and the damaged parcel before riding out.","آپ نکلنے سے پہلے لوڈ اسکین کر کے غلط پارسل اور خراب پارسل پہچان سکتے ہیں۔"),
+ skills:["scan","parcel"],
+ rounds:[
+  {type:"spot", icon:"eye", skill:"scan", prompt:B("Your list: PK-101, PK-102, PK-103, PK-104, PK-105. One parcel here is NOT yours. Tap it.","آپ کی فہرست: PK-101، PK-102، PK-103، PK-104، PK-105۔ ان میں ایک پارسل آپ کا نہیں۔ اس پر ٹیپ کریں۔"),
+   cards:[
+    {t:"PK-101", icon:"box", bad:false},{t:"PK-102", icon:"box", bad:false},
+    {t:"PK-210", icon:"box", bad:true, why:B("PK-210 is not on your list. It belongs to another rider. Scan it and hand it to the in-charge.","PK-210 آپ کی فہرست میں نہیں۔ یہ دوسرے رائیڈر کا ہے۔ اسے اسکین کر کے انچارج کے حوالے کریں۔")},
+    {t:"PK-103", icon:"box", bad:false},{t:"PK-104", icon:"box", bad:false},{t:"PK-105", icon:"box", bad:false}]},
+  {type:"spot", icon:"eye", skill:"parcel", prompt:B("Now check the condition of each parcel. Tap the damaged one.","اب ہر پارسل کی حالت دیکھیں۔ خراب پارسل پر ٹیپ کریں۔"),
+   cards:[
+    {t:"PK-101", icon:"box", bad:false, cond:B("Good","درست")},{t:"PK-102", icon:"box", bad:false, cond:B("Good","درست")},
+    {t:"PK-103", icon:"box", bad:false, cond:B("Good","درست")},
+    {t:"PK-104", icon:"box", bad:true, cond:B("Torn and wet","پھٹا اور گیلا"), why:B("Torn and wet means the goods inside may already be spoiled. If you carry it, the damage is blamed on you.","پھٹا اور گیلا مطلب اندر کا سامان خراب ہو سکتا ہے۔ آپ لے گئے تو نقصان آپ کے نام لگے گا۔")},
+    {t:"PK-105", icon:"box", bad:false, cond:B("Good","درست")}]},
+  {type:"choice", icon:"warn", skill:"parcel", prompt:B("You found a torn and wet parcel. What is the right step?","آپ کو پھٹا اور گیلا پارسل ملا۔ درست قدم کیا ہے؟"),
+   options:[
+    {t:B("Keep it aside, note it in the app, and tell the in-charge.","اسے الگ رکھیں، ایپ میں درج کریں، اور انچارج کو بتائیں۔"), ok:true, why:B("Right pick. The note in the app proves the damage was there before you touched the parcel.","درست انتخاب۔ ایپ میں اندراج ثابت کرتا ہے کہ نقصان آپ کے چھونے سے پہلے کا تھا۔")},
+    {t:B("Tape it up yourself and deliver it.","خود ٹیپ لگا کر پہنچا دیں۔"), ok:false, why:B("Wrong pick. Taping hides the damage. If the customer complains, there is no record that it arrived damaged.","غلط انتخاب۔ ٹیپ نقصان چھپا دیتی ہے۔ کسٹمر شکایت کرے تو کوئی ریکارڈ نہیں ہوگا کہ یہ خراب آیا تھا۔")},
+    {t:B("Load it anyway. A wet corner may dry on the way.","ویسے ہی لوڈ کر لیں۔ گیلا کونہ راستے میں خشک ہو جائے گا۔"), ok:false, why:B("Wrong pick. Wet goods spoil more on the road, and when the customer opens it, the damage is blamed on the rider who carried it.","غلط انتخاب۔ گیلا سامان راستے میں مزید خراب ہوتا ہے، اور کسٹمر کھولے تو نقصان اسی رائیڈر کے نام لگتا ہے جو اسے لایا تھا۔")}
+   ]}
+ ]},
+{id:"m3", area:"a1", icon:"bag",
+ name:B("Load in a Safe Order","محفوظ ترتیب سے لوڈ کریں"),
+ sub:B("Heavy at the bottom, glass kept apart, fragile on top, strap last.","بھاری نیچے، شیشہ الگ، نازک اوپر، پٹا آخر میں۔"),
+ ustad:B("Loading is not just fitting things in. Weight, glass, and soft parcels each have a place. Tap the cards in the order you would load them. I will tell you why each one goes there.","لوڈنگ صرف چیزیں ٹھونسنا نہیں۔ وزن، شیشہ، اور نرم پارسل، ہر ایک کی جگہ ہے۔ کارڈز اس ترتیب سے ٹیپ کریں جس سے آپ لوڈ کریں گے۔ میں بتاؤں گا ہر ایک وہاں کیوں جاتا ہے۔"),
+ prove:B("You can load a bike bag in a safe order and say why each parcel goes where it goes.","آپ بائیک بیگ محفوظ ترتیب سے لوڈ کر سکتے ہیں اور بتا سکتے ہیں کہ ہر پارسل اپنی جگہ کیوں ہے۔"),
+ skills:["parcel"],
+ rounds:[
+  {type:"seq", icon:"bag", skill:"parcel", prompt:B("Load the bag. Tap the cards in order, first to last.","بیگ لوڈ کریں۔ کارڈز ترتیب سے ٹیپ کریں، پہلے سے آخر تک۔"),
+   items:[
+    {t:B("Check every parcel against the day list","ہر پارسل دن کی فہرست سے ملائیں"), icon:"scan", why:B("Before any loading: every parcel in front of you must be on your list. Loading a wrong parcel is the mistake this step kills.","لوڈنگ سے پہلے: سامنے کا ہر پارسل آپ کی فہرست میں ہونا چاہیے۔ یہ قدم غلط پارسل لوڈ ہونے کی غلطی ختم کرتا ہے۔")},
+    {t:B("Heavy tool box","بھاری اوزاروں کا ڈبہ"), icon:"box", why:B("First into the bag, at the bottom. Heavy weight low down keeps the bike steady and crushes nothing.","بیگ میں پہلے، سب سے نیچے۔ بھاری وزن نیچے ہو تو بائیک سنبھلی رہتی ہے اور کچھ نہیں دبتا۔")},
+    {t:B("Two normal parcels","دو عام پارسل"), icon:"box", why:B("Next, in the middle. Normal parcels fill the space and hold each other still.","اس کے بعد، بیچ میں۔ عام پارسل جگہ بھرتے ہیں اور ایک دوسرے کو سنبھالتے ہیں۔")},
+    {t:B("Glass parcel, padded and apart","شیشے والا پارسل، لپیٹ کر الگ"), icon:"box", why:B("Next, padded and kept apart from hard parcels. Glass breaks from knocks, not from weight. Some riders put it last; apart and padded is the safe standard, because a top parcel can slide off.","اس کے بعد، لپیٹ کر سخت پارسلز سے الگ۔ شیشہ وزن سے نہیں، ٹکر سے ٹوٹتا ہے۔ کچھ رائیڈر اسے آخر میں رکھتے ہیں؛ الگ اور لپیٹ کر رکھنا محفوظ معیار ہے، کیونکہ اوپر والا پارسل پھسل سکتا ہے۔")},
+    {t:B("Soft fragile parcel","نرم نازک پارسل"), icon:"bag", why:B("Next, on top. Nothing presses on it, so it cannot be crushed.","اس کے بعد، سب سے اوپر۔ اس پر کچھ نہیں دبتا، اس لیے یہ کچلا نہیں جا سکتا۔")},
+    {t:B("Close the bag and fix the strap","بیگ بند کریں اور پٹا کس کریں"), icon:"strap", why:B("Last, always. A closed bag and a tight strap keep every parcel in its place on the road.","آخر میں، ہمیشہ۔ بند بیگ اور کسا ہوا پٹا سڑک پر ہر پارسل کو اس کی جگہ رکھتا ہے۔")}
+   ]}
+ ]},
+/* ---------- AREA 2: PRE RIDE ---------- */
+{id:"m4", area:"a2", icon:"helmet",
+ name:B("Pre Ride Check","سفر سے پہلے جانچ"),
+ sub:B("Six checks, in an order that puts safety first.","چھ جانچیں، اس ترتیب سے کہ حفاظت پہلے آئے۔"),
+ ustad:B("Two minutes here save you on the road. Helmet and brakes come early, before anything else, because they protect your life, not the parcel. Tap the checks in the right order.","یہاں کے دو منٹ سڑک پر آپ کو بچاتے ہیں۔ ہیلمٹ اور بریک سب سے پہلے آتے ہیں، کیونکہ یہ پارسل نہیں، آپ کی جان بچاتے ہیں۔ جانچیں درست ترتیب سے ٹیپ کریں۔"),
+ prove:B("You can run a full pre ride check in a safe order and say why safety items come first.","آپ مکمل پری رائیڈ جانچ محفوظ ترتیب سے کر سکتے ہیں اور بتا سکتے ہیں کہ حفاظتی چیزیں پہلے کیوں آتی ہیں۔"),
+ skills:["safety"],
+ rounds:[
+  {type:"seq", icon:"helmet", skill:"safety", prompt:B("Do the pre ride check. Tap the cards in order.","پری رائیڈ جانچ کریں۔ کارڈز ترتیب سے ٹیپ کریں۔"),
+   items:[
+    {t:B("Helmet on, strap closed","ہیلمٹ پہنیں، پٹا بند کریں"), icon:"helmet", safety:true, why:B("First. The helmet only works if the strap is closed. An open strap lets it fly off in a fall.","پہلے۔ ہیلمٹ تبھی کام کرتا ہے جب پٹا بند ہو۔ کھلا پٹا گرنے پر اسے اڑا دیتا ہے۔")},
+    {t:B("Test both brakes","دونوں بریک آزمائیں"), icon:"brake", safety:true, why:B("Second. Squeeze both levers before you move. A dead brake found here costs nothing; found on the road, it costs everything.","دوسرے۔ حرکت سے پہلے دونوں لیور دبائیں۔ یہاں پکڑی گئی خراب بریک مفت ہے؛ سڑک پر پکڑی گئی تو سب کچھ لے جاتی ہے۔")},
+    {t:B("Tyres and air","ٹائر اور ہوا"), icon:"tyre", why:B("Third. Low air makes the bike wander and eats fuel. A quick press and look is enough.","تیسرے۔ کم ہوا بائیک کو بھٹکاتی ہے اور پٹرول زیادہ کھاتی ہے۔ دبا کر دیکھنا کافی ہے۔")},
+    {t:B("Lights and horn","لائٹس اور ہارن"), icon:"light", why:B("Fourth. Others must see you and hear you, in daylight too.","چوتھے۔ دوسروں کو آپ نظر بھی آئیں اور سنائی بھی دیں، دن میں بھی۔")},
+    {t:B("Fuel and phone charge","پٹرول اور فون کی بیٹری"), icon:"fuel", why:B("Fifth. A dead phone means no app, no customer call, no proof of delivery.","پانچویں۔ بند فون کا مطلب ہے نہ ایپ، نہ کسٹمر کال، نہ ڈیلیوری کا ثبوت۔")},
+    {t:B("Bag strap and parcel count","بیگ کا پٹا اور پارسل گنتی"), icon:"bag", why:B("Last. Count against the list one final time, then ride.","آخر میں۔ فہرست سے آخری بار گنتی ملائیں، پھر چلیں۔")}
+   ]}
+ ]},
+/* ---------- AREA 3: ROAD ---------- */
+{id:"m5", area:"a3", icon:"eye",
+ name:B("Road Hazard Spotting","سڑک کے خطرات پہچانیں"),
+ sub:B("Slow down early. No parcel is worth a crash.","جلدی رفتار کم کریں۔ کوئی پارسل حادثے کے قابل نہیں۔"),
+ ustad:B("In each scene, pick the safest action. Speed is never the answer here. Safety steps are marked: miss one and the run does not pass.","ہر منظر میں محفوظ ترین عمل چنیں۔ یہاں رفتار کبھی جواب نہیں۔ حفاظتی قدم نشان زد ہیں: ایک رہا تو رن پاس نہیں ہوتا۔"),
+ prove:B("You can spot common road hazards early and choose the safe action every time.","آپ سڑک کے عام خطرات جلدی پہچان سکتے ہیں اور ہر بار محفوظ عمل چن سکتے ہیں۔"),
+ skills:["safety"],
+ rounds:[
+  {type:"choice", icon:"child", skill:"safety", safety:true, prompt:B("A child runs toward the road chasing a ball. What do you do?","ایک بچہ گیند کے پیچھے سڑک کی طرف بھاگ رہا ہے۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Slow down at once and cover the brake.","فوراً رفتار کم کریں اور بریک پر ہاتھ رکھیں۔"), ok:true, why:B("Right pick. Children change direction without warning. Slow early and you can stop in time.","درست انتخاب۔ بچے بغیر اشارے سمت بدلتے ہیں۔ جلدی رفتار کم کریں تو وقت پر رک سکتے ہیں۔")},
+    {t:B("Blow the horn and keep your speed.","ہارن بجائیں اور رفتار رکھیں۔"), ok:false, why:B("Wrong pick. A horn does not stop a child, and at full speed you cannot stop either.","غلط انتخاب۔ ہارن بچے کو نہیں روکتا، اور پوری رفتار پر آپ بھی نہیں رک سکتے۔")},
+    {t:B("Swerve around the child and keep your speed.","بچے کے گرد گھوم کر رفتار رکھتے ہوئے نکل جائیں۔"), ok:false, why:B("Wrong pick. A fast swerve on a loaded bike can throw you toward the child or into traffic. Slowing down is the only move that keeps everyone safe.","غلط انتخاب۔ لوڈ شدہ بائیک پر تیز موڑ آپ کو بچے کی طرف یا ٹریفک میں پھینک سکتا ہے۔ رفتار کم کرنا ہی وہ واحد قدم ہے جو سب کو محفوظ رکھتا ہے۔")}
+   ]},
+  {type:"choice", icon:"bus", skill:"safety", safety:true, prompt:B("A bus ahead is pulling out from its stop without looking. What do you do?","آگے ایک بس بغیر دیکھے اسٹاپ سے نکل رہی ہے۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Squeeze past on the left quickly.","بائیں سے جلدی نکل جائیں۔"), ok:false, why:B("Wrong pick. The gap is closing and the driver has not seen you.","غلط انتخاب۔ جگہ بند ہو رہی ہے اور ڈرائیور نے آپ کو دیکھا ہی نہیں۔")},
+    {t:B("Slow down, give space, and let it out.","رفتار کم کریں، جگہ دیں، اور اسے نکلنے دیں۔"), ok:true, why:B("Right pick. Ten seconds lost is nothing. A bus always wins against a bike.","درست انتخاب۔ دس سیکنڈ کا نقصان کچھ نہیں۔ بس ہمیشہ بائیک پر بھاری ہوتی ہے۔")},
+    {t:B("Stay close behind the bus and slip out with it.","بس کے بالکل پیچھے رہیں اور اس کے ساتھ ہی نکل جائیں۔"), ok:false, why:B("Wrong pick. Riding in the bus blind spot means the driver pulls out without ever seeing you. Space is what keeps you visible and safe.","غلط انتخاب۔ بس کے اندھے حصے میں رہنے کا مطلب ہے ڈرائیور آپ کو دیکھے بغیر نکلے گا۔ فاصلہ ہی آپ کو نظر میں بھی رکھتا ہے اور محفوظ بھی۔")}
+   ]},
+  {type:"choice", icon:"drop", skill:"safety", safety:true, prompt:B("Rain starts and the road turns wet and shiny. What changes?","بارش شروع ہو گئی اور سڑک گیلی اور چمکدار ہو گئی۔ کیا بدلے گا؟"),
+   options:[
+    {t:B("Nothing. Ride the same to finish on time.","کچھ نہیں۔ وقت پر ختم کرنے کے لیے ویسے ہی چلائیں۔"), ok:false, why:B("Wrong pick. A wet road needs much more space to stop, and the first rain lifts oil onto the surface.","غلط انتخاب۔ گیلی سڑک پر رکنے کے لیے کہیں زیادہ جگہ چاہیے، اور پہلی بارش تیل سطح پر لے آتی ہے۔")},
+    {t:B("Slow down and keep double distance.","رفتار کم کریں اور دوگنا فاصلہ رکھیں۔"), ok:true, why:B("Right pick. This is the safe standard. Stopping fully to wait is also sensible in very heavy rain, but if you ride, slow with double distance is the rule.","درست انتخاب۔ یہی محفوظ معیار ہے۔ بہت تیز بارش میں رک کر انتظار بھی سمجھداری ہے، لیکن چلنا ہو تو رفتار کم اور دوگنا فاصلہ ہی اصول ہے۔")},
+    {t:B("Ride a little faster and finish before the rain gets heavy.","تھوڑا تیز چلائیں اور بارش تیز ہونے سے پہلے ختم کر لیں۔"), ok:false, why:B("Wrong pick. Speed on a wet road is how riders slide. The rain will not wait, but a slower rider still reaches the door.","غلط انتخاب۔ گیلی سڑک پر رفتار ہی رائیڈر کو پھسلاتی ہے۔ بارش نہیں رکے گی، مگر آہستہ چلنے والا رائیڈر پھر بھی دروازے تک پہنچ جاتا ہے۔")}
+   ]},
+  {type:"choice", icon:"hole", skill:"safety", safety:true, prompt:B("An open manhole is just ahead in your lane. What do you do?","آپ کی لین میں آگے کھلا مین ہول ہے۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Swerve around it at once, without checking behind.","پیچھے دیکھے بغیر فوراً اس کے گرد گھوم جائیں۔"), ok:false, why:B("Wrong pick. The hole is not the only danger. A vehicle behind you may be moving into the same space, and a blind swerve puts you in front of it.","غلط انتخاب۔ خطرہ صرف مین ہول نہیں۔ آپ کے پیچھے والی گاڑی اسی جگہ آ رہی ہو سکتی ہے، اور اندھا موڑ آپ کو اس کے سامنے ڈال دیتا ہے۔")},
+    {t:B("Slow down, check behind, and move around it.","رفتار کم کریں، پیچھے دیکھیں، اور بچ کر گزریں۔"), ok:true, why:B("Right pick. The mirror check matters: the danger is often the vehicle behind you, not the hole.","درست انتخاب۔ پیچھے دیکھنا ضروری ہے: خطرہ اکثر مین ہول نہیں، آپ کے پیچھے والی گاڑی ہوتی ہے۔")},
+    {t:B("Keep your line and cross it slowly. It is only one hole.","اپنی لائن رکھیں اور آہستہ اس پر سے گزر جائیں۔ ایک ہی تو مین ہول ہے۔"), ok:false, why:B("Wrong pick. An open manhole can swallow a front wheel even at slow speed. There is no safe way through it, only around it.","غلط انتخاب۔ کھلا مین ہول آہستہ رفتار پر بھی اگلا پہیہ نگل سکتا ہے۔ اس میں سے گزرنے کا کوئی محفوظ راستہ نہیں، صرف اس کے گرد سے ہے۔")}
+   ]}
+ ]},
+/* ---------- AREA 4: DELIVERY RUN ---------- */
+{id:"m6", area:"a4", icon:"pin",
+ name:B("Plan the Route Order","راستے کی ترتیب بنائیں"),
+ sub:B("Nearest stops first. Never cross the city twice.","قریب کے اسٹاپ پہلے۔ شہر کو دو بار پار نہ کریں۔"),
+ ustad:B("A good route is planned before the wheel moves. These four stops are on one side of the city, from near the hub to far. Tap them in the order you would ride them.","اچھا راستہ پہیہ چلنے سے پہلے بنتا ہے۔ یہ چار اسٹاپ شہر کی ایک طرف ہیں، ہب کے قریب سے دور تک۔ اس ترتیب سے ٹیپ کریں جس سے آپ جائیں گے۔"),
+ prove:B("You can order delivery stops so the route flows one way with no backtracking.","آپ ڈیلیوری اسٹاپ اس ترتیب سے رکھ سکتے ہیں کہ راستہ ایک طرف چلے اور واپسی نہ ہو۔"),
+ skills:["route"],
+ rounds:[
+  {type:"seq", icon:"pin", skill:"route", prompt:B("Order the four stops for one smooth run.","ایک آسان چکر کے لیے چار اسٹاپ ترتیب دیں۔"),
+   items:[
+    {t:B("Stop 1: Main Bazaar, 5 minutes from hub","اسٹاپ 1: مین بازار، ہب سے 5 منٹ"), icon:"pin", why:B("First, the nearest stop. Every route starts close and moves outward.","پہلے، سب سے قریب اسٹاپ۔ ہر راستہ قریب سے شروع ہو کر باہر جاتا ہے۔")},
+    {t:B("Stop 2: School Road, same side, 10 minutes on","اسٹاپ 2: اسکول روڈ، اسی طرف، 10 منٹ آگے"), icon:"pin", why:B("Second. It is on the same road going out, so no time is wasted turning back.","دوسرے۔ یہ باہر جانے والی اسی سڑک پر ہے، اس لیے واپس مڑنے کا وقت ضائع نہیں ہوتا۔")},
+    {t:B("Stop 3: Garden Town gate, further out","اسٹاپ 3: گارڈن ٹاؤن گیٹ، مزید آگے"), icon:"pin", why:B("Third. Still moving away from the hub in one line.","تیسرے۔ اب بھی ہب سے دور ایک ہی لائن میں جا رہے ہیں۔")},
+    {t:B("Stop 4: Old Fort area, the far end","اسٹاپ 4: پرانا قلعہ علاقہ، سب سے آخر"), icon:"pin", why:B("Last, the farthest stop. From here you turn once and ride back toward the hub and your seller pickup.","آخر میں، سب سے دور اسٹاپ۔ یہاں سے ایک بار مڑیں اور ہب اور سیلر پک اپ کی طرف واپس آئیں۔")}
+   ]},
+  {type:"choice", icon:"clock", skill:"route", prompt:B("Stop 2 customer asked for delivery after 6 pm, but it is 2 pm now. What is the sensible move?","اسٹاپ 2 کے کسٹمر نے شام 6 بجے کے بعد ڈیلیوری کہی تھی، مگر ابھی 2 بجے ہیں۔ سمجھداری والا قدم کیا ہے؟"),
+   options:[
+    {t:B("Call, confirm the time, and move that stop to the end of the run.","کال کریں، وقت کنفرم کریں، اور وہ اسٹاپ چکر کے آخر میں رکھیں۔"), ok:true, why:B("Right pick. One call saves a wasted door visit, and the stop still gets done on this run.","درست انتخاب۔ ایک کال ضائع دروازہ بچاتی ہے، اور اسٹاپ اسی چکر میں ہو بھی جاتا ہے۔")},
+    {t:B("Go now anyway. The customer may be home.","ابھی چلے جائیں۔ ہو سکتا ہے کسٹمر گھر ہو۔"), ok:false, why:B("Wrong pick. The customer already told you the time. Going early usually means a failed attempt and a second trip.","غلط انتخاب۔ کسٹمر وقت بتا چکا ہے۔ جلدی جانے کا مطلب اکثر ناکام کوشش اور دوسرا چکر ہوتا ہے۔")},
+    {t:B("Mark the stop attempted now, without going, and save the trip.","بغیر گئے ابھی اس اسٹاپ پر کوشش درج کر دیں اور چکر بچا لیں۔"), ok:false, why:B("Wrong pick. Marking an attempt you never made is a false entry. Reorder the stop to the end of the run and make the real attempt there.","غلط انتخاب۔ جو کوشش آپ نے کی ہی نہیں اسے درج کرنا جھوٹا اندراج ہے۔ اسٹاپ چکر کے آخر میں رکھیں اور وہاں اصل کوشش کریں۔")}
+   ]}
+ ]},
+{id:"m7", area:"a4", icon:"call",
+ name:B("Call the Customer","کسٹمر کو کال کریں"),
+ sub:B("Respectful words open doors. Use the aap form, always.","عزت والے الفاظ دروازے کھولتے ہیں۔ ہمیشہ آپ والا لہجہ رکھیں۔"),
+ ustad:B("Your voice reaches the customer before your bike does. Speak with respect, in the aap form, and say who you are and what you carry. Pick the line a good courier uses.","آپ کی آواز آپ کی بائیک سے پہلے کسٹمر تک پہنچتی ہے۔ عزت سے، آپ والے لہجے میں بات کریں، اور بتائیں آپ کون ہیں اور کیا لائے ہیں۔ وہ جملہ چنیں جو اچھا کوریئر بولتا ہے۔"),
+ prove:B("You can open a customer call with respect, confirm the address calmly, and handle a timing request without arguing.","آپ کسٹمر کال عزت سے شروع کر سکتے ہیں، سکون سے پتہ کنفرم کر سکتے ہیں، اور وقت کی درخواست پر بحث کیے بغیر معاملہ سنبھال سکتے ہیں۔"),
+ skills:["respect"],
+ rounds:[
+  {type:"choice", icon:"call", skill:"respect", prompt:B("You reach the street. Pick your opening line on the call.","آپ گلی میں پہنچ گئے۔ کال پر اپنی پہلی بات چنیں۔"),
+   options:[
+    {t:B("Come down quickly, I have your parcel.","جلدی نیچے آؤ، تمہارا پارسل ہے۔"), ok:false, why:B("Wrong pick. The tum form and an order to hurry sound rude. Customers remember the voice, not just the parcel.","غلط انتخاب۔ تم والا لہجہ اور جلدی کا حکم بدتمیزی لگتا ہے۔ کسٹمر کو پارسل نہیں، آواز یاد رہتی ہے۔")},
+    {t:B("Assalam o Alaikum janab, I am the courier rider. Your parcel has arrived. I am at your gate.","السلام علیکم جناب، میں کوریئر رائیڈر بول رہا ہوں۔ آپ کا پارسل آ گیا ہے۔ میں آپ کے گیٹ پر ہوں۔"), ok:true, why:B("Right pick. Greeting, your name and job, and where you are. Respectful aap form from the first word.","درست انتخاب۔ سلام، اپنا تعارف، اور آپ کہاں ہیں۔ پہلے لفظ سے آپ والا عزت بھرا لہجہ۔")},
+    {t:B("Where is your house? I cannot find it.","تمہارا گھر کہاں ہے؟ مل نہیں رہا۔"), ok:false, why:B("Wrong pick. No greeting and a blunt tone. Ask with respect and give a landmark instead.","غلط انتخاب۔ نہ سلام، نہ نرمی۔ عزت سے پوچھیں اور کوئی نشانی بتائیں۔")}
+   ]},
+  {type:"choice", icon:"pin", skill:"respect", prompt:B("The address is unclear. Pick the respectful way to confirm it.","پتہ واضح نہیں۔ اسے کنفرم کرنے کا عزت والا طریقہ چنیں۔"),
+   options:[
+    {t:B("Janab, I am near the big mosque. Is your house on this street?","جناب، میں بڑی مسجد کے قریب ہوں۔ کیا آپ کا گھر اسی گلی میں ہے؟"), ok:true, why:B("Right pick. A landmark helps the customer guide you, and the tone stays respectful.","درست انتخاب۔ نشانی سے کسٹمر آپ کی رہنمائی کر سکتا ہے، اور لہجہ عزت والا رہتا ہے۔")},
+    {t:B("You wrote the address wrong. Tell me again.","آپ نے پتہ غلط لکھا ہے۔ دوبارہ بتائیں۔"), ok:false, why:B("Wrong pick. Blaming the customer starts a fight. The address may be fine; the street may just be hard to find.","غلط انتخاب۔ کسٹمر پر الزام لڑائی شروع کرتا ہے۔ پتہ درست ہو سکتا ہے؛ گلی بس مشکل سے ملتی ہے۔")},
+    {t:B("I am leaving. Come to the main road.","میں جا رہا ہوں۔ مین روڈ پر آ جائیں۔"), ok:false, why:B("Wrong pick. Your job is the door, not the main road, unless the customer agrees to meet.","غلط انتخاب۔ آپ کا کام دروازہ ہے، مین روڈ نہیں، جب تک کسٹمر ملنے پر راضی نہ ہو۔")}
+   ]},
+  {type:"choice", icon:"clock", skill:"respect", prompt:B("The customer says: I am at work, please come after one hour. Pick your reply.","کسٹمر کہتا ہے: میں کام پر ہوں، براہ کرم ایک گھنٹے بعد آئیں۔ اپنا جواب چنیں۔"),
+   options:[
+    {t:B("No, I cannot come again. Take it now.","نہیں، میں دوبارہ نہیں آ سکتا۔ ابھی لے لیں۔"), ok:false, why:B("Wrong pick. Refusing a reasonable request loses the delivery and earns a complaint.","غلط انتخاب۔ مناسب درخواست سے انکار ڈیلیوری بھی کھوتا ہے اور شکایت بھی لاتا ہے۔")},
+    {t:B("Stand at your gate and wait, I am busy too.","اپنے گیٹ پر کھڑے رہیں، میں بھی مصروف ہوں۔"), ok:false, why:B("Wrong pick. Ordering a customer around is never acceptable.","غلط انتخاب۔ کسٹمر کو حکم دینا کبھی قابل قبول نہیں۔")},
+    {t:B("No problem, janab. I will come again in one hour. Please keep your phone near you.","کوئی بات نہیں جناب۔ میں ایک گھنٹے بعد دوبارہ آؤں گا۔ براہ کرم فون اپنے پاس رکھیں۔"), ok:true, why:B("Right pick. Agree warmly, fix the plan, and mark the attempt in the app when you get there. You will practice that in Area 5.","درست انتخاب۔ نرمی سے مان لیں، منصوبہ طے کریں، اور وہاں پہنچ کر کوشش ایپ میں درج کریں۔ اس کی مشق آپ حصہ 5 میں کریں گے۔")}
+   ]}
+ ]},
+{id:"m8", area:"a4", icon:"cash",
+ name:B("Door Handover and COD","دروازے پر حوالگی اور COD"),
+ sub:B("Check the amount on the parcel, take exact cash, give exact change, then mark delivered.","رقم پارسل پر دیکھیں، درست نقدی لیں، درست بقایا دیں، پھر ڈیلیورڈ درج کریں۔"),
+ ustad:B("At the door, three things protect you: the COD amount written on the parcel, exact cash, and the app entry made in front of the customer. Do them in that order.","دروازے پر تین چیزیں آپ کی حفاظت کرتی ہیں: پارسل پر لکھی COD رقم، درست نقدی، اور کسٹمر کے سامنے ایپ میں اندراج۔ اسی ترتیب سے کریں۔"),
+ prove:B("You can check the COD amount on the parcel, make exact change by tapping notes and coins, and choose the right proof of delivery.","آپ پارسل پر COD رقم دیکھ سکتے ہیں، نوٹ اور سکے ٹیپ کر کے درست بقایا بنا سکتے ہیں، اور درست ڈیلیوری ثبوت چن سکتے ہیں۔"),
+ skills:["cash","respect"],
+ rounds:[
+  {type:"choice", icon:"receipt", skill:"cash", prompt:B("At the door, how do you know the COD amount to collect?","دروازے پر آپ کو کیسے پتہ چلے گا کہ COD کتنی لینی ہے؟"),
+   options:[
+    {t:B("Ask the customer how much it is.","کسٹمر سے پوچھیں کتنی ہے۔"), ok:false, why:B("Wrong pick. The customer may misremember, or may try a lower amount. The parcel label is the record.","غلط انتخاب۔ کسٹمر کو غلط یاد ہو سکتا ہے، یا وہ کم رقم بتا سکتا ہے۔ پارسل کا لیبل ہی ریکارڈ ہے۔")},
+    {t:B("Read the COD amount printed on the parcel and in the app.","پارسل پر چھپی اور ایپ میں دی گئی COD رقم پڑھیں۔"), ok:true, why:B("Right pick. Label and app must agree. If they differ, call the hub before taking cash.","درست انتخاب۔ لیبل اور ایپ ایک ہونے چاہئیں۔ فرق ہو تو نقدی لینے سے پہلے ہب کو کال کریں۔")},
+    {t:B("Take whatever cash the customer hands you and sort it out at the hub.","کسٹمر جو نقدی دے وہ لے لیں، حساب ہب پر دیکھ لیں گے۔"), ok:false, why:B("Wrong pick. If the amount is short, the gap is found at the hub count and it comes out of your pocket. The label and the app give the amount before any cash moves.","غلط انتخاب۔ رقم کم ہو تو فرق ہب کی گنتی میں نکلتا ہے اور آپ کی جیب سے جاتا ہے۔ لیبل اور ایپ نقدی ہلنے سے پہلے رقم بتا دیتے ہیں۔")}
+   ]},
+  {type:"cash", icon:"cash", skill:"cash", target:550, prompt:B("COD is Rs 1,450. The customer gives you a Rs 2,000 note. Tap notes and coins to give the exact change.","COD 1,450 روپے ہے۔ کسٹمر نے 2,000 کا نوٹ دیا۔ نوٹ اور سکے ٹیپ کر کے درست بقایا بنائیں۔"),
+   why:B("2,000 minus 1,450 is 550. One 500 note and one 50 note make it exact.","2,000 منفی 1,450 برابر 550۔ ایک 500 کا نوٹ اور ایک 50 کا نوٹ درست بقایا بناتے ہیں۔")},
+  {type:"choice", icon:"phone", skill:"app", prompt:B("Cash is in your hand and the parcel is handed over. What is the right proof of delivery?","نقدی آپ کے ہاتھ میں ہے اور پارسل حوالے ہو گیا۔ ڈیلیوری کا درست ثبوت کیا ہے؟"),
+   options:[
+    {t:B("Mark delivered in the app at the door, with the receiver name.","دروازے پر ہی ایپ میں ڈیلیورڈ درج کریں، لینے والے کے نام کے ساتھ۔"), ok:true, why:B("Right pick. The entry at the door, with the name of who took it, ends all arguments later.","درست انتخاب۔ دروازے پر اندراج، لینے والے کے نام کے ساتھ، بعد کی ہر بحث ختم کر دیتا ہے۔")},
+    {t:B("Mark it delivered now, hand the parcel over in the evening.","ابھی ڈیلیورڈ درج کر دیں، پارسل شام کو دے دیں گے۔"), ok:false, why:B("Wrong pick. Marking before handing over is a false entry. If anything happens to the parcel, the record says you delivered it.","غلط انتخاب۔ حوالگی سے پہلے اندراج جھوٹا اندراج ہے۔ پارسل کو کچھ ہوا تو ریکارڈ کہے گا آپ نے پہنچا دیا تھا۔")},
+    {t:B("Leave the parcel with the building guard and mark it delivered.","پارسل عمارت کے گارڈ کے پاس چھوڑ کر ڈیلیورڈ درج کر دیں۔"), ok:false, why:B("Wrong pick. The guard is not the receiver for this parcel. Without the receiver name taken at the door, the handover can be denied later and the loss is yours.","غلط انتخاب۔ گارڈ اس پارسل کا لینے والا نہیں ہے۔ دروازے پر لینے والے کا نام نہ ہو تو بعد میں حوالگی سے انکار ہو سکتا ہے اور نقصان آپ کا ہوگا۔")}
+   ]}
+ ]},
+/* ---------- AREA 5: EXCEPTIONS ---------- */
+{id:"m9", area:"a5", icon:"bell",
+ name:B("Customer Not Available","کسٹمر موجود نہیں"),
+ sub:B("Call, wait, mark the attempt. Returning the parcel the right way is a correct ending.","کال کریں، انتظار کریں، کوشش درج کریں۔ پارسل درست طریقے سے واپس لانا درست اختتام ہے۔"),
+ ustad:B("Some doors do not open. There is a proper order for this: call the customer, wait a little, mark the attempt in the app, and if it still fails, the parcel goes back to the hub. That return is not a failure. It is the job done right.","کچھ دروازے نہیں کھلتے۔ اس کی ایک درست ترتیب ہے: کسٹمر کو کال کریں، کچھ انتظار کریں، ایپ میں کوشش درج کریں، اور پھر بھی نہ ہو تو پارسل ہب واپس جاتا ہے۔ یہ واپسی ناکامی نہیں۔ یہ کام درست طریقے سے ہوا ہے۔"),
+ prove:B("You can handle a no answer door in the right order: call, wait, mark the attempt, and return the parcel properly.","آپ بند دروازے کو درست ترتیب سے سنبھال سکتے ہیں: کال، انتظار، کوشش کا اندراج، اور پارسل کی درست واپسی۔"),
+ skills:["app","respect"],
+ rounds:[
+  {type:"choice", icon:"bell", skill:"app", prompt:B("You ring the bell twice. Nobody answers. What is the first step?","آپ دو بار گھنٹی بجاتے ہیں۔ کوئی جواب نہیں۔ پہلا قدم کیا ہے؟"),
+   options:[
+    {t:B("Call the customer on the number in the app.","ایپ میں دیے نمبر پر کسٹمر کو کال کریں۔"), ok:true, why:B("Right pick. Most no answer doors are solved by one call. The customer may be inside, at a neighbour, or five minutes away.","درست انتخاب۔ زیادہ تر بند دروازے ایک کال سے کھل جاتے ہیں۔ کسٹمر اندر ہو سکتا ہے، پڑوس میں ہو، یا پانچ منٹ دور ہو۔")},
+    {t:B("Leave the parcel at the gate and go.","پارسل گیٹ پر رکھ کر چلے جائیں۔"), ok:false, why:B("Wrong pick. An unattended parcel can be taken by anyone, and you have no proof of delivery.","غلط انتخاب۔ اکیلا پڑا پارسل کوئی بھی اٹھا سکتا ہے، اور آپ کے پاس ڈیلیوری کا کوئی ثبوت نہیں۔")},
+    {t:B("Mark it delivered. The address was right.","ڈیلیورڈ درج کر دیں۔ پتہ تو درست تھا۔"), ok:false, why:B("Wrong pick. Marking delivered without handing over is a false entry, the most serious mistake a rider can make.","غلط انتخاب۔ حوالگی کے بغیر ڈیلیورڈ درج کرنا جھوٹا اندراج ہے، رائیڈر کی سب سے سنگین غلطی۔")}
+   ]},
+  {type:"choice", icon:"clock", skill:"app", prompt:B("You called twice. No answer. You waited five minutes at the door. What now?","آپ نے دو بار کال کی۔ جواب نہیں۔ دروازے پر پانچ منٹ انتظار بھی کیا۔ اب کیا؟"),
+   options:[
+    {t:B("Leave it with the tea stall man near the house and ride on.","پارسل گھر کے قریب چائے والے کے پاس چھوڑ کر آگے بڑھ جائیں۔"), ok:false, why:B("Wrong pick. A parcel left with a stranger has no record and no protection. If it vanishes, the loss and the blame are both yours.","غلط انتخاب۔ اجنبی کے پاس چھوڑے پارسل کا نہ ریکارڈ ہے نہ حفاظت۔ یہ گم ہو تو نقصان اور الزام دونوں آپ کے ہیں۔")},
+    {t:B("Mark Attempted in the app, with the time, and move to the next stop.","ایپ میں وقت کے ساتھ کوشش درج کریں، اور اگلے اسٹاپ پر جائیں۔"), ok:true, why:B("Right pick. The attempt entry with time proves you were there and did the full order: call, wait, mark.","درست انتخاب۔ وقت کے ساتھ کوشش کا اندراج ثابت کرتا ہے کہ آپ وہاں تھے اور پوری ترتیب کی: کال، انتظار، اندراج۔")},
+    {t:B("Wait at the door until the customer comes back, however long it takes.","دروازے پر تب تک انتظار کریں جب تک کسٹمر واپس نہ آئے، جتنا بھی وقت لگے۔"), ok:false, why:B("Wrong pick. After two calls and a fair wait, the attempt is complete. Standing at one door wastes the whole run, and the customer may still not come.","غلط انتخاب۔ دو کالوں اور مناسب انتظار کے بعد کوشش مکمل ہے۔ ایک دروازے پر کھڑے رہنا پورا چکر ضائع کرتا ہے، اور کسٹمر پھر بھی نہ آئے تو الگ بات ہے۔")}
+   ]},
+  {type:"choice", icon:"ret", skill:"app", prompt:B("End of the run. The parcel is still with you. What is the correct ending?","چکر کے آخر میں پارسل اب بھی آپ کے پاس ہے۔ درست اختتام کیا ہے؟"),
+   options:[
+    {t:B("Return it to the hub as an attempted delivery. It goes out again tomorrow.","اسے کوشش شدہ ڈیلیوری کے طور پر ہب واپس کریں۔ یہ کل دوبارہ نکلے گا۔"), ok:true, why:B("Right pick. A proper return after a full attempt is a correct ending, not a failure. This is the order the company wants: call, wait, mark, return.","درست انتخاب۔ مکمل کوشش کے بعد درست واپسی درست اختتام ہے، ناکامی نہیں۔ کمپنی کی مطلوبہ ترتیب یہی ہے: کال، انتظار، اندراج، واپسی۔")},
+    {t:B("Give it to a neighbour without any app entry.","بغیر ایپ اندراج کے پڑوسی کو دے دیں۔"), ok:false, why:B("Wrong pick. No entry means no proof. If the neighbour denies it, the loss is yours.","غلط انتخاب۔ اندراج نہ ہو تو ثبوت نہیں۔ پڑوسی مکر جائے تو نقصان آپ کا ہے۔")},
+    {t:B("Try the same door again tomorrow on your own, without telling the hub.","ہب کو بتائے بغیر کل خود دوبارہ اسی دروازے پر جائیں۔"), ok:false, why:B("Wrong pick. The hub plans the next attempt. A parcel off the record is a parcel at risk.","غلط انتخاب۔ اگلی کوشش ہب طے کرتا ہے۔ ریکارڈ سے باہر پارسل خطرے میں ہوتا ہے۔")}
+   ]}
+ ]},
+{id:"m10", area:"a5", icon:"hand",
+ name:B("Customer Refuses the Parcel","کسٹمر پارسل سے انکار کرے"),
+ sub:B("Stay calm, check the parcel, note it, and bring it back as a return.","سکون رکھیں، پارسل دیکھیں، درج کریں، اور اسے ریٹرن کے طور پر واپس لائیں۔"),
+ ustad:B("A refusal feels personal. It is not. The customer is refusing the parcel, not you. Your job is to stay calm, check the parcel in front of the customer, note the refusal, and carry it back as a return.","انکار ذاتی محسوس ہوتا ہے۔ یہ ذاتی نہیں۔ کسٹمر پارسل سے انکار کر رہا ہے، آپ سے نہیں۔ آپ کا کام ہے سکون رکھنا، کسٹمر کے سامنے پارسل دیکھنا، انکار درج کرنا، اور اسے ریٹرن کے طور پر واپس لانا۔"),
+ prove:B("You can handle a refusal without arguing, record it in the app, and run the return flow correctly.","آپ انکار کو بحث کے بغیر سنبھال سکتے ہیں، ایپ میں درج کر سکتے ہیں، اور ریٹرن کا عمل درست چلا سکتے ہیں۔"),
+ skills:["respect","app"],
+ rounds:[
+  {type:"choice", icon:"hand", skill:"respect", prompt:B("The customer opens the parcel, gets angry, and says: I never ordered this. Take it back. Your first move?","کسٹمر پارسل کھولتا ہے، غصہ ہوتا ہے، اور کہتا ہے: میں نے یہ منگوایا ہی نہیں۔ واپس لے جاؤ۔ آپ کا پہلا قدم؟"),
+   options:[
+    {t:B("Argue back. Your fuel and time are wasted.","بحث کریں۔ آپ کا پٹرول اور وقت ضائع ہوا۔"), ok:false, why:B("Wrong pick. Arguing at a door brings a complaint and a bad rating, and it never changes the refusal.","غلط انتخاب۔ دروازے پر بحث شکایت اور خراب ریٹنگ لاتی ہے، اور انکار کبھی نہیں بدلتی۔")},
+    {t:B("Stay calm, listen fully, and say: No problem, janab, I will note it and take it back.","سکون رکھیں، پوری بات سنیں، اور کہیں: کوئی بات نہیں جناب، میں درج کر کے واپس لے جاتا ہوں۔"), ok:true, why:B("Right pick. Calm words protect you. The refusal is the customer right, and noting it protects your record.","درست انتخاب۔ پرسکون الفاظ آپ کی حفاظت کرتے ہیں۔ انکار کسٹمر کا حق ہے، اور اسے درج کرنا آپ کے ریکارڈ کی حفاظت ہے۔")},
+    {t:B("Refuse to take it. Delivery means delivery.","واپس لینے سے انکار کریں۔ ڈیلیوری کا مطلب ڈیلیوری ہے۔"), ok:false, why:B("Wrong pick. You cannot force a parcel on anyone. Forcing creates a scene and a complaint.","غلط انتخاب۔ آپ کسی پر پارسل زبردستی نہیں تھوپ سکتے۔ زبردستی تماشا اور شکایت بناتی ہے۔")}
+   ]},
+  {type:"choice", icon:"eye", skill:"app", prompt:B("The parcel was opened. What do you check before taking it back?","پارسل کھل چکا ہے۔ واپس لینے سے پہلے آپ کیا دیکھیں گے؟"),
+   options:[
+    {t:B("Nothing. Just take it and ride.","کچھ نہیں۔ بس لیں اور چل پڑیں۔"), ok:false, why:B("Wrong pick. If something is missing later, the blame lands on the last hands: yours.","غلط انتخاب۔ بعد میں کچھ کم نکلا تو الزام آخری ہاتھوں پر آئے گا: آپ کے۔")},
+    {t:B("Check the items in front of the customer, seal the parcel, and note the refusal in the app.","کسٹمر کے سامنے چیزیں دیکھیں، پارسل بند کریں، اور ایپ میں انکار درج کریں۔"), ok:true, why:B("Right pick. Checking together and sealing in front of the customer proves the parcel left the door complete.","درست انتخاب۔ سامنے دیکھنا اور بند کرنا ثابت کرتا ہے کہ پارسل دروازے سے مکمل گیا۔")},
+    {t:B("Take a photo of the angry customer for the group chat.","گروپ چیٹ کے لیے ناراض کسٹمر کی تصویر لیں۔"), ok:false, why:B("Wrong pick. Photographing a customer to shame them is wrong and can cost you the job.","غلط انتخاب۔ کسٹمر کی تصویر رسوا کرنے کے لیے لینا غلط ہے اور آپ کی نوکری لے سکتا ہے۔")}
+   ]},
+  {type:"choice", icon:"ret", skill:"app", prompt:B("Back at the hub with the refused parcel. What is the right flow?","انکار شدہ پارسل کے ساتھ ہب واپس آئے۔ درست عمل کیا ہے؟"),
+   options:[
+    {t:B("Hand it in as a return, with the app note, and get it recorded.","اسے ایپ نوٹ کے ساتھ ریٹرن کے طور پر جمع کریں، اور درج کروائیں۔"), ok:true, why:B("Right pick. A recorded return goes back to the seller, and your day reconciles clean.","درست انتخاب۔ درج شدہ ریٹرن سیلر کو واپس جاتا ہے، اور آپ کا دن صاف ملتا ہے۔")},
+    {t:B("Keep it on your bike for tomorrow run.","اسے کل کے چکر کے لیے بائیک پر رکھیں۔"), ok:false, why:B("Wrong pick. An unrecorded parcel on your bike overnight is a risk and a mystery for the hub.","غلط انتخاب۔ رات بھر بائیک پر بغیر ریکارڈ پارسل خطرہ بھی ہے اور ہب کے لیے معمہ بھی۔")},
+    {t:B("Leave it at the hub gate without telling anyone.","کسی کو بتائے بغیر ہب کے گیٹ پر چھوڑ دیں۔"), ok:false, why:B("Wrong pick. No record, no return. If it vanishes, you were the last rider holding it.","غلط انتخاب۔ نہ ریکارڈ، نہ ریٹرن۔ یہ گم ہوا تو آخری رائیڈر آپ ہی تھے۔")}
+   ]}
+ ]},
+/* ---------- AREA 6: SELLER, SCAM, MONEY ---------- */
+{id:"m11", area:"a6", icon:"shop",
+ name:B("Seller Pickup","سیلر سے پک اپ"),
+ sub:B("Count it yourself, check the condition, confirm it in the app.","خود گنیں، حالت دیکھیں، ایپ میں کنفرم کریں۔"),
+ ustad:B("At a seller shop, the parcels become your responsibility the moment you touch them. Count every parcel yourself, check for open or damaged ones, and confirm the pickup in the app before you ride.","سیلر کی دکان پر پارسل آپ کے چھوتے ہی آپ کی ذمہ داری بن جاتے ہیں۔ ہر پارسل خود گنیں، کھلے یا خراب دیکھیں، اور چلنے سے پہلے ایپ میں پک اپ کنفرم کریں۔"),
+ prove:B("You can take a seller pickup by your own count, note a damaged parcel before accepting it, and confirm the pickup in the app.","آپ سیلر پک اپ اپنی گنتی سے لے سکتے ہیں، خراب پارسل قبول کرنے سے پہلے درج کر سکتے ہیں، اور پک اپ ایپ میں کنفرم کر سکتے ہیں۔"),
+ skills:["scan","app"],
+ rounds:[
+  {type:"choice", icon:"box", skill:"scan", visual:{icon:"box", count:7}, prompt:B("The seller says: 8 parcels. Count the pile in the picture strip yourself. How many are there?","سیلر کہتا ہے: 8 پارسل۔ تصویر والی پٹی میں ڈھیر خود گنیں۔ کتنے ہیں؟"),
+   options:[
+    {t:B("6 parcels","6 پارسل"), ok:false, why:B("Wrong pick. Count again slowly, one by one. There are 7 boxes in the strip.","غلط انتخاب۔ آہستہ ایک ایک کر کے دوبارہ گنیں۔ پٹی میں 7 ڈبے ہیں۔")},
+    {t:B("7 parcels","7 پارسل"), ok:true, why:B("Right pick. Your own count rules. The app entry must say 7, not the seller 8, or one missing parcel becomes your loss.","درست انتخاب۔ آپ کی اپنی گنتی چلتی ہے۔ ایپ میں 7 درج ہو، سیلر کے 8 نہیں، ورنہ ایک کم پارسل آپ کا نقصان بنے گا۔")},
+    {t:B("8 parcels, as the seller said","8 پارسل، جیسا سیلر نے کہا"), ok:false, why:B("Wrong pick. Never copy the seller count. There are 7 parcels in the strip, not 8.","غلط انتخاب۔ سیلر کی گنتی کبھی نقل نہ کریں۔ پٹی میں 7 پارسل ہیں، 8 نہیں۔")}
+   ]},
+  {type:"choice", icon:"warn", skill:"parcel", prompt:B("One of the parcels is open at the corner. What do you do before accepting the pickup?","ایک پارسل کونے سے کھلا ہے۔ پک اپ قبول کرنے سے پہلے آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Note it in the app and tell the seller, then accept the pickup.","ایپ میں درج کریں اور سیلر کو بتائیں، پھر پک اپ قبول کریں۔"), ok:true, why:B("Right pick. The note proves the parcel was open before it touched your bike.","درست انتخاب۔ یہ نوٹ ثابت کرتا ہے کہ پارسل آپ کی بائیک چھونے سے پہلے کھلا تھا۔")},
+    {t:B("Accept quietly. It is the seller problem.","خاموشی سے قبول کریں۔ یہ سیلر کا مسئلہ ہے۔"), ok:false, why:B("Wrong pick. Without a note, an open parcel becomes your problem at the customer door.","غلط انتخاب۔ نوٹ نہ ہو تو کھلا پارسل کسٹمر کے دروازے پر آپ کا مسئلہ بن جاتا ہے۔")},
+    {t:B("Refuse the whole pickup and leave.","پوری پک اپ سے انکار کر کے چلے جائیں۔"), ok:false, why:B("Wrong pick. One open parcel needs a note, not a cancelled pickup. The other parcels are fine.","غلط انتخاب۔ ایک کھلے پارسل کے لیے نوٹ چاہیے، پوری پک اپ منسوخ نہیں۔ باقی پارسل ٹھیک ہیں۔")}
+   ]},
+  {type:"choice", icon:"phone", skill:"app", prompt:B("Parcels are loaded. What confirms the pickup is complete?","پارسل لوڈ ہو گئے۔ کیا چیز پک اپ مکمل کنفرم کرتی ہے؟"),
+   options:[
+    {t:B("A handshake with the seller.","سیلر سے ہاتھ ملانا۔"), ok:false, why:B("Wrong pick. A handshake leaves no record. If a count is disputed later, you have nothing.","غلط انتخاب۔ ہاتھ ملانے کا کوئی ریکارڈ نہیں۔ بعد میں گنتی پر جھگڑا ہو تو آپ کے پاس کچھ نہیں۔")},
+    {t:B("Confirm the count in the app and take the pickup receipt.","ایپ میں گنتی کنفرم کریں اور پک اپ رسید لیں۔"), ok:true, why:B("Right pick. App confirmation plus the receipt close the pickup. Both sides now agree on the count.","درست انتخاب۔ ایپ کنفرمیشن اور رسید پک اپ بند کرتی ہے۔ اب دونوں طرف گنتی پر اتفاق ہے۔")},
+    {t:B("Ride off. The count can be confirmed in the app at the hub.","نکل جائیں۔ گنتی ایپ میں ہب جا کر کنفرم کر لیں گے۔"), ok:false, why:B("Wrong pick. A pickup confirmed late is a count left open. If the seller later claims a higher number, your late entry will not protect you.","غلط انتخاب۔ دیر سے کنفرم پک اپ گنتی کھلی چھوڑتا ہے۔ سیلر بعد میں زیادہ گنتی کا دعویٰ کرے تو آپ کا دیر والا اندراج آپ کو نہیں بچائے گا۔")}
+   ]}
+ ]},
+{id:"m12", area:"a6", icon:"shield",
+ name:B("Scam Spotting","دھوکے کی پہچان"),
+ sub:B("The office never asks for your secret code. Links and fake offers are traps.","دفتر آپ کا خفیہ کوڈ کبھی نہیں مانگتا۔ لنک اور جعلی آفرز جال ہیں۔"),
+ ustad:B("First, a plain definition: the secret code, also called a one time code or OTP, is the number that arrives on your phone to prove it is you. The office never, ever asks for it. Anyone who asks is a thief. Watch for the traps of rider life.","پہلے ایک سادہ تعریف: خفیہ کوڈ، جسے ون ٹائم کوڈ یا OTP بھی کہتے ہیں، وہ نمبر ہے جو آپ کے فون پر آتا ہے تاکہ ثابت ہو کہ یہ آپ ہیں۔ دفتر یہ کبھی، کبھی نہیں مانگتا۔ جو مانگے وہ چور ہے۔ رائیڈر زندگی کے جال دیکھیں۔"),
+ prove:B("You can spot the common rider scams: the code trap, the fake payment link, the no entry offer, and the fake note.","آپ رائیڈر کے عام دھوکے پہچان سکتے ہیں: کوڈ والا جال، جعلی ادائیگی لنک، بغیر اندراج والی آفر، اور جعلی نوٹ۔"),
+ skills:["scam"],
+ rounds:[
+  {type:"choice", icon:"phone", skill:"scam", prompt:B("A caller says: I am from the head office. Read me the code that just came on your phone, or your account will close. What do you do?","ایک کال والا کہتا ہے: میں ہیڈ آفس سے ہوں۔ آپ کے فون پر آیا کوڈ پڑھ کر سنائیں، ورنہ آپ کا اکاؤنٹ بند ہو جائے گا۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Read the code. It sounds official.","کوڈ سنا دیں۔ آواز سرکاری لگتی ہے۔"), ok:false, why:B("Wrong pick. The code proves it is you. Whoever holds it can enter your account. The office never asks for it.","غلط انتخاب۔ کوڈ ثابت کرتا ہے کہ یہ آپ ہیں۔ جس کے پاس ہو وہ آپ کے اکاؤنٹ میں گھس سکتا ہے۔ دفتر یہ کبھی نہیں مانگتا۔")},
+    {t:B("Cut the call. Then call the hub number yourself and report it.","کال کاٹ دیں۔ پھر خود ہب کے نمبر پر کال کر کے اطلاع دیں۔"), ok:true, why:B("Right pick. Cutting the call ends the trap, and calling the real hub number yourself keeps you safe and warns others.","درست انتخاب۔ کال کاٹنا جال ختم کرتا ہے، اور اصل ہب نمبر پر خود کال کرنا آپ کو بھی بچاتا ہے اور دوسروں کو بھی خبردار کرتا ہے۔")},
+    {t:B("Read the code. The caller knew your name and your hub, so he must be from the office.","کوڈ سنا دیں۔ کال والے کو آپ کا نام اور ہب معلوم ہے، تو وہ دفتر ہی سے ہوگا۔"), ok:false, why:B("Wrong pick. Names and hub details leak easily, and scammers use them to sound real. The code is the one thing that proves it is you, and the office never asks for it.","غلط انتخاب۔ نام اور ہب کی تفصیل آسانی سے باہر نکل جاتی ہے، اور دھوکے باز اصلی لگنے کے لیے یہی استعمال کرتے ہیں۔ کوڈ ہی وہ ایک چیز ہے جو ثابت کرتی ہے کہ یہ آپ ہیں، اور دفتر یہ کبھی نہیں مانگتا۔")}
+   ]},
+  {type:"choice", icon:"phone", skill:"scam", prompt:B("A text message says: Your COD payment is pending. Tap this link and pay now to release your parcels. What do you do?","ایک پیغام آیا: آپ کی COD ادائیگی باقی ہے۔ پارسل چھڑوانے کے لیے اس لنک پر ٹیپ کر کے ابھی ادائیگی کریں۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Tap the link and pay. It mentions COD, so it looks real.","لنک پر ٹیپ کر کے ادائیگی کریں۔ اس میں COD لکھا ہے، اصلی لگتا ہے۔"), ok:false, why:B("Wrong pick. COD is cash at the door and entries in the official app only. A payment link in a text message is a trap to steal money or your account.","غلط انتخاب۔ COD صرف دروازے پر نقدی اور سرکاری ایپ میں اندراج ہے۔ پیغام میں ادائیگی کا لنک پیسے یا اکاؤنٹ چرانے کا جال ہے۔")},
+    {t:B("Do not tap. Delete it and tell the hub in-charge.","ٹیپ نہ کریں۔ اسے مٹا دیں اور ہب انچارج کو بتائیں۔"), ok:true, why:B("Right pick. Real company messages never ask you to pay through a random link. Reporting it protects the whole hub.","درست انتخاب۔ اصلی کمپنی پیغامات کبھی کسی لنک سے ادائیگی نہیں مانگتے۔ اطلاع دینا پورے ہب کی حفاظت کرتا ہے۔")},
+    {t:B("Forward it to other riders to ask if it is real.","دوسرے رائیڈرز کو بھیج کر پوچھیں کہ یہ اصلی ہے یا نہیں۔"), ok:false, why:B("Wrong pick. Forwarding spreads the trap. Someone will tap it. Ask the in-charge in person instead.","غلط انتخاب۔ آگے بھیجنا جال پھیلاتا ہے۔ کوئی نہ کوئی ٹیپ کرے گا۔ انچارج سے بالمشافہ پوچھیں۔")}
+   ]},
+  {type:"choice", icon:"cash", skill:"scam", prompt:B("At a door, a man offers you Rs 500 extra to hand over the parcel without any app entry. What do you do?","ایک دروازے پر ایک آدمی آپ کو 500 روپے اضافی دیتا ہے کہ پارسل بغیر ایپ اندراج کے دے دیں۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Take it. Extra money, no harm done.","لے لیں۔ اضافی پیسے ہیں، کوئی نقصان نہیں۔"), ok:false, why:B("Wrong pick. Without an entry the parcel is officially still with you. If it vanishes, you pay for it, and the 500 will not save you.","غلط انتخاب۔ اندراج کے بغیر پارسل سرکاری طور پر اب بھی آپ کے پاس ہے۔ یہ گم ہو تو قیمت آپ دیں گے، اور 500 آپ کو نہیں بچائیں گے۔")},
+    {t:B("Refuse with respect: Janab, the entry comes first, then the parcel.","عزت سے انکار کریں: جناب، پہلے اندراج ہوگا، پھر پارسل ملے گا۔"), ok:true, why:B("Right pick. Polite and firm. The entry protects the customer, the company, and you.","درست انتخاب۔ نرم مگر پختہ۔ اندراج کسٹمر، کمپنی، اور آپ، تینوں کی حفاظت ہے۔")},
+    {t:B("Hand it over, then make the entry later at the hub.","پارسل دے دیں، اندراج بعد میں ہب پر کر لیں گے۔"), ok:false, why:B("Wrong pick. Later entries get forgotten or disputed. The entry happens at the door, before the parcel changes hands.","غلط انتخاب۔ بعد کے اندراج بھول جاتے ہیں یا متنازع ہوتے ہیں۔ اندراج دروازے پر ہوتا ہے، پارسل ہاتھ بدلنے سے پہلے۔")}
+   ]},
+  {type:"choice", icon:"cash", skill:"scam", prompt:B("A customer pays COD with a Rs 500 note. The colour looks off and the note feels thin. What do you do?","ایک کسٹمر 500 کے نوٹ سے COD دیتا ہے۔ رنگ عجیب لگتا ہے اور نوٹ پتلا محسوس ہوتا ہے۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Shout that the note is fake and refuse the parcel.","چلا کر کہیں نوٹ جعلی ہے اور پارسل دینے سے انکار کریں۔"), ok:false, why:B("Wrong pick. Accusing loudly can start a fight, and you may be wrong. Check calmly first.","غلط انتخاب۔ چلا کر الزام لگانا لڑائی شروع کر سکتا ہے، اور آپ غلط بھی ہو سکتے ہیں۔ پہلے سکون سے جانچیں۔")},
+    {t:B("Check the note marks calmly, and politely ask for another note if it does not pass.","سکون سے نوٹ کی نشانیاں دیکھیں، اور ٹھیک نہ ہو تو عزت سے دوسرا نوٹ مانگیں۔"), ok:true, why:B("Right pick. Check the print, the colour, and the feel. A real customer will happily swap a doubtful note.","درست انتخاب۔ چھپائی، رنگ، اور پتلا پن دیکھیں۔ اصلی کسٹمر مشکوک نوٹ خوشی سے بدل دے گا۔")},
+    {t:B("Accept it quietly. Checking notes is not your job.","خاموشی سے قبول کریں۔ نوٹ دیکھنا آپ کا کام نہیں۔"), ok:false, why:B("Wrong pick. A fake note in your cash bag comes out of your pocket at the hub count.","غلط انتخاب۔ آپ کے نقدی بیگ میں جعلی نوٹ ہب کی گنتی پر آپ کی جیب سے نکلے گا۔")}
+   ]}
+ ]},
+{id:"m13", area:"a6", icon:"cash",
+ name:B("Money Sense","پیسے کی سمجھ"),
+ sub:B("Real sums, worked out loud. Know what you keep before you spend it.","اصلی حساب، کھل کر کیا گیا۔ خرچ سے پہلے جانیں کہ بچتا کیا ہے۔"),
+ ustad:B("Every question here needs a real calculation. Do the sum in your head, step by step. A rider who knows his numbers keeps his money.","یہاں ہر سوال میں اصلی حساب چاہیے۔ ذہن میں قدم بہ قدم حساب کریں۔ جو رائیڈر اپنے اعداد جانتا ہے، وہ اپنا پیسہ بچاتا ہے۔"),
+ prove:B("You can work out a day saving from earnings and costs, make exact change, and plan weeks of saving toward a goal.","آپ کمائی اور خرچ سے دن کی بچت نکال سکتے ہیں، درست بقایا بنا سکتے ہیں، اور ہدف کے لیے ہفتوں کی بچت کا منصوبہ بنا سکتے ہیں۔"),
+ skills:["money"],
+ rounds:[
+  {type:"choice", icon:"cash", skill:"money", prompt:B("Today you earned Rs 3,200. Fuel and mobile load cost Rs 1,000. How much do you actually keep?","آج آپ نے 3,200 روپے کمائے۔ پٹرول اور موبائل لوڈ پر 1,000 روپے لگے۔ آپ کے پاس اصل میں کتنا بچا؟"),
+   options:[
+    {t:B("Rs 1,200","Rs 1,200"), ok:false, why:B("Wrong pick. Do it in steps: 3,200 minus 1,000 is 2,200, not 1,200.","غلط انتخاب۔ قدم بہ قدم کریں: 3,200 منفی 1,000 برابر 2,200، 1,200 نہیں۔")},
+    {t:B("Rs 2,200","Rs 2,200"), ok:true, why:B("Right pick. 3,200 minus 1,000 is 2,200. That 2,200 is your real day money, not the 3,200 you first counted.","درست انتخاب۔ 3,200 منفی 1,000 برابر 2,200۔ یہی 2,200 آپ کے دن کے اصلی پیسے ہیں، وہ 3,200 نہیں جو پہلے گنے تھے۔")},
+    {t:B("Rs 3,200. Costs do not count.","Rs 3,200۔ خرچ شمار نہیں ہوتا۔"), ok:false, why:B("Wrong pick. Costs are real money out of your hand. A rider who ignores them spends money he does not have.","غلط انتخاب۔ خرچ آپ کے ہاتھ سے گیا اصلی پیسہ ہے۔ جو رائیڈر اسے نظر انداز کرے، وہ وہ پیسہ خرچ کرتا ہے جو اس کے پاس ہے ہی نہیں۔")}
+   ]},
+  {type:"cash", icon:"cash", skill:"money", target:350, prompt:B("COD is Rs 1,650. The customer gives a Rs 2,000 note. Tap notes and coins to give the exact change.","COD 1,650 روپے ہے۔ کسٹمر نے 2,000 کا نوٹ دیا۔ نوٹ اور سکے ٹیپ کر کے درست بقایا بنائیں۔"),
+   why:B("2,000 minus 1,650 is 350. Three 100 notes and one 50 note make it exact.","2,000 منفی 1,650 برابر 350۔ تین 100 کے نوٹ اور ایک 50 کا نوٹ درست بقایا بناتے ہیں۔")},
+  {type:"choice", icon:"phone", skill:"money", prompt:B("You want a phone that costs Rs 12,000. You save Rs 2,200 every week. In how many weeks can you buy it without a loan?","آپ کو 12,000 روپے کا فون چاہیے۔ آپ ہر ہفتے 2,200 روپے بچاتے ہیں۔ قرض کے بغیر کتنے ہفتوں میں خرید سکتے ہیں؟"),
+   options:[
+    {t:B("4 weeks","4 ہفتے"), ok:false, why:B("Wrong pick. 4 weeks of 2,200 is 8,800. That is short of 12,000.","غلط انتخاب۔ 2,200 کے 4 ہفتے 8,800 ہوتے ہیں۔ یہ 12,000 سے کم ہے۔")},
+    {t:B("6 weeks","6 ہفتے"), ok:true, why:B("Right pick. 5 weeks makes 11,000, still short. 6 weeks makes 13,200, which covers 12,000 with a little left over.","درست انتخاب۔ 5 ہفتے 11,000 بنتے ہیں، پھر بھی کم۔ 6 ہفتے 13,200 بنتے ہیں، جو 12,000 پورا کر کے کچھ بچا بھی دیتے ہیں۔")},
+    {t:B("8 weeks","8 ہفتے"), ok:false, why:B("Wrong pick. 8 weeks works but overshoots. 6 weeks already reaches 13,200, more than the 12,000 price.","غلط انتخاب۔ 8 ہفتے بھی چلتے ہیں مگر زیادہ ہیں۔ 6 ہفتوں میں 13,200 بن جاتے ہیں، جو 12,000 کی قیمت سے زیادہ ہیں۔")}
+   ]}
+ ]},
+/* ---------- AREA 7: BACK AT THE HUB ---------- */
+{id:"m14", area:"a7", icon:"receipt",
+ name:B("Reconcile the Day","دن کا حساب ملائیں"),
+ sub:B("Count the cash, check the notes, match the list, hand it over.","نقدی گنیں، نوٹ دیکھیں، فہرست ملائیں، حوالے کریں۔"),
+ ustad:B("The shift is not over when the riding stops. It ends when your cash, your returns, and the delivery list all agree. This is called reconciling. Do it slowly. A quiet count here saves a loud argument later.","شفٹ سواری رکنے پر ختم نہیں ہوتی۔ یہ تب ختم ہوتی ہے جب آپ کی نقدی، آپ کے ریٹرن، اور ڈیلیوری فہرست تینوں مل جائیں۔ اسی کو حساب ملانا کہتے ہیں۔ آہستہ کریں۔ یہاں کی خاموش گنتی بعد کی بلند بحث بچاتی ہے۔"),
+ prove:B("You can total a day of COD from the delivery list, spot a fake note in the count, handle a shortfall honestly, and hand over the exact reconciled cash.","آپ ڈیلیوری فہرست سے دن کی COD جمع کر سکتے ہیں، گنتی میں جعلی نوٹ پہچان سکتے ہیں، کمی کو ایمانداری سے سنبھال سکتے ہیں، اور درست ملا ہوا حساب حوالے کر سکتے ہیں۔"),
+ skills:["cash"],
+ rounds:[
+  {type:"choice", icon:"receipt", skill:"cash", prompt:B("Your delivery list shows three COD parcels delivered today: Rs 1,450, Rs 2,300, and Rs 750. What should your cash total be?","آپ کی ڈیلیوری فہرست میں آج تین COD پارسل پہنچائے گئے: 1,450 روپے، 2,300 روپے، اور 750 روپے۔ آپ کی نقدی کل کتنی ہونی چاہیے؟"),
+   options:[
+    {t:B("Rs 4,400","Rs 4,400"), ok:false, why:B("Wrong pick. Add in steps: 1,450 plus 2,300 is 3,750. 3,750 plus 750 is 4,500.","غلط انتخاب۔ قدم بہ قدم جوڑیں: 1,450 جمع 2,300 برابر 3,750۔ 3,750 جمع 750 برابر 4,500۔")},
+    {t:B("Rs 4,500","Rs 4,500"), ok:true, why:B("Right pick. 1,450 plus 2,300 plus 750 is 4,500. Your cash bag must match this number exactly.","درست انتخاب۔ 1,450 جمع 2,300 جمع 750 برابر 4,500۔ آپ کے نقدی بیگ کو اسی عدد سے بالکل ملنا چاہیے۔")},
+    {t:B("Rs 5,400","Rs 5,400"), ok:false, why:B("Wrong pick. That adds a digit somewhere. In steps: 1,450 plus 2,300 is 3,750, plus 750 is 4,500.","غلط انتخاب۔ کہیں ایک ہندسہ بڑھ گیا۔ قدم بہ قدم: 1,450 جمع 2,300 برابر 3,750، جمع 750 برابر 4,500۔")}
+   ]},
+  {type:"spot", icon:"eye", skill:"cash", prompt:B("While counting, check every note. Tap the note that looks fake.","گنتی کے دوران ہر نوٹ دیکھیں۔ جو نوٹ جعلی لگے اس پر ٹیپ کریں۔"),
+   cards:[
+    {t:"Rs 500", icon:"cash", bad:false, cond:B("Print clear, colour right","چھپائی صاف، رنگ درست")},
+    {t:"Rs 500", icon:"cash", bad:false, cond:B("Print clear, colour right","چھپائی صاف، رنگ درست")},
+    {t:"Rs 500", icon:"cash", bad:true, cond:B("Colour off, print blurry","رنگ عجیب، چھپائی دھندلی"), why:B("Off colour and blurry print are the classic signs. Keep this note apart and show it to the in-charge. Never pass it on or hide it in the pile.","عجیب رنگ اور دھندلی چھپائی کلاسیکی نشانیاں ہیں۔ اس نوٹ کو الگ رکھیں اور انچارج کو دکھائیں۔ اسے آگے کبھی نہ دیں اور ڈھیر میں نہ چھپائیں۔")},
+    {t:"Rs 500", icon:"cash", bad:false, cond:B("Print clear, colour right","چھپائی صاف، رنگ درست")},
+    {t:"Rs 500", icon:"cash", bad:false, cond:B("Print clear, colour right","چھپائی صاف، رنگ درست")}]},
+  {type:"choice", icon:"warn", skill:"cash", prompt:B("Your count is Rs 100 short against the list. What is the right move?","فہرست کے مقابلے میں آپ کی گنتی 100 روپے کم ہے۔ درست قدم کیا ہے؟"),
+   options:[
+    {t:B("Say nothing and hand it over. It is a small amount.","کچھ نہ کہیں اور حوالے کر دیں۔ رقم چھوٹی ہے۔"), ok:false, why:B("Wrong pick. The shortfall will be found at the hub count anyway, and silence turns a small gap into a trust problem.","غلط انتخاب۔ کمی ہب کی گنتی میں ویسے بھی مل جائے گی، اور خاموشی چھوٹے فرق کو اعتماد کا مسئلہ بنا دیتی ہے۔")},
+    {t:B("Add Rs 100 from your own pocket quietly.","خاموشی سے اپنی جیب سے 100 روپے ملا دیں۔"), ok:false, why:B("Wrong pick. It feels kind, but it hides the real error. The wrong entry or missed cash stays hidden and can grow. Tell the in-charge instead.","غلط انتخاب۔ یہ نیکی لگتی ہے، مگر اصل غلطی چھپ جاتی ہے۔ غلط اندراج یا رہی ہوئی نقدی چھپی رہتی ہے اور بڑھ سکتی ہے۔ اس کے بجائے انچارج کو بتائیں۔")},
+    {t:B("Tell the in-charge at once and check the list together, entry by entry.","فوراً انچارج کو بتائیں اور فہرست مل کر اندراج بہ اندراج دیکھیں۔"), ok:true, why:B("Right pick. Most shortfalls are a missed entry or a miscount, found in two minutes when both look together. Honesty here is what makes a rider trusted with cash.","درست انتخاب۔ زیادہ تر کمیاں رہا ہوا اندراج یا غلط گنتی ہوتی ہیں، دونوں مل کر دیکھیں تو دو منٹ میں مل جاتی ہیں۔ یہاں ایمانداری ہی رائیڈر کو نقدی کے قابل اعتماد بناتی ہے۔")}
+   ]},
+  {type:"cash", icon:"cash", skill:"cash", target:3750, prompt:B("One parcel of Rs 750 came back as a return, so its COD is not in your bag. Put the exact hand over amount in the cash bag: Rs 4,500 minus Rs 750.","ایک 750 روپے کا پارسل ریٹرن آیا، اس لیے اس کی COD آپ کے بیگ میں نہیں۔ حوالگی کی درست رقم نقدی بیگ میں رکھیں: 4,500 منفی 750 روپے۔"),
+   why:B("4,500 minus 750 is 3,750. Hand over cash and returns together, and take the signed receipt. When cash, returns, and list agree, your shift is reconciled.","4,500 منفی 750 برابر 3,750۔ نقدی اور ریٹرن اکٹھے حوالے کریں، اور دستخط شدہ رسید لیں۔ جب نقدی، ریٹرن، اور فہرست مل جائیں تو آپ کی شفٹ کا حساب مل گیا۔")}
+ ]},
+/* ---------- BOSS SHIFT ---------- */
+{id:"m15", area:"a8", icon:"trophy", boss:true,
+ name:B("Boss Shift","باس شفٹ"),
+ sub:B("One full shift, start to finish. Your parcel count and your cash must match at the end.","ایک پوری شفٹ، شروع سے آخر تک۔ آخر میں آپ کی پارسل گنتی اور نقدی ملنی چاہیے۔"),
+ ustad:B("This is the real test: one full shift in one run. Load, check, ride, deliver, handle a hard door, and reconcile at the end. Your delivered count and your COD cash travel with you on the green bar. At the end, the cash you count must match the cash you collected.","یہ اصل امتحان ہے: ایک ہی رن میں پوری شفٹ۔ لوڈ کریں، جانچیں، چلائیں، پہنچائیں، مشکل دروازہ سنبھالیں، اور آخر میں حساب ملائیں۔ آپ کی ڈیلیورڈ گنتی اور COD نقدی سبز پٹی پر آپ کے ساتھ چلتی ہے۔ آخر میں آپ کی گنی ہوئی نقدی آپ کی جمع کی ہوئی نقدی سے ملنی چاہیے۔"),
+ prove:B("You ran one full shift end to end: hub loading, safety checks, scanning, a respectful delivery with exact change, a hard door handled the right way, and a final cash count that reconciled.","آپ نے ایک پوری شفٹ شروع سے آخر تک چلائی: ہب لوڈنگ، حفاظتی جانچ، اسکیننگ، درست بقایا کے ساتھ عزت بھری ڈیلیوری، درست طریقے سے سنبھالا مشکل دروازہ، اور آخر میں ملا ہوا نقدی حساب۔"),
+ skills:["scan","safety","respect","cash","app"],
+ rounds:[
+  {type:"seq", icon:"bag", skill:"parcel", prompt:B("Load for the Boss Shift. Tap in order.","باس شفٹ کے لیے لوڈ کریں۔ ترتیب سے ٹیپ کریں۔"),
+   items:[
+    {t:B("Engine parts box, heavy","انجن پارٹس ڈبہ، بھاری"), icon:"box", why:B("Heavy goes at the bottom, always.","بھاری ہمیشہ سب سے نیچے جاتا ہے۔")},
+    {t:B("Mirror parcel, padded and apart","شیشے والا پارسل، لپیٹ کر الگ"), icon:"box", why:B("Padded and apart from hard parcels, so knocks cannot reach it.","لپیٹ کر سخت پارسلز سے الگ، تاکہ ٹکر اس تک نہ پہنچے۔")},
+    {t:B("Clothes parcel, soft","کپڑوں والا پارسل، نرم"), icon:"bag", why:B("Soft and light goes on top, where nothing can crush it.","نرم اور ہلکا اوپر جاتا ہے، جہاں کچھ اسے کچل نہیں سکتا۔")}
+   ]},
+  {type:"choice", icon:"brake", skill:"safety", safety:true, prompt:B("Helmet is on and the strap is closed. Which check comes next before you ride?","ہیلمٹ پہنا ہے اور پٹا بند ہے۔ چلنے سے پہلے اگلی جانچ کون سی ہے؟"),
+   options:[
+    {t:B("Test both brakes.","دونوں بریک آزمائیں۔"), ok:true, why:B("Right pick. Brakes come right after the helmet, before the bike moves.","درست انتخاب۔ بریک ہیلمٹ کے فوراً بعد آتی ہے، بائیک چلنے سے پہلے۔")},
+    {t:B("Check your phone messages.","فون کے پیغامات دیکھیں۔"), ok:false, why:B("Wrong pick. Messages can wait. Brakes cannot.","غلط انتخاب۔ پیغامات رک سکتے ہیں۔ بریک نہیں رک سکتی۔")},
+    {t:B("Count the parcels again.","پارسل دوبارہ گنیں۔"), ok:false, why:B("Wrong pick. The count matters, but it comes after the safety checks, not before them.","غلط انتخاب۔ گنتی ضروری ہے، مگر وہ حفاظتی جانچ کے بعد آتی ہے، پہلے نہیں۔")}
+   ]},
+  {type:"match", icon:"scan", skill:"scan", code:"PK-7310", options:["PK-7130","PK-7310","PK-7301"], prompt:B("First delivery of the shift: find parcel PK-7310.","شفٹ کی پہلی ڈیلیوری: پارسل PK-7310 تلاش کریں۔"), why:B("Full number, digit by digit. The other two swap the middle digits.","پورا نمبر، ہندسہ بہ ہندسہ۔ باقی دو میں بیچ کے ہندسے بدلے ہیں۔")},
+  {type:"choice", icon:"child", skill:"safety", safety:true, prompt:B("On the road, a child darts out from between two parked cars. What do you do?","سڑک پر ایک بچہ دو کھڑی کاروں کے بیچ سے اچانک نکلتا ہے۔ آپ کیا کریں گے؟"),
+   options:[
+    {t:B("Swerve around the child and keep going.","بچے کے گرد گھوم کر چلتے رہیں۔"), ok:false, why:B("Wrong pick. A swerve at speed on a loaded bike ends in a fall, possibly onto the child. Braking in a straight line is the controlled stop.","غلط انتخاب۔ لوڈ شدہ بائیک پر رفتار میں موڑ گرنے پر ختم ہوتا ہے، شاید بچے ہی پر۔ سیدھی لائن میں بریک ہی قابو والا روک ہے۔")},
+    {t:B("Brake in a straight line and stop.","سیدھی لائن میں بریک لگا کر رک جائیں۔"), ok:true, why:B("Right pick. Straight line braking is the fastest safe stop on a bike.","درست انتخاب۔ سیدھی لائن میں بریک بائیک کا تیز ترین محفوظ روک ہے۔")},
+    {t:B("Slow down a little and roll past. Children move away on their own.","تھوڑا آہستہ ہو کر گزر جائیں۔ بچے خود ہٹ جاتے ہیں۔"), ok:false, why:B("Wrong pick. A child who darts out does not move away in time. Only a full stop in a straight line keeps the child safe.","غلط انتخاب۔ اچانک نکلنے والا بچہ وقت پر نہیں ہٹتا۔ صرف سیدھی لائن میں مکمل روک ہی بچے کو محفوظ رکھتا ہے۔")}
+   ]},
+  {type:"choice", icon:"call", skill:"respect", prompt:B("At the door, pick your line to the customer.","دروازے پر کسٹمر سے کہنے والا جملہ چنیں۔"),
+   options:[
+    {t:B("Parcel. Sign here.","پارسل۔ یہاں دستخط کریں۔"), ok:false, why:B("Wrong pick. No greeting, no respect. The door is where your rating is made.","غلط انتخاب۔ نہ سلام، نہ عزت۔ دروازہ ہی وہ جگہ ہے جہاں آپ کی ریٹنگ بنتی ہے۔")},
+    {t:B("Assalam o Alaikum janab, your parcel is here. The COD is Rs 1,750, as written on the parcel.","السلام علیکم جناب، آپ کا پارسل آ گیا ہے۔ COD 1,750 روپے ہے، جیسا پارسل پر لکھا ہے۔"), ok:true, why:B("Right pick. Greeting, the parcel, and the amount from the label, all in one respectful line.","درست انتخاب۔ سلام، پارسل، اور لیبل سے رقم، سب ایک عزت بھرے جملے میں۔")}
+   ]},
+  {type:"cash", icon:"cash", skill:"cash", target:250, prompt:B("The customer gives a Rs 2,000 note for the Rs 1,750 COD. Give the exact change.","کسٹمر نے 1,750 روپے کی COD کے لیے 2,000 کا نوٹ دیا۔ درست بقایا دیں۔"),
+   why:B("2,000 minus 1,750 is 250. When you hand it over and mark it delivered with the receiver name, your green bar shows 1 parcel delivered and Rs 1,750 COD collected.", "2,000 منفی 1,750 برابر 250۔ جب آپ یہ دے کر لینے والے کے نام کے ساتھ ڈیلیورڈ درج کریں گے تو سبز پٹی پر 1 پارسل ڈیلیورڈ اور 1,750 روپے COD جمع نظر آئے گا."),
+   fx:{delivered:1, cash:1750}},
+  {type:"choice", icon:"bell", skill:"app", fx:{attempted:1}, prompt:B("Second stop: nobody answers the bell or the phone after a fair wait. What do you mark?","دوسرا اسٹاپ: مناسب انتظار کے بعد نہ گھنٹی کا جواب، نہ فون کا۔ آپ کیا درج کریں گے؟"),
+   options:[
+    {t:B("Delivered. You were at the right address.","ڈیلیورڈ۔ آپ درست پتے پر تھے۔"), ok:false, why:B("Wrong pick. Being at the address is not a delivery. A false entry is the most serious rider mistake.","غلط انتخاب۔ پتے پر ہونا ڈیلیوری نہیں۔ جھوٹا اندراج رائیڈر کی سب سے سنگین غلطی ہے۔")},
+    {t:B("Attempted, with the time. The parcel returns to the hub.","وقت کے ساتھ کوشش درج کریں۔ پارسل ہب واپس جائے گا۔"), ok:true, why:B("Right pick. Call, wait, mark, return. The full order, exactly as Area 5 taught.","درست انتخاب۔ کال، انتظار، اندراج، واپسی۔ پوری ترتیب، بالکل جیسے حصہ 5 میں سکھایا۔")}
+   ]},
+  {type:"cash", icon:"cash", skill:"cash", target:1750, prompt:B("Back at the hub. Count out your COD cash for the day. It must match the green bar: Rs 1,750.","ہب واپس آئے۔ دن کی COD نقدی گن کر رکھیں۔ یہ سبز پٹی سے ملنی چاہیے: 1,750 روپے۔"),
+   why:B("Your count matches the cash you collected: Rs 1,750, with 1 parcel delivered and 1 attempted and returned. Cash, list, and returns agree. The shift is reconciled.","آپ کی گنتی آپ کی جمع کی نقدی سے مل گئی: 1,750 روپے، 1 پارسل ڈیلیورڈ اور 1 کوشش شدہ واپس۔ نقدی، فہرست، اور ریٹرن تینوں مل گئے۔ شفٹ کا حساب مل گیا۔")}
+ ]}
+];
+
+/* ================= EXTRA STRINGS ================= */
+var X = {
+en:{ rightList:"What you got right", twoTries:"needed two tries", firstTry:"first try",
+ missedList:"Still to work on", missedSpot:"Missed on first look", missedSafety:"Safety step missed on first try",
+ replayNote:"Replays keep your best score. Your first attempt score is recorded once and never changes.",
+ level0:"New Rider", level1:"Learning the Shift", level2:"Almost Ready", level3:"Ready Rider",
+ levelHead:"Rider level",
+ leagueRule:"How team points work: a team score is the sum of its riders' points this week.",
+ youRow:"You (this phone)", rankWord:"Rank",
+ pathNext:"Tap the glowing mission to play it.", pathDone:"All missions are complete. Open My Report to see your readiness result.",
+ pathBossLocked:"The Boss Shift opens when all 14 missions are passed.",
+ demoFor:"Demo for this mission", demoUses:"This demo uses this mission's own steps, the same items in the same count as the real mission.",
+ seqWrong:"That step comes later. Think about what must be in place first.",
+ spotWrong:"That one is fine, it stays. Look for the card with a problem.",
+ matchWrong:"Not the same number. Read both numbers slowly, digit by digit.",
+ cashWrongPre:"That makes ", cashWrongPost:". Tap notes in your hand to put them back, then try again.",
+ cashCheck:"Check my amount", cashYourHand:"In your hand", cashTapBank:"Tap notes and coins to add them",
+ cashHintPre:"One way: ", bossAgg:"Boss Shift totals", bossCashOk:"Cash counted at the end matched the cash collected.",
+ bossAtt:"Attempted and returned", firstScoreLine:"First attempt", bestScoreLine:"Best score",
+ stepOf:"Step", speakIntro:"Read Ustad's note, then tap play."},
+ur:{ rightList:"جو آپ نے درست کیا", twoTries:"دو کوششیں لگیں", firstTry:"پہلی کوشش",
+ missedList:"ابھی مزید کام باقی ہے", missedSpot:"پہلی نظر میں رہ گیا", missedSafety:"حفاظتی قدم پہلی کوشش میں رہ گیا",
+ replayNote:"دوبارہ کھیلنے پر آپ کا بہترین اسکور رہتا ہے۔ پہلی کوشش کا اسکور ایک بار درج ہوتا ہے اور کبھی نہیں بدلتا۔",
+ level0:"نیا رائیڈر", level1:"شفٹ سیکھ رہا ہے", level2:"تقریباً تیار", level3:"تیار رائیڈر",
+ levelHead:"رائیڈر درجہ",
+ leagueRule:"ٹیم نمبر کیسے بنتے ہیں: ٹیم اسکور اس ہفتے اس کے رائیڈرز کے نمبروں کا مجموعہ ہوتا ہے۔",
+ youRow:"آپ (اسی فون سے)", rankWord:"درجہ",
+ pathNext:"کھیلنے کے لیے روشن مشن پر ٹیپ کریں۔", pathDone:"تمام مشن مکمل ہیں۔ اپنی تیاری کا نتیجہ دیکھنے کے لیے میری رپورٹ کھولیں۔",
+ pathBossLocked:"باس شفٹ اس وقت کھلے گی جب تمام 14 مشن پاس ہوں گے۔",
+ demoFor:"اس مشن کا ڈیمو", demoUses:"یہ ڈیمو اسی مشن کے اپنے مراحل استعمال کرتا ہے، وہی چیزیں اسی گنتی میں جیسی اصلی مشن میں ہیں۔",
+ seqWrong:"یہ قدم بعد میں آتا ہے۔ سوچیں پہلے کیا جگہ پر ہونا چاہیے۔",
+ spotWrong:"یہ درست ہے، یہ رہتا ہے۔ مسئلے والا کارڈ تلاش کریں۔",
+ matchWrong:"نمبر ایک نہیں۔ دونوں نمبر آہستہ، ہندسہ بہ ہندسہ پڑھیں۔",
+ cashWrongPre:"یہ بنتے ہیں ", cashWrongPost:"۔ ہاتھ کے نوٹ پر ٹیپ کر کے واپس رکھیں، پھر دوبارہ کوشش کریں۔",
+ cashCheck:"میری رقم جانچیں", cashYourHand:"آپ کے ہاتھ میں", cashTapBank:"شامل کرنے کے لیے نوٹ اور سکے ٹیپ کریں",
+ cashHintPre:"ایک طریقہ: ", bossAgg:"باس شفٹ کا مجموعہ", bossCashOk:"آخر میں گنی گئی نقدی جمع شدہ نقدی سے مل گئی۔",
+ bossAtt:"کوشش شدہ اور واپس", firstScoreLine:"پہلی کوشش", bestScoreLine:"بہترین اسکور",
+ stepOf:"قدم", speakIntro:"استاد کی بات پڑھیں، پھر کھیلیں پر ٹیپ کریں۔"}
+};
+function TX(k){ var l=state.settings.lang; return (X[l] && X[l][k]) || X.en[k] || T(k); }
+function levelName(){
+  if(isReady()) return TX("level3");
+  if(missionsPassed()===MISSIONS.length) return TX("level2");
+  if(missionsPassed()>0) return TX("level1");
+  return TX("level0");
+}
+function shuffle(a){ var b=a.slice(); for(var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; } return b; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function missionById(id){ for(var i=0;i<MISSIONS.length;i++) if(MISSIONS[i].id===id) return MISSIONS[i]; return null; }
+function areaById(id){ for(var i=0;i<AREAS.length;i++) if(AREAS[i].id===id) return AREAS[i]; return null; }
+function missionIndex(id){ for(var i=0;i<MISSIONS.length;i++) if(MISSIONS[i].id===id) return i; return -1; }
+function isUnlocked(mid){
+  var i = missionIndex(mid); if(i<=0) return true;
+  if(missionById(mid).boss){ return missionsPassed() >= MISSIONS.length-1; }
+  return mrec(MISSIONS[i-1].id).passed;
+}
+
+/* ================= RUN ENGINE ================= */
+var curMission = null, lastResult = null, lastRunLog = null;
+var run = null;
+var DENOMS = [500,100,50,20,10];
+function stepKey(r, s){ return r + ":" + s; }
+function newRun(m){
+  return { mid:m.id, mission:m, rIdx:0, score:100, pen:{}, firstWrong:{}, log:[], missed:[],
+           helped:false, helpUsedStep:{}, safetyFail:false, safetySlips:{}, isFirst: mrec(m.id).first===null && !mrec(m.id).played,
+           startTs: Date.now(), boss:{delivered:0, cash:0, attempted:0}, local:{}, done:false };
+}
+function penalize(key, round, labelObj, safety, correctable){
+  if(run.pen[key]) return;
+  run.pen[key] = true; run.firstWrong[key] = true;
+  run.score = Math.max(0, run.score - WRONG_COST);
+  /* Safety gate: in sequence and spotting rounds a wrong tap is a slip the
+     rider can still correct in the same run, so it is recorded as an open
+     slip (keyed to the step) instead of an instant fail. Completing that
+     step correctly clears the slip (see logStep). In scenario rounds the
+     chosen action stands as taken, so an unsafe pick fails the gate at
+     once, as before. */
+  if(safety){ if(correctable) run.safetySlips[key] = true; else run.safetyFail = true; }
+  if(run.isFirst && round && round.skill){ state.skillErrors[round.skill] = (state.skillErrors[round.skill]||0) + 1; saveState(); }
+  updateScoreChip();
+}
+function logStep(key, labelObj, safety, ftOverride){
+  /* The "needed two tries" tag follows the card that was actually tapped
+     wrong. Callers that know the tapped target (sequence items, spot cards)
+     pass ftOverride from their own per-card wrong set; round based rounds
+     (choice, match, cash) fall back to the round key, which is the step
+     itself and therefore already the mistapped target. */
+  var ft = (ftOverride !== undefined) ? !!ftOverride : !run.firstWrong[key];
+  /* Completing a step correctly corrects any open safety slip on that step:
+     the points stay lost and the step keeps its "needed two tries" tag, but
+     the slip no longer counts as a missed safety step. */
+  if(run.safetySlips) delete run.safetySlips[key];
+  run.log.push({ label: labelObj, firstTry: ft, safetyMissed: !!safety && !!run.firstWrong[key] });
+  if(safety && run.firstWrong[key]) run.missed.push({ label: labelObj, spot:false });
+}
+function updateScoreChip(){
+  var el = document.getElementById("play-score");
+  if(el) el.innerHTML = starIcon(true,16) + " " + T("scoreOf") + " " + numHTML(run ? run.score : 100);
+}
+function updateDots(){
+  var m = run.mission, html = "";
+  for(var i=0;i<m.rounds.length;i++) html += '<i class="'+(i<run.rIdx?"done":i===run.rIdx?"now":"")+'"></i>';
+  document.getElementById("play-dots").innerHTML = html;
+}
+function updateBossBar(){
+  var bar = document.getElementById("boss-bar");
+  if(!run.mission.boss){ bar.classList.add("hidden"); return; }
+  bar.classList.remove("hidden");
+  bar.innerHTML = "<span>"+T("bossParcels")+": <span class='num'>"+run.boss.delivered+"</span></span>" +
+    "<span>"+T("bossCash")+": <span class='num'>Rs "+fmt(run.boss.cash)+"</span></span>" +
+    "<span>"+TX("bossAtt")+": <span class='num'>"+run.boss.attempted+"</span></span>";
+}
+function setLine(txt){ var el=document.getElementById("play-line"); el.textContent = txt; if(state.settings.lang==="ur") el.classList.add("urtext"); else el.classList.remove("urtext"); }
+function speakCurrent(){ var r = run.mission.rounds[run.rIdx]; var txt = L(r.prompt); if(r.type==="choice"||r.type==="match"){ var parts=[txt]; if(r.type==="choice") r.options.forEach(function(o){ parts.push(L(o.t)); }); speak(parts.join(". ")); } else speak(txt); }
+
+/* ---------- feedback ---------- */
+function showFeedback(good, why, btnLabel, onBtn, minus){
+  var fb = document.getElementById("feedback");
+  fb.className = "feedback show " + (good ? "good" : "bad");
+  fb.innerHTML = '<div class="fhead">' + icon(good?"check":"cross") + "<span>" + (good?T("rightPick"):T("wrongPick")) + "</span>" +
+    (minus ? '<span class="minus15">'+T("minus15")+"</span>" : "") + "</div>" +
+    '<div class="freason"></div>' +
+    (btnLabel ? '<button class="fbtn"></button>' : "");
+  fb.querySelector(".freason").textContent = why;
+  if(btnLabel){ var b = fb.querySelector(".fbtn"); b.textContent = btnLabel; b.onclick = function(){ hideFeedback(); onBtn && onBtn(); }; }
+  if(good) speak(T("rightPick") + ". " + why); else speak(T("wrongPick") + ". " + why);
+}
+function hideFeedback(){ var fb=document.getElementById("feedback"); fb.className="feedback"; fb.innerHTML=""; }
+function showInfo(txt){
+  var fb = document.getElementById("feedback");
+  fb.className = "feedback show good";
+  fb.innerHTML = '<div class="fhead">' + icon("help") + "<span>" + T("helpBtn") + '</span></div><div class="freason"></div>';
+  fb.querySelector(".freason").textContent = txt;
+}
+
+/* ---------- demo (built from THIS mission's own rounds) ---------- */
+var demoTimers = [];
+function clearDemoTimers(){ demoTimers.forEach(clearInterval); demoTimers = []; }
+function missionTypes(m){ var seen={}, out=[]; m.rounds.forEach(function(r){ if(!seen[r.type]){ seen[r.type]=r; out.push(r); } }); return out; }
+function needsDemo(m){ return missionTypes(m).some(function(r){ return !state.demoSeen[r.type]; }); }
+function openDemo(m){
+  curMission = m;
+  show("scr-demo");
+  document.querySelector("#scr-demo [data-t='demoTitle']").textContent = T("demoTitle");
+  document.getElementById("demo-text").textContent = TX("demoFor") + ": " + L(m.name) + ". " + TX("demoUses");
+  var anim = document.getElementById("demo-anim"); anim.innerHTML = "";
+  clearDemoTimers();
+  missionTypes(m).forEach(function(r){
+    var wrap = document.createElement("div"); wrap.style.width="100%";
+    var cap = document.createElement("p"); cap.className="msub"; cap.textContent = T("demo"+r.type.charAt(0).toUpperCase()+r.type.slice(1));
+    wrap.appendChild(cap);
+    var row = document.createElement("div"); row.className="demoanim"; row.style.minHeight="70px";
+    wrap.appendChild(row); anim.appendChild(wrap);
+    buildDemoRow(row, r);
+  });
+  document.getElementById("btn-demo-go").onclick = function(){ clearDemoTimers(); missionTypes(m).forEach(function(r){ state.demoSeen[r.type]=true; }); saveState(); beginRun(m); };
+  speak(L(m.name) + ". " + TX("demoUses"));
+}
+function buildDemoRow(row, r){
+  var chips = [], litOrder = [];
+  function chip(txt, isNum){
+    var d = document.createElement("div"); d.className="demochip"; d.innerHTML = isNum ? '<span class="num">'+esc(txt)+"</span>" : esc(txt);
+    row.appendChild(d); chips.push(d); return d;
+  }
+  if(r.type==="choice"){ r.options.forEach(function(o){ var c=chip(L(o.t)); if(o.ok) litOrder=[chips.indexOf(c)]; }); }
+  else if(r.type==="match"){ r.options.forEach(function(code){ var c=chip(code,true); if(code===r.code) litOrder=[chips.indexOf(c)]; }); }
+  else if(r.type==="seq"){ var disp = shuffle(r.items); disp.forEach(function(it){ chip(L(it.t)); }); litOrder = r.items.map(function(it){ return disp.indexOf(it); });
+    /* Sequence demos build the order step by step: each item lights in its
+       correct turn and keeps a number badge, so the full order stays visible
+       before the cycle restarts. */
+    var spos = 0;
+    var stimer = setInterval(function(){
+      if(spos === 0){ chips.forEach(function(c){ c.classList.remove("lit"); var b = c.querySelector(".dbadge"); if(b) b.remove(); }); }
+      if(spos < litOrder.length){
+        var c = chips[litOrder[spos]];
+        c.classList.add("lit");
+        var bd = document.createElement("span"); bd.className = "dbadge"; bd.textContent = (spos + 1); c.appendChild(bd);
+        spos++;
+      } else { spos = 0; }
+    }, 1150);
+    demoTimers.push(stimer);
+    return;
+  }
+  else if(r.type==="spot"){ r.cards.forEach(function(cd){ var c=chip(cd.t ? (typeof cd.t==="string"?cd.t:L(cd.t)) : "", false); if(cd.bad) litOrder.push(chips.indexOf(c)); }); }
+  else if(r.type==="cash"){ var rem=r.target; DENOMS.forEach(function(d){ while(rem>=d){ chip("Rs "+fmt(d), true); litOrder.push(chips.length-1); rem-=d; } }); }
+  var pos = 0;
+  var timer = setInterval(function(){
+    chips.forEach(function(c){ c.classList.remove("lit"); });
+    if(litOrder.length){ chips[litOrder[pos % litOrder.length]].classList.add("lit"); pos++; }
+  }, 1100);
+  demoTimers.push(timer);
+}
+
+/* ---------- mission start ---------- */
+function openIntro(m){
+  curMission = m;
+  if(!isUnlocked(m.id)){ renderHome(); show("scr-home"); return; }
+  fillIntro(m); show("scr-intro"); speak(L(m.ustad));
+}
+function fillIntro(m){
+  var a = areaById(m.area);
+  document.getElementById("intro-kicker").textContent = (m.boss ? T("bossWord") : T("areaWord") + " " + (AREAS.indexOf(a)+1) + ": " + L(a.name)) + " · " + T("missionWord") + " " + (missionIndex(m.id)+1) + " · " + m.rounds.length + " " + T("roundsWord");
+  document.getElementById("intro-title").textContent = L(m.name);
+  document.getElementById("intro-sub").textContent = L(m.sub);
+  document.getElementById("intro-cap").textContent = TX("stepOf") + ": " + L(m.name);
+  document.getElementById("intro-line").textContent = L(m.ustad);
+  document.getElementById("intro-skills").innerHTML = m.skills.map(function(s){ return '<span class="skillchip">'+L(SKILLS[s])+"</span>"; }).join("");
+  var rec = mrec(m.id);
+  var rules = "<h3>"+T("provedHead")+"</h3><ul><li>"+esc(L(m.prove))+"</li>";
+  if(!state.firstNoteSeen){
+    rules += "<li>"+esc(TX("replayNote"))+"</li>";
+    state.firstNoteSeen = true; saveState();
+  }
+  var hasSafety = m.rounds.some(function(r){ return r.safety || (r.items||[]).some(function(it){ return it.safety; }); });
+  if(hasSafety) rules += "<li>"+esc(T("safetyGateLine"))+"</li>";
+  if(rec.played) rules += "<li>"+TX("bestScoreLine")+": <span class='num'>"+rec.best+"</span> · "+TX("firstScoreLine")+": <span class='num'>"+(rec.first==null?"-":rec.first)+"</span></li>";
+  rules += "</ul>";
+  document.getElementById("intro-rules").innerHTML = rules;
+  var playLabel = m.boss ? T("startBtn") : (rec.played ? T("replayBtn") : T("startColon") + L(m.name));
+  document.getElementById("btn-play").innerHTML = icon("play",22) + "<span>"+esc(playLabel)+"</span>";
+  refreshPoints();
+}
+function startMission(m){
+  if(needsDemo(m)) openDemo(m); else beginRun(m);
+}
+function beginRun(m){
+  run = newRun(m);
+  show("scr-play");
+  document.getElementById("play-title").textContent = L(m.name);
+  document.getElementById("btn-help").classList.remove("used");
+  updateScoreChip(); updateBossBar();
+  renderRound();
+}
+function currentRound(){ return run.mission.rounds[run.rIdx]; }
+function renderRound(){
+  hideFeedback(); updateDots(); updateBossBar();
+  var r = currentRound();
+  setLine(L(r.prompt));
+  var body = document.getElementById("play-body"); body.innerHTML = "";
+  var card = document.createElement("div"); card.className="promptcard";
+  var scene = '<div class="scene"><div class="sceneic">'+icon(r.icon||run.mission.icon,46)+"</div></div>";
+  var visual = "";
+  if(r.visual){ visual = '<div class="demoanim" style="min-height:56px;">' + Array.from({length:r.visual.count}, function(){ return '<span class="demochip" style="padding:8px 10px;">'+icon(r.visual.icon,26)+"</span>"; }).join("") + "</div>"; }
+  if(r.type==="match") visual += '<div class="bigcode"><span class="num">'+esc(r.code)+"</span></div>";
+  card.innerHTML = scene + visual + '<div class="ptext"></div>';
+  card.querySelector(".ptext").textContent = L(r.prompt);
+  body.appendChild(card);
+  run.local = {};
+  if(r.type==="choice") renderChoice(body, r);
+  else if(r.type==="match") renderMatch(body, r);
+  else if(r.type==="seq") renderSeq(body, r);
+  else if(r.type==="spot") renderSpot(body, r);
+  else if(r.type==="cash") renderCash(body, r);
+  speakCurrent();
+}
+function roundDone(whyText){
+  var r = currentRound();
+  if(r.fx){ run.boss.delivered += (r.fx.delivered||0); run.boss.cash += (r.fx.cash||0); run.boss.attempted += (r.fx.attempted||0); }
+  updateBossBar();
+  var last = run.rIdx >= run.mission.rounds.length - 1;
+  showFeedback(true, whyText || "", last ? T("finishBtn") : T("nextBtn"), function(){
+    run.rIdx++;
+    if(run.rIdx >= run.mission.rounds.length) finishMission(); else renderRound();
+  }, false);
+}
+function markAttemptedFx(){ run.boss.attempted += 1; }
+
+/* ---------- choice and match ---------- */
+function renderChoice(body, r){
+  var wrap = document.createElement("div"); wrap.className="opts"; body.appendChild(wrap);
+  shuffle(r.options).forEach(function(o){
+    var b = document.createElement("button"); b.className="opt";
+    b.innerHTML = '<span class="oic">'+icon(o.icon||r.icon||"box",27)+"</span><span class='otxt'></span>";
+    b.querySelector(".otxt").textContent = L(o.t);
+    b.onclick = function(){
+      if(b.disabled) return;
+      var key = stepKey(run.rIdx, 0);
+      if(o.ok){
+        b.classList.add("right"); wrap.querySelectorAll(".opt").forEach(function(x){ x.disabled = true; });
+        logStep(key, {en: shortLabel(r), ur: shortLabel(r)}, !!r.safety);
+        roundDone(L(o.why));
+      } else {
+        var wasFirst = !run.pen[key];
+        penalize(key, r, o.t, !!r.safety);
+        b.classList.add("wrong"); b.disabled = true;
+        showFeedback(false, L(o.why), T("tryAgain"), function(){}, wasFirst);
+      }
+    };
+    wrap.appendChild(b);
+  });
+  run.local.wrap = wrap;
+}
+function shortLabel(r){
+  var p = L(r.prompt); return p.length > 52 ? p.slice(0, 52) + "..." : p;
+}
+function renderMatch(body, r){
+  var wrap = document.createElement("div"); wrap.className="opts"; body.appendChild(wrap);
+  shuffle(r.options).forEach(function(code){
+    var b = document.createElement("button"); b.className="opt";
+    b.innerHTML = '<span class="oic">'+icon("box",27)+'</span><span class="num">'+esc(code)+"</span>";
+    b.onclick = function(){
+      if(b.disabled) return;
+      var key = stepKey(run.rIdx, 0);
+      if(code === r.code){
+        b.classList.add("right"); wrap.querySelectorAll(".opt").forEach(function(x){ x.disabled = true; });
+        logStep(key, {en:"Match " + r.code, ur:"Match " + r.code}, !!r.safety);
+        roundDone(L(r.why));
+      } else {
+        var wasFirst = !run.pen[key];
+        penalize(key, r, null, !!r.safety);
+        b.classList.add("wrong"); b.disabled = true;
+        showFeedback(false, TX("matchWrong"), T("tryAgain"), function(){}, wasFirst);
+      }
+    };
+    wrap.appendChild(b);
+  });
+  run.local.wrap = wrap;
+}
+
+/* ---------- sequence ---------- */
+function renderSeq(body, r){
+  var grid = document.createElement("div"); grid.className="cardgrid"; body.appendChild(grid);
+  var doneBox = document.createElement("div"); doneBox.className="seqdone hidden"; body.appendChild(doneBox);
+  run.local.expect = 0;
+  run.local.itemWrong = {};
+  shuffle(r.items).forEach(function(it){
+    var c = document.createElement("button"); c.className="pcard";
+    c.innerHTML = '<span class="pic">'+icon(it.icon||"box",29)+'</span><span class="ctxt"></span>';
+    c.querySelector(".ctxt").textContent = L(it.t);
+    c.onclick = function(){
+      if(c.disabled) return;
+      var idx = r.items.indexOf(it);
+      var key = stepKey(run.rIdx, run.local.expect);
+      if(idx === run.local.expect){
+        hideFeedback();
+        c.classList.add("locked"); c.disabled = true;
+        var ord = document.createElement("span"); ord.className="ord"; ord.innerHTML = '<span class="num">'+(idx+1)+"</span>"; c.appendChild(ord);
+        logStep(key, it.t, !!it.safety, !run.local.itemWrong[idx]);
+        doneBox.classList.remove("hidden");
+        var line = document.createElement("div"); line.textContent = (idx+1) + ". " + L(it.t) + " : " + L(it.why);
+        doneBox.appendChild(line);
+        speak(L(it.why));
+        run.local.expect++;
+        if(run.local.expect >= r.items.length) roundDone(L(r.items[r.items.length-1].why));
+      } else {
+        var wasFirst = !run.pen[key];
+        run.local.itemWrong[idx] = true;
+        penalize(key, r, null, !!r.items[run.local.expect].safety, true);
+        c.classList.add("bad"); setTimeout(function(){ c.classList.remove("bad"); }, 450);
+        showFeedback(false, TX("seqWrong"), T("tryAgain"), function(){}, wasFirst);
+      }
+    };
+    grid.appendChild(c);
+  });
+  run.local.grid = grid;
+}
+
+/* ---------- spot ---------- */
+function renderSpot(body, r){
+  var grid = document.createElement("div"); grid.className="cardgrid"; body.appendChild(grid);
+  run.local.found = 0;
+  run.local.cardWrong = {};
+  run.local.need = r.cards.filter(function(c){ return c.bad; }).length;
+  shuffle(r.cards).forEach(function(cd){
+    var cIdx = r.cards.indexOf(cd);
+    var c = document.createElement("button"); c.className="pcard";
+    var label = typeof cd.t === "string" ? cd.t : L(cd.t);
+    c.innerHTML = '<span class="pic">'+icon(cd.icon||"box",29)+'</span><span class="ctxt"></span>' + (cd.cond ? '<span class="cond '+(cd.bad?"bad":"ok")+'"></span>' : "");
+    c.querySelector(".ctxt").textContent = label;
+    if(cd.cond) c.querySelector(".cond").textContent = L(cd.cond);
+    c.onclick = function(){
+      if(c.disabled) return;
+      if(cd.bad){
+        c.classList.add("found"); c.disabled = true;
+        var key = stepKey(run.rIdx, run.local.found);
+        logStep(key, (typeof cd.t==="string" ? {en:cd.t, ur:cd.t} : cd.t), !!r.safety, !run.local.cardWrong[cIdx]);
+        run.local.found++;
+        speak(L(cd.why));
+        if(run.local.found >= run.local.need) roundDone(L(cd.why));
+        else showFeedback(true, L(cd.why), "", null, false);
+      } else {
+        var key2 = stepKey(run.rIdx, run.local.found);
+        var wasFirst = !run.pen[key2];
+        run.local.cardWrong[cIdx] = true;
+        penalize(key2, r, null, !!r.safety, true);
+        c.classList.add("bad"); setTimeout(function(){ c.classList.remove("bad"); }, 450);
+        showFeedback(false, TX("spotWrong"), T("tryAgain"), function(){}, wasFirst);
+      }
+    };
+    grid.appendChild(c);
+  });
+  run.local.grid = grid;
+}
+
+/* ---------- cash ---------- */
+function renderCash(body, r){
+  var info = document.createElement("div");
+  info.innerHTML = '<div class="cashtarget">'+TX("cashTapBank")+'<br><span class="num">Rs '+fmt(r.target)+'</span></div>' +
+    '<div class="cashtotal">'+TX("cashYourHand")+': <span class="num" id="cash-sum">Rs 0</span></div>' +
+    '<div class="cashhand" id="cash-hand"><span class="empty">'+TX("cashYourHand")+'</span></div>' +
+    '<div class="cashbank" id="cash-bank"></div>';
+  body.appendChild(info);
+  var hand = [];
+  run.local.hand = hand;
+  function draw(){
+    var sum = hand.reduce(function(a,b){ return a+b; }, 0);
+    document.getElementById("cash-sum").textContent = "Rs " + fmt(sum);
+    var hb = document.getElementById("cash-hand");
+    hb.innerHTML = hand.length ? "" : '<span class="empty">'+TX("cashYourHand")+"</span>";
+    hand.forEach(function(d, i){
+      var b = document.createElement("button"); b.className = "denom note";
+      b.innerHTML = '<span class="num">Rs '+fmt(d)+"</span>";
+      b.setAttribute("aria-label", "Remove Rs " + fmt(d));
+      b.onclick = function(){ hand.splice(i,1); draw(); };
+      hb.appendChild(b);
+    });
+    run.local.sum = sum;
+  }
+  var bank = info.querySelector("#cash-bank");
+  DENOMS.forEach(function(d){
+    var b = document.createElement("button"); b.className = "denom note";
+    b.innerHTML = '<span class="num">Rs '+fmt(d)+"</span>";
+    b.onclick = function(){ hand.push(d); draw(); };
+    bank.appendChild(b);
+  });
+  var chk = document.createElement("button"); chk.className="btn"; chk.textContent = TX("cashCheck");
+  chk.onclick = function(){
+    var key = stepKey(run.rIdx, 0);
+    if(run.local.sum === r.target){
+      logStep(key, {en:"Cash Rs " + fmt(r.target), ur:"Cash Rs " + fmt(r.target)}, !!r.safety);
+      roundDone(L(r.why));
+    } else {
+      var wasFirst = !run.pen[key];
+      penalize(key, r, null, !!r.safety);
+      showFeedback(false, TX("cashWrongPre") + "Rs " + fmt(run.local.sum||0) + TX("cashWrongPost"), T("tryAgain"), function(){}, wasFirst);
+    }
+  };
+  body.appendChild(chk);
+  run.local.drawCash = draw;
+  draw();
+}
+
+/* ---------- help ---------- */
+function useHelp(){
+  if(!run || run.done) return;
+  var r = currentRound();
+  run.helped = true;
+  document.getElementById("btn-help").classList.add("used");
+  var body = document.getElementById("play-body");
+  if(r.type==="choice" && run.local.wrap){
+    run.local.wrap.querySelectorAll(".opt").forEach(function(b, i){});
+    var opts = r.options, idx = 0;
+    run.local.wrap.querySelectorAll(".opt").forEach(function(b){
+      var txt = b.querySelector(".otxt").textContent;
+      opts.forEach(function(o){ if(L(o.t)===txt && o.ok) b.classList.add("hinted"); });
+    });
+  } else if(r.type==="match" && run.local.wrap){
+    run.local.wrap.querySelectorAll(".opt").forEach(function(b){ if(b.textContent.indexOf(r.code)>=0) b.classList.add("hinted"); });
+  } else if(r.type==="seq" && run.local.grid){
+    var want = L(r.items[run.local.expect].t);
+    run.local.grid.querySelectorAll(".pcard").forEach(function(c){ if(!c.disabled && c.querySelector(".ctxt").textContent===want) c.classList.add("hinted"); });
+  } else if(r.type==="spot" && run.local.grid){
+    var done = false;
+    run.local.grid.querySelectorAll(".pcard").forEach(function(c){
+      if(done || c.disabled) return;
+      var label = c.querySelector(".ctxt").textContent;
+      r.cards.forEach(function(cd){ var t = typeof cd.t==="string" ? cd.t : L(cd.t); if(cd.bad && t===label){ c.classList.add("hinted"); done = true; } });
+    });
+  } else if(r.type==="cash"){
+    var rem = r.target, parts = [];
+    DENOMS.forEach(function(d){ while(rem>=d){ parts.push("Rs " + fmt(d)); rem -= d; } });
+    showInfo(TX("cashHintPre") + parts.join(" + "));
+    return;
+  }
+  showInfo(T("helpUsed"));
+}
+
+/* ---------- finish ---------- */
+function finishMission(){
+  run.done = true;
+  var m = run.mission, rec = mrec(m.id);
+  var elapsed = Math.round((Date.now() - run.startTs)/1000);
+  state.totalSeconds += elapsed;
+  /* The gate fails only on a safety slip still open at the end of the run:
+     a corrected slip passes, an uncorrected safety miss does not. */
+  if(Object.keys(run.safetySlips).length) run.safetyFail = true;
+  var passed = run.score >= PASS_SCORE && !run.safetyFail;
+  rec.played = true;
+  if(run.isFirst){ rec.first = run.score; rec.firstHelped = run.helped; }
+  if(run.score >= rec.best){ rec.best = run.score; rec.bestHelped = run.helped; }
+  if(passed){ rec.passed = true; rec.safetyOk = true; }
+  if(run.helped) state.helpedMissions[m.id] = true;
+  saveState();
+  lastRunLog = { log: run.log.slice(), missed: run.missed.slice(), isFirst: run.isFirst, helped: run.helped, safetyFail: run.safetyFail, score: run.score, passed: passed, boss: {delivered: run.boss.delivered, cash: run.boss.cash, attempted: run.boss.attempted} };
+  lastResult = { mid: m.id };
+  showResult(m.id, false);
+}
+function showResult(mid, keep){
+  var m = missionById(mid), rec = mrec(mid);
+  show("scr-result");
+  document.getElementById("result-title").textContent = L(m.name);
+  document.getElementById("result-cap").textContent = T("missionResult") + " · " + levelName();
+  var lr = lastRunLog || { log:[], missed:[], score: rec.best, helped: rec.bestHelped, safetyFail:false, passed: rec.passed, isFirst:false, boss:{delivered:0,cash:0,attempted:0} };
+  var st = starsFromScore(lr.score);
+  document.getElementById("result-stars").innerHTML = [1,2,3].map(function(i){ return starIcon(i<=st, 52, i<=st); }).join("");
+  document.getElementById("result-score").textContent = fmt(lr.score);
+  document.getElementById("result-max").textContent = T("of100") + " · " + T("totalOf") + ": " + pointsText();
+  var ex = "";
+  ex += '<div class="resultcard"><h3>'+T("resultFirst")+" / "+T("resultBest")+"</h3><div>" +
+    TX("firstScoreLine")+': <span class="num">'+(rec.first==null?"-":fmt(rec.first))+"</span>" +
+    (rec.firstHelped ? ' <span class="helpedtag">'+T("helpBtn")+"</span>" : "") +
+    " · " + TX("bestScoreLine")+': <span class="num">'+fmt(rec.best)+"</span>" +
+    (rec.bestHelped ? ' <span class="helpedtag">'+T("helpBtn")+"</span>" : "") + "</div></div>";
+  if(lr.helped) ex += '<div class="resultcard">'+esc(T("resultHelped"))+"</div>";
+  if(lr.safetyFail) ex += '<div class="safetyfail">'+esc(T("safetyFail"))+"</div>";
+  else ex += '<div class="resultcard" style="background:var(--safe-bg); border-color:var(--safe-edge);">'+esc(T("safetyOk"))+"</div>";
+  ex += '<div class="resultcard">'+esc(T("safetyGateLine"))+"</div>";
+  if(m.boss){
+    ex += '<div class="resultcard"><h3>'+TX("bossAgg")+"</h3><div>" +
+      T("bossParcels")+': <span class="num">'+lr.boss.delivered+"</span> · " +
+      TX("bossAtt")+': <span class="num">'+lr.boss.attempted+"</span> · " +
+      T("bossCash")+': <span class="num">Rs '+fmt(lr.boss.cash)+"</span><br>"+esc(TX("bossCashOk"))+"</div></div>";
+  }
+  if(lr.log.length){
+    ex += '<div class="resultcard"><h3>'+TX("rightList")+"</h3>" + lr.log.map(function(s){
+      return "<div>" + icon("check",15) + " " + esc(L(s.label)) + (s.firstTry ? "" : ' <span class="helpedtag">'+TX("twoTries")+"</span>") + "</div>";
+    }).join("") + "</div>";
+  }
+  /* Fold-in rule: the second list holds only what is still wrong. Every step in a
+     finished run ended right (corrected steps sit in the Right list as "needed two
+     tries"), and a missed safety step is reported once, as the run level safety
+     notice above, never again as an item fault. So no second list is rendered. */
+  document.getElementById("result-extra").innerHTML = ex;
+  document.getElementById("result-proved").textContent = L(m.prove);
+  var idx = missionIndex(mid);
+  var nextBtn = document.getElementById("btn-next");
+  if(m.boss){ nextBtn.innerHTML = "<span>"+T("viewReport")+"</span>"; nextBtn.onclick = function(){ renderReport(); show("scr-report"); }; }
+  else if(idx >= MISSIONS.length-1){ nextBtn.innerHTML = "<span>"+T("bossDoneBtn")+"</span>"; nextBtn.onclick = function(){ renderHome(); show("scr-home"); }; }
+  else { nextBtn.innerHTML = "<span>"+T("nextMissionBtn")+"</span>"; nextBtn.onclick = function(){ openIntro(MISSIONS[idx+1]); }; }
+  document.getElementById("btn-replay").innerHTML = "<span>"+T("replayBtn")+"</span>";
+  speak(L(m.name) + ". " + lr.score + ".");
+  refreshPoints();
+}
+
+/* ================= HOME / PATH ================= */
+function currentTarget(){
+  for(var i=0;i<MISSIONS.length;i++){ if(isUnlocked(MISSIONS[i].id) && !mrec(MISSIONS[i].id).passed) return MISSIONS[i].id; }
+  return null;
+}
+function starsHTML(n, size){ var h=""; for(var i=1;i<=3;i++) h += starIcon(i<=n, size||16, i<=n); return h; }
+function renderHome(){
+  var path = document.getElementById("path"); path.innerHTML = "";
+  var target = currentTarget();
+  AREAS.forEach(function(a, ai){
+    var head = document.createElement("div"); head.className="areah";
+    var aStars = 0, aMax = a.missions.length*3;
+    a.missions.forEach(function(mid){ aStars += starsFromScore(mrec(mid).best); });
+    head.innerHTML = '<span class="ano">'+T("areaWord")+" "+(ai+1)+'</span><span class="aname"></span><span class="astars">★ <span class="num">'+aStars+" / "+aMax+"</span></span>";
+    head.querySelector(".aname").textContent = L(a.name);
+    path.appendChild(head);
+    var road = document.createElement("div"); road.className="roadwrap";
+    a.missions.forEach(function(mid, mi){
+      var m = missionById(mid), rec = mrec(mid), unlocked = isUnlocked(mid);
+      var node = document.createElement("div");
+      node.className = "node" + ((ai+mi)%2 ? " flip" : "") + (rec.passed ? " done" : "") + (m.boss ? " boss" : "") + (!unlocked ? " locked" : "");
+      var status = rec.passed ? T("doneWord") : unlocked ? T("openWord") : T("locked");
+      var sub = status + (rec.played ? " · " + TX("bestScoreLine") + ": " + rec.best + " / 100" : "");
+      if(m.boss && !unlocked) sub = TX("pathBossLocked");
+      node.innerHTML =
+        '<div style="flex:0 0 auto; margin:0 auto; position:relative;">' +
+          (target===mid ? '<img class="ali-on" src="assets/ali-face.webp" alt="" />' : "") +
+          '<button class="nbtn" aria-label="">' + icon(m.icon, 36) + (rec.passed ? '<span class="tick">'+icon("check",15)+"</span>" : "") + "</button>" +
+        "</div>" +
+        '<div class="ninfo"><div class="nm"></div><div class="ns"></div><div class="nodestars">' + starsHTML(starsFromScore(rec.best)) + "</div>" +
+        (rec.bestHelped ? '<span class="helpedtag">'+T("helpBtn")+"</span>" : "") + "</div>";
+      node.querySelector(".nm").textContent = L(m.name);
+      node.querySelector(".ns").textContent = sub;
+      node.querySelector(".nbtn").setAttribute("aria-label", L(m.name));
+      node.querySelector(".nbtn").onclick = function(){ if(unlocked) openIntro(m); };
+      node.querySelector(".ninfo").onclick = function(){ if(unlocked) openIntro(m); };
+      road.appendChild(node);
+    });
+    path.appendChild(road);
+  });
+  var hint = document.querySelector("#scr-home .note");
+  if(hint) hint.textContent = (missionsPassed()===MISSIONS.length ? TX("pathDone") : TX("pathNext"));
+  refreshPoints();
+}
+
+/* ================= LEAGUE ================= */
+function ordinal(n){
+  if(state.settings.lang==="ur") return TX("rankWord") + " " + n;
+  return ["1st","2nd","3rd","4th","5th"][n-1] || (n + "th");
+}
+function renderLeague(){
+  var rows = [{ name: TX("youRow"), pts: totalPoints(), you:true }];
+  /* Demo teams race around the player's own score, so the table always
+     reads as a close race at any point in the game. */
+  var tp = totalPoints(), tmax = totalPointsMax();
+  var demoPts = [90, 30, -35, -90].map(function(off){ return Math.max(0, Math.min(tmax, tp + off)); });
+  (UI[state.settings.lang].leagueTeams || UI.en.leagueTeams).forEach(function(nm, i){ rows.push({ name: nm, pts: demoPts[i], you:false }); });
+  rows.sort(function(a,b){ return b.pts - a.pts; });
+  var html = '<div class="resultcard"><div style="margin-bottom:6px;"><span class="demolabel">'+T("demoLabel")+"</span></div><div>"+esc(TX("leagueRule"))+"</div></div>";
+  html += '<table class="rep"><tr><th>'+TX("rankWord")+'</th><th>'+T("leagueTitle")+'</th><th class="r">'+T("repTotal")+"</th></tr>";
+  rows.forEach(function(r, i){
+    html += "<tr" + (r.you ? ' style="background:var(--gold-soft); font-weight:900;"' : "") + "><td>" + ordinal(i+1) + "</td><td>" + esc(r.name) + "</td><td class='r'><span class='num'>" + fmt(r.pts) + " / " + fmt(totalPointsMax()) + "</span></td></tr>";
+  });
+  html += "</table>";
+  document.getElementById("league-body").innerHTML = html;
+  refreshPoints();
+}
+
+/* ================= REPORT ================= */
+function reportStatus(){
+  if(missionsPassed()===MISSIONS.length) return T("repComplete");
+  var any = MISSIONS.some(function(m){ return mrec(m.id).played; });
+  return any ? T("repInProgress") : T("repNotStarted");
+}
+function renderReport(){
+  var b = document.getElementById("report-body");
+  var d = new Date();
+  var dateStr = d.toLocaleDateString(state.settings.lang==="ur" ? "ur-PK" : "en-GB", { day:"numeric", month:"long", year:"numeric" });
+  var html = "";
+  html += '<div class="resultcard"><h3>'+T("reportTitle")+"</h3>" +
+    "<div>"+T("repRider")+": <b>"+esc(state.profile.name || "-")+"</b> · "+T("repHub")+": <b>"+esc(state.profile.hub || "-")+"</b></div>" +
+    "<div>"+T("repDate")+': <span class="num">'+esc(dateStr)+"</span></div>" +
+    "<div>"+TX("levelHead")+": <b>"+levelName()+"</b> · "+T("repStatus")+": <b>"+reportStatus()+"</b></div>" +
+    "<div>"+T("repTotal")+': <span class="num">'+fmt(totalPoints())+" / "+fmt(totalPointsMax())+"</span> · "+T("repStars")+': <span class="num">'+fmt(totalStars())+" / "+fmt(totalStarsMax())+"</span></div>" +
+    "<div>"+T("repTime")+': <span class="num">'+fmt(Math.round(state.totalSeconds/60))+"</span> "+T("repMinutes")+"</div></div>";
+  /* areas partition */
+  html += '<h3 class="secth">'+T("repAreas")+'</h3><table class="rep"><tr><th>'+T("areaWord")+'</th><th class="r">'+T("repTotal")+'</th><th class="r">'+T("repStars")+"</th></tr>";
+  var sumStars = 0;
+  AREAS.forEach(function(a, ai){
+    var pts = 0, sts = 0;
+    a.missions.forEach(function(mid){ var rec = mrec(mid); pts += rec.best; sts += starsFromScore(rec.best); });
+    sumStars += sts;
+    html += "<tr><td>"+(ai+1)+". "+esc(L(a.name))+'</td><td class="r"><span class="num">'+fmt(pts)+" / "+fmt(a.missions.length*100)+'</span></td><td class="r"><span class="num">'+sts+" / "+(a.missions.length*3)+"</span></td></tr>";
+  });
+  html += "<tr style='font-weight:950;'><td>"+T("repTotal")+'</td><td class="r"><span class="num">'+fmt(totalPoints())+" / "+fmt(totalPointsMax())+'</span></td><td class="r"><span class="num">'+sumStars+" / "+fmt(totalStarsMax())+"</span></td></tr></table>";
+  /* first attempts */
+  html += '<h3 class="secth">'+T("repFirst")+'</h3><p class="sectsub">'+T("repFirstNote")+"</p>";
+  html += '<table class="rep"><tr><th>'+T("repMission")+'</th><th class="r">'+T("repFirstScore")+'</th><th class="r">'+T("repBestScore")+'</th><th class="r">'+T("repPassed")+"</th></tr>";
+  MISSIONS.forEach(function(m, i){
+    var rec = mrec(m.id);
+    html += "<tr><td>"+(i+1)+". "+esc(L(m.name))+(rec.firstHelped ? ' <span class="helpedtag">'+T("helpBtn")+"</span>" : "")+'</td><td class="r"><span class="num">'+(rec.first==null ? "-" : fmt(rec.first))+'</span></td><td class="r"><span class="num">'+fmt(rec.best)+'</span></td><td class="r">'+(rec.passed ? T("repYes") : T("repNo"))+"</td></tr>";
+  });
+  html += "</table>";
+  var avg = firstAttemptAvg();
+  html += '<p class="sectsub">'+T("repFirst")+': <span class="num">'+(avg==null ? "-" : fmt(avg)+" / 100")+"</span></p>";
+  /* helped */
+  var helpedList = MISSIONS.filter(function(m){ return state.helpedMissions[m.id]; });
+  html += '<h3 class="secth">'+T("repHelped")+"</h3>";
+  html += helpedList.length ? '<div class="resultcard">'+helpedList.map(function(m){ return esc(L(m.name)); }).join("<br>")+"</div>" : '<p class="sectsub">'+T("repHelpedNone")+"</p>";
+  /* mistakes by skill */
+  var errs = Object.keys(state.skillErrors).filter(function(k){ return state.skillErrors[k] > 0; }).sort(function(a,b){ return state.skillErrors[b]-state.skillErrors[a]; });
+  html += '<h3 class="secth">'+T("repMistakes")+"</h3>";
+  html += errs.length ? '<table class="rep">'+errs.map(function(k){ return "<tr><td>"+esc(L(SKILLS[k]))+'</td><td class="r"><span class="num">'+state.skillErrors[k]+"</span></td></tr>"; }).join("")+"</table>" : '<p class="sectsub">'+T("repMistakesNone")+"</p>";
+  /* pass line */
+  var ready = isReady();
+  var allPassed = missionsPassed()===MISSIONS.length;
+  var safetyAll = MISSIONS.every(function(m){ return !mrec(m.id).passed || mrec(m.id).safetyOk; }) && allPassed;
+  function condRow(ok, txt){ return "<li>"+(ok ? "✔ " : "✘ ") + esc(txt) + "</li>"; }
+  html += '<div class="passline '+(ready ? "ok" : "no")+'"><div class="pt">'+(ready ? T("passReady") : T("passNotReady"))+" · "+levelName()+"</div><ul>" +
+    condRow(allPassed, T("passLine1") + " (" + missionsPassed() + " / " + MISSIONS.length + ")") +
+    condRow(safetyAll, T("passLine2")) +
+    condRow(avg!=null && avg>=READY_FIRST_AVG, T("passLine3") + " (" + (avg==null ? "-" : avg) + ")") +
+    "</ul></div>";
+  html += '<p class="sectsub" style="margin-top:12px;">'+T("repStandard")+"</p>";
+  html += '<p class="sectsub" style="margin-top:8px;">'+T("safetyGateLine")+"</p>";
+  html += '<p class="sectsub" style="margin-top:8px;">'+T("repHonest")+"</p>";
+  b.innerHTML = html;
+  refreshPoints();
+}
+function copyReport(){
+  var lines = [];
+  lines.push("READY RIDER : " + T("reportTitle"));
+  lines.push(T("repRider") + ": " + (state.profile.name||"-") + " | " + T("repHub") + ": " + (state.profile.hub||"-"));
+  lines.push(T("repTotal") + ": " + totalPoints() + " / " + totalPointsMax() + " | " + T("repStars") + ": " + totalStars() + " / " + totalStarsMax());
+  lines.push(TX("levelHead") + ": " + levelName() + " | " + T("repStatus") + ": " + reportStatus());
+  MISSIONS.forEach(function(m, i){ var rec = mrec(m.id); lines.push((i+1) + ". " + L(m.name) + " : " + T("repFirstScore") + " " + (rec.first==null?"-":rec.first) + " | " + T("repBestScore") + " " + rec.best + " | " + (rec.passed ? T("repYes") : T("repNo"))); });
+  lines.push((isReady() ? T("passReady") : T("passNotReady")));
+  var txt = lines.join("\n");
+  function done(){ var btn = document.getElementById("btn-copy-report"); var old = btn.textContent; btn.textContent = T("copied"); setTimeout(function(){ btn.textContent = old; }, 1800); }
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done, function(){ fallback(); }); } else fallback();
+  function fallback(){ var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); }catch(e){} document.body.removeChild(ta); done(); }
+}
+
+/* ================= SETTINGS ================= */
+function openSettings(){
+  document.getElementById("set-name").value = state.profile.name || "";
+  document.getElementById("set-hub").value = state.profile.hub || "";
+  updateSpeakers();
+  document.getElementById("sheet-settings").classList.add("show");
+}
+function closeSettings(){ document.getElementById("sheet-settings").classList.remove("show"); }
+
+/* ================= INIT ================= */
+function init(){
+  loadState();
+  /* static icons for back buttons */
+  document.querySelectorAll("[data-ic]").forEach(function(el){ el.innerHTML = icon(el.getAttribute("data-ic"), 22); });
+  document.querySelectorAll("[data-speaker]").forEach(function(b){ b.onclick = function(){ toggleSound(false); }; });
+  document.querySelectorAll("[data-back]").forEach(function(b){ b.onclick = function(){ requestExit(function(){ run = null; clearDemoTimers(); renderHome(); show("scr-home"); }); }; });
+  document.getElementById("btn-stay").onclick = function(){ closeLeaveSheet(); };
+  document.getElementById("btn-leave").onclick = function(){ var a = pendingExit; closeLeaveSheet(); if(a) a(); };
+  document.getElementById("lang-en").onclick = function(){ setLang("en"); };
+  document.getElementById("lang-ur").onclick = function(){ setLang("ur"); };
+  document.getElementById("set-lang-en").onclick = function(){ setLang("en"); };
+  document.getElementById("set-lang-ur").onclick = function(){ setLang("ur"); };
+  document.getElementById("btn-start").onclick = function(){
+    state.profile.name = document.getElementById("inp-name").value.trim();
+    state.profile.hub = document.getElementById("inp-hub").value.trim();
+    state.started = true; saveState();
+    renderHome(); show("scr-home");
+    speak(T("speakStart"));
+  };
+  document.getElementById("btn-league").onclick = function(){ renderLeague(); show("scr-league"); };
+  document.getElementById("btn-settings").onclick = openSettings;
+  document.getElementById("btn-report").onclick = function(){ renderReport(); show("scr-report"); };
+  document.getElementById("btn-intro-report").onclick = function(){ renderReport(); show("scr-report"); };
+  document.getElementById("btn-play").onclick = function(){ if(curMission) startMission(curMission); };
+  document.getElementById("btn-replay").onclick = function(){ if(lastResult) startMission(missionById(lastResult.mid)); };
+  document.getElementById("btn-result-path").onclick = function(){ renderHome(); show("scr-home"); };
+  document.getElementById("btn-copy-report").onclick = copyReport;
+  document.getElementById("btn-help").onclick = useHelp;
+  document.getElementById("sw-sound").onclick = function(){ toggleSound(true); };
+  document.getElementById("btn-save-profile").onclick = function(){
+    state.profile.name = document.getElementById("set-name").value.trim();
+    state.profile.hub = document.getElementById("set-hub").value.trim();
+    saveState(); closeSettings();
+  };
+  document.getElementById("btn-reset").onclick = function(){
+    var rb = document.getElementById("btn-reset");
+    if(!rb.dataset.armed){ rb.dataset.armed = "1"; rb.textContent = T("resetSure"); return; }
+    var keepSettings = state.settings, keepProfile = state.profile;
+    state = defaultState(); state.settings = keepSettings; state.profile = keepProfile;
+    saveState(); rb.dataset.armed = ""; rb.textContent = T("resetBtn");
+    closeSettings(); applyStatic(); renderHome(); show("scr-home");
+  };
+  document.getElementById("btn-close-settings").onclick = closeSettings;
+  document.getElementById("sheet-settings").addEventListener("click", function(e){ if(e.target === this) closeSettings(); });
+  /* prefill + static text */
+  document.getElementById("inp-name").value = state.profile.name || "";
+  document.getElementById("inp-hub").value = state.profile.hub || "";
+  applyStatic();
+  if(state.started){ renderHome(); show("scr-home"); } else { show("scr-start"); }
+  /* aria labels follow language */
+  document.querySelectorAll("[data-speaker]").forEach(function(b){ b.setAttribute("aria-label", T("soundRow")); });
+  document.getElementById("btn-league").setAttribute("aria-label", T("leagueTitle"));
+  document.getElementById("btn-settings").setAttribute("aria-label", T("settingsTitle"));
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
