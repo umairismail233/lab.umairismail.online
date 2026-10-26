@@ -10,7 +10,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
-import { loadModel, pool } from './loader.js';
+import { loadModel, pool } from './pool.js';
 
 const MODEL_REPORT_URL = './tools/qa-greybox/model-report.json';
 
