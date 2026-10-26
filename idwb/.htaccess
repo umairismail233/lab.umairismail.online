@@ -1,0 +1,48 @@
+# ID Workbench v2 - Apache & LiteSpeed Configuration
+DirectoryIndex index.php login.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /idwb/
+
+    # Enforce HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Deny direct web access (403 Forbidden) to sensitive directories and audit docs
+    RewriteRule ^(prisma|src|tests|baseline-ui|restored-ui)(/|$) - [F,L]
+    RewriteRule ^(DATA-PARITY\.md|DIFFERENCES\.md)$ - [F,L]
+
+    # Handle clean /login route
+    RewriteRule ^login/?$ login.html [L,QSA]
+
+    # Route index.html through index.php for server-side auth gate
+    RewriteRule ^index\.html$ index.php [L,QSA]
+
+    # Don't rewrite real files or directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route clean API requests if needed
+    RewriteRule ^api/([a-zA-Z0-9_-]+)/?$ api/$1.php [L,QSA]
+
+    # Route all SPA views to index.php
+    RewriteRule ^(dashboard|tasks|pipeline|sme-inbox|reviews|projects|calendar|reports|settings)(/.*)?$ index.php [L,QSA]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Prevent access to SQLite database files, Prisma files, environment, and logs
+<FilesMatch "\.(db|sqlite|sqlite3|prisma|env|log)$">
+    Order allow,deny
+    Deny from all
+    Require all denied
+</FilesMatch>
+
