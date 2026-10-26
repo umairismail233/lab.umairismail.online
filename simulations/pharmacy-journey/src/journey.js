@@ -38,6 +38,7 @@ const STRINGS = {
   whoAyesha: { en: 'Ayesha · Pharmacist', ur: 'عائشہ · فارماسسٹ' },
   whoYou: { en: 'You', ur: 'آپ' },
   continueBtn: { en: 'Continue', ur: 'آگے چلیں' },
+  sendBtn: { en: 'Send', ur: 'بھیجیں' },
   learningMoment: { en: 'Learning moment', ur: 'سیکھنے کی بات' },
   refusalBanner: { en: 'Prescription-only medicine, not supplied without a prescription', ur: 'نسخے والی دوا، بغیر نسخے نہیں مل سکتی' },
   yourRequest: { en: 'Your request', ur: 'آپ کی درخواست' },
@@ -211,7 +212,7 @@ export function initJourney(world) {
       await travel('player', 6.6, -4.9, -0.9);
       place('ayesha', 5.9, -4.3, 2.24);
     }
-    if (station === 7) { await travel('player', 5.9, 3.5, Math.PI); POSTS.ayeshaHome(); }
+    if (station === 7) { await travel('player', 5.55, 3.5, Math.PI); POSTS.ayeshaHome(); } // 5.55, not 5.9: at 5.9 the player's forearm clipped the billing counter top (fix round 2026-10-26).
     if (station === 8) { await travel('player', 5, 4.9, Math.PI); POSTS.ayeshaHome(); }
   }
 
@@ -280,11 +281,12 @@ export function initJourney(world) {
 
   // ------------------------------------------------------------ speech bubbles
   // Dialogue no longer lives in the side panel: the speaking character gets
-  // a bubble anchored above their head, typed out character by character,
-  // held for reading, then replaced by the next line. Choices and Continue
-  // live in a bottom choice bar. Cards (medicine, prescription, labelling,
-  // billing, report, intro, picker) stay in the panel: they are documents,
-  // not speech.
+  // a bubble anchored above their head, typed out character by character.
+  // Nothing auto-advances: every bubble stays until the user taps Continue
+  // (pharma lines) or Send (the customer's own line, which the pharma then
+  // answers). Choices and Continue live in a bottom choice bar. Cards
+  // (medicine, prescription, labelling, billing, report, intro, picker)
+  // stay in the panel: they are documents, not speech.
   const bubblesEl = el('bubbles'), choicebar = el('choicebar');
   const _pv = new THREE.Vector3();
   let bubbleToken = 0, bubbleDiv = null, bubbleCurrent = null, choiceItems = null;
@@ -389,10 +391,9 @@ export function initJourney(world) {
       }, iv);
     });
   }
-  const readHold = text => Math.min(3200, Math.max(1400, 900 + 40 * text.length));
-  // Play lines in turn: type, hold, next. The last line's bubble stays up
-  // for the choices that follow. Each line is {speaker, en, ur} or
-  // {speaker, getText}.
+  // Play lines in turn, user-paced: type, then wait for the user's Continue
+  // tap before the next line. The last line's bubble stays up for the
+  // choices that follow. Each line is {speaker, en, ur} or {speaker, getText}.
   async function playLines(lines) {
     for (let li = 0; li < lines.length; li++) {
       const line = lines[li];
@@ -401,10 +402,26 @@ export function initJourney(world) {
       const { token } = showBubble(key, line.speaker, getText);
       await typeCurrent(getText(), token);
       if (li < lines.length - 1) {
-        await wait(readHold(getText()));
+        showChoicebar([{ getLabel: () => T('continueBtn'), cls: 'primary', i: 0 }]);
+        await awaitClick('.primary');
+        hideChoicebar();
         hideBubble();
       }
     }
+    S.rerender = refreshBubbleUI;
+  }
+  // The customer's line, then the pharma's answer: the customer bubble stays
+  // with a Send button, and only after Send does the pharma answer. Any
+  // question she asks rides inside that same answer bubble, as the data
+  // already has it. The answer bubble stays for the caller's Continue step.
+  async function playChoiceResponse(youLine, ayeshaLine) {
+    const { token: youToken } = showBubble('player', 'you', () => tx(youLine));
+    await typeCurrent(tx(youLine), youToken);
+    showChoicebar([{ getLabel: () => T('sendBtn'), cls: 'send', i: 0 }]);
+    await awaitClick('.send');
+    hideChoicebar();
+    const { token } = showBubble('ayesha', 'ayesha', () => tx(ayeshaLine));
+    await typeCurrent(tx(ayeshaLine), token);
     S.rerender = refreshBubbleUI;
   }
   function closePanelForDialogue() {
@@ -423,7 +440,7 @@ export function initJourney(world) {
     const pick = Number(await awaitClick('.choice'));
     const c = beat.choices[pick];
     hideChoicebar();
-    await playLines([{ speaker: 'you', en: c.en, ur: c.ur }, { speaker: 'ayesha', en: c.response.en, ur: c.response.ur }]);
+    await playChoiceResponse(c, c.response);
     if (!c.ok) penalize('choice', tx(c.lesson), stationName(beat.station));
     showChoicebar([{ getLabel: () => T('continueBtn'), cls: 'primary', i: 0 }],
       !c.ok ? { cls: 'lesson-note', title: T('learningMoment'), text: tx(c.lesson) } : null);
@@ -566,7 +583,7 @@ export function initJourney(world) {
     const pick = Number(await awaitClick('.choice'));
     const ch = c.question.choices[pick];
     hideChoicebar();
-    await playLines([{ speaker: 'you', en: ch.en, ur: ch.ur }, { speaker: 'ayesha', en: ch.response.en, ur: ch.response.ur }]);
+    await playChoiceResponse(ch, ch.response);
     if (!ch.ok) penalize('question', tx(ch.lesson), stationName(6));
     showChoicebar([{ getLabel: () => T('toBilling'), cls: 'primary', i: 0 }],
       !ch.ok ? { cls: 'lesson-note', title: T('learningMoment'), text: tx(ch.lesson) } : null);

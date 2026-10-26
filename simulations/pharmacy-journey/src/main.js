@@ -31,7 +31,8 @@ function step(label) {
   const fileEl = document.getElementById('loadfile');
   if (fill) fill.style.width = pct + '%';
   if (pctEl) pctEl.textContent = pct + '%';
-  if (fileEl) fileEl.textContent = label;
+  // Generic line on purpose: raw model filenames mean nothing to a visitor (fix round 2026-10-26).
+  if (fileEl) fileEl.textContent = 'Loading…';
 }
 function hideLoader() {
   if (loaderHidden) return;
