@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Find the Hazard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230F766E'/><text x='32' y='44' font-size='36' font-weight='800' fill='white' text-anchor='middle' font-family='Arial'>H</text></svg>">
+<style>
+:root{--porcelain:#F7F6F3;--ink:#101828;--muted:#667085;--border:#D0D5DD;--indigo:#3730A3;--indigo-deep:#1E1B4B;--teal:#0F766E;--teal-soft:#CCFBF1;--gold:#F59E0B;--danger:#DC2626;--danger-soft:#FEE2E2;--green-soft:#D1FAE5;--white:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--porcelain);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+.app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+h1{font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+.support{font-size:15px;line-height:1.5;color:var(--muted);margin-bottom:14px}
+h2{font-size:22px;line-height:1.15;margin-bottom:6px}
+.levels{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.lvl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:14px;cursor:pointer;width:100%;font-family:inherit}
+.lvl:disabled{opacity:.55;cursor:not-allowed}
+.lvl .num{width:48px;height:48px;flex:0 0 48px;border-radius:14px;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.lvl .txt{flex:1;min-width:0}
+.lvl .name{font-size:16px;font-weight:800;display:block}
+.lvl .desc{font-size:13px;color:var(--muted);line-height:1.4;margin-top:1px;display:block}
+.lvl .tag{font-size:11px;font-weight:800;color:var(--teal)}
+.lvl .lock{font-size:12px;color:var(--muted);text-align:right}
+.lvl .meta{flex-basis:100%;display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:2px 0 0 60px}
+.lvl .meta .tag{white-space:nowrap}
+.rules{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:14px 16px;margin-bottom:12px}
+.rules h3{font-size:14px;margin-bottom:8px}
+.rule{display:flex;gap:10px;font-size:14px;line-height:1.45;margin-bottom:8px}
+.rule:last-child{margin-bottom:0}
+.ricon{width:26px;height:26px;flex:0 0 26px;border-radius:50%;background:var(--teal-soft);display:flex;align-items:center;justify-content:center}
+.ricon svg{width:15px;height:15px;fill:var(--teal)}
+.hudbar{background:var(--indigo-deep);color:#fff;border-radius:16px;padding:10px 12px 12px;margin-bottom:10px}
+.hudrow{display:flex;gap:10px;justify-content:space-between;margin-bottom:6px}
+.hudg{flex:1}
+.hudg .lbl{font-size:10px;font-weight:700;letter-spacing:.08em;color:#C7D2FE;text-transform:uppercase}
+.hudg .val{font-size:20px;font-weight:800;line-height:1.1}
+.track{height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.track .fill{height:100%;background:linear-gradient(90deg,#14B8A6,#6366F1);border-radius:2px}
+.scene-panel{background:var(--indigo-deep);border-radius:24px;padding:12px;margin-bottom:10px}
+.scene{position:relative;width:100%}
+.scene svg{width:100%;height:auto;display:block;border-radius:16px}
+.spot{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:transparent;border:0;cursor:pointer;padding:0}
+.spot.found{box-shadow:0 0 0 3px var(--gold);background:rgba(245,158,11,.18)}
+.spot .badge{display:none}
+.spot.found .badge{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:linear-gradient(180deg,#FBBF24,#D97706);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.spot .badge svg{width:13px;height:13px;fill:#fff}
+.quad{position:absolute;width:50%;height:50%;pointer-events:none;border-radius:12px;z-index:2}
+.quad.pulse{animation:quadPulse .5s ease infinite alternate}
+@keyframes quadPulse{from{box-shadow:inset 0 0 0 3px var(--gold)}to{box-shadow:inset 0 0 0 5px rgba(245,158,11,.45)}}
+.feedback{border-radius:12px;padding:11px 12px;min-height:48px;font-size:13px;line-height:1.45;margin-bottom:10px;background:var(--white);border:1px solid var(--border)}
+.feedback .lead{font-size:15px;font-weight:800;display:block;margin-bottom:1px}
+.feedback.match{background:var(--green-soft);border-left:4px solid var(--teal)}
+.feedback.match .lead{color:#0B5E57}
+.feedback.miss{background:#1F2937;color:#E5E7EB;border:1px solid #1F2937}
+.feedback.found{background:var(--green-soft);border-left:4px solid var(--teal)}
+.feedback.found .lead{color:#0B5E57}
+.btn{display:inline-block;background:var(--teal);color:#fff;text-decoration:none;font-weight:800;font-size:16px;line-height:1;padding:14px 22px;border-radius:16px;border:0;cursor:pointer;min-height:48px;text-align:center;box-shadow:0 4px 0 #0B5E57}
+.btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 0 0 #0B5E57}
+.btn:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+.btn.secondary{background:#fff;color:var(--teal);box-shadow:0 4px 0 #D0D5DD}
+.btn.secondary:not(:disabled):active{box-shadow:0 0 0 #D0D5DD}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btnrow{display:flex;gap:10px;margin-top:12px}
+.btnrow .btn{flex:1}
+.bottom{margin-top:auto}
+.stars{display:flex;gap:6px}
+.stars svg{width:26px;height:26px}
+.stars .on{fill:var(--gold)}
+.stars .off{fill:#D0D5DD}
+.score{font-size:16px;line-height:1.5}
+.score .lead{font-size:20px;font-weight:800;display:block;margin-bottom:4px}
+.muted{font-size:13px;color:var(--muted);line-height:1.5}
+.muted b{color:var(--ink)}
+.linklike{background:none;border:0;color:var(--teal);font-weight:700;font-size:14px;cursor:pointer;padding:6px 0}
+.center{text-align:center}
+.scene.shake{animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.confetti-piece{position:fixed;top:-12px;width:10px;height:14px;z-index:50;pointer-events:none;animation:confettiFall 3s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+@media (prefers-reduced-motion: reduce){.scene.shake,.confetti-piece,.quad.pulse{animation:none !important}}
+@media (orientation: landscape) and (max-height: 500px){
+  .app{padding-top:8px}
+  .game-title{display:none}
+  .scene-panel{width:min(100%, 70dvh);margin:0 auto;padding:8px}
+  .feedback{min-height:40px;font-size:13px}
+}
+@media (min-width: 768px) and (min-height: 501px){
+  .app{padding-top:10px;padding-bottom:10px}
+  .scene-panel{width:420px;margin:0 auto}
+  .btnrow{margin-top:8px}
+}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="icon-tap" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v6h3a2 2 0 0 1 2 2v2a7 7 0 0 1-7 7 7 7 0 0 1-5-2l-2-3a2 2 0 0 1 3-2l1 1V11z"/></symbol>
+<symbol id="icon-eye" viewBox="0 0 24 24"><path d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></symbol>
+<symbol id="icon-hint" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12c.6.5 1 1.2 1 2v1h6v-1c0-.8.4-1.5 1-2a7 7 0 0 0-4-12zM9 21h6v-2H9v2z"/></symbol>
+<symbol id="icon-check" viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></symbol>
+</svg>
+<main class="app">
+<section id="levelScreen">
+<p class="eyebrow">Safety at Work</p>
+<h1>Find the hazard.</h1>
+<p class="support">Three scenes. Real dangers hiding in plain sight. Tap what could hurt someone, not what looks interesting. Three levels. Start easy, build up. Finish a scene to unlock the next. No clock anywhere, play at your own pace.</p>
+<div class="levels" id="levelList"></div>
+<div class="rules">
+<h3>How to play</h3>
+<div class="rule"><span class="ricon"><svg><use href="#icon-tap"/></svg></span><span>Tap what is dangerous. A hazard is a risk, not an object.</span></div>
+<div class="rule"><span class="ricon"><svg><use href="#icon-eye"/></svg></span><span>Wrong taps cost mistakes. Three mistakes end the scene.</span></div>
+<div class="rule"><span class="ricon"><svg><use href="#icon-hint"/></svg></span><span>A hint pulses one quarter of the scene. It never marks the exact hazard.</span></div>
+</div>
+<p class="muted">Proposed skill: Safety at Work. Placement becomes final when the owner categorises it.</p>
+<p class="muted">No login. Your best score stays in this browser.</p>
+</section>
+<section id="gameScreen" hidden>
+<p class="eyebrow" id="gameEyebrow">Safety at Work</p>
+<h1 class="game-title" id="gameTitle">Level 1: Kitchen.</h1>
+<div class="hudbar">
+<div class="hudrow">
+<div class="hudg"><div class="lbl">Hazards</div><div class="val" id="foundEl">0/4</div></div>
+<div class="hudg"><div class="lbl">Mistakes</div><div class="val" id="mistakesEl">0/3</div></div>
+<div class="hudg"><div class="lbl">Hints</div><div class="val" id="hintsEl">2</div></div>
+</div>
+<div class="track"><div class="fill" id="trackFill" style="width:0%"></div></div>
+</div>
+<div class="scene-panel"><div class="scene" id="sceneWrap"></div></div>
+<div class="feedback" id="feedback">Tap what is dangerous. Look for risk, not objects.</div>
+<div class="btnrow">
+<button class="btn secondary" id="restartBtn" type="button">Restart</button>
+<button class="btn secondary" id="hintBtn" type="button">Hint</button>
+<button class="btn secondary" id="muteBtn" type="button">Sound on</button>
+</div>
+<div class="center" style="margin-top:10px"><button class="linklike" id="backBtn" type="button">Back to levels</button></div>
+</section>
+<section id="winScreen" hidden>
+<p class="eyebrow">Scene clear</p>
+<h1 id="winTitle">Scene clear.</h1>
+<div class="stars" id="winStars" style="margin:10px 0"></div>
+<p class="score"><span class="lead" id="winScore"></span><span id="winBest"></span></p>
+<div class="btnrow">
+<button class="btn" id="againBtn" type="button">Play again</button>
+<button class="btn" id="nextBtn" type="button">Next level</button>
+</div>
+<div class="center" style="margin-top:10px"><button class="linklike" id="winBackBtn" type="button">Back to levels</button></div>
+</section>
+<section id="loseScreen" hidden>
+<p class="eyebrow">Scene not clear</p>
+<h1 id="loseTitle">Three mistakes.</h1>
+<p class="score"><span class="lead" id="loseScore"></span><span id="loseLine"></span></p>
+<div class="btnrow">
+<button class="btn" id="retryBtn" type="button">Try again</button>
+</div>
+<div class="center" style="margin-top:10px"><button class="linklike" id="loseBackBtn" type="button">Back to levels</button></div>
+</section>
+<p class="muted bottom center" style="margin-top:14px">Scenes are drawn for training. Hazards are real risks, drawn plainly.</p>
+</main>
+<script>
+var KITCHEN = '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kitchen scene">'
++ '<rect width="400" height="200" fill="#EDE6D6"/><rect y="200" width="400" height="100" fill="#D5CDBE"/>'
++ '<rect x="280" y="40" width="80" height="70" fill="#BBDEFB"/><line x1="320" y1="40" x2="320" y2="110" stroke="#90CAF9" stroke-width="3"/><line x1="280" y1="75" x2="360" y2="75" stroke="#90CAF9" stroke-width="3"/>'
++ '<rect x="20" y="58" width="130" height="8" fill="#8D6E63"/>'
++ '<rect x="58" y="40" width="12" height="12" fill="#795548"/><path d="M58 40 L70 40 L64 18 Z" fill="#CFD8DC"/>'
++ '<rect x="90" y="36" width="16" height="22" fill="#FFCC80"/><rect x="112" y="40" width="14" height="18" fill="#A5D6A7"/>'
++ '<rect x="20" y="150" width="360" height="18" fill="#8D6E63"/><rect x="20" y="168" width="360" height="62" fill="#6D4C41"/>'
++ '<line x1="140" y1="168" x2="140" y2="230" stroke="#4E342E" stroke-width="2"/><line x1="260" y1="168" x2="260" y2="230" stroke="#4E342E" stroke-width="2"/>'
++ '<rect x="40" y="138" width="90" height="26" fill="#B0BEC5"/><path d="M70 138 Q70 124 84 124" stroke="#78909C" stroke-width="4" fill="none"/>'
++ '<rect x="250" y="118" width="90" height="32" fill="#37474F"/><circle cx="272" cy="112" r="16" fill="#90A4AE"/><rect x="288" y="110" width="80" height="8" fill="#37474F"/>'
++ '<rect x="352" y="178" width="26" height="30" fill="#ECEFF1" stroke="#90A4AE" stroke-width="2"/>'
++ '<rect x="344" y="184" width="10" height="8" fill="#37474F"/><rect x="378" y="184" width="10" height="8" fill="#37474F"/><rect x="344" y="198" width="10" height="8" fill="#37474F"/><rect x="378" y="198" width="10" height="8" fill="#37474F"/>'
++ '<ellipse cx="80" cy="262" rx="45" ry="12" fill="#7DD3FC" opacity="0.65"/><ellipse cx="70" cy="258" rx="14" ry="4" fill="#E0F2FE" opacity="0.8"/>'
++ '</svg>';
+var WORKSHOP = '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Workshop scene">'
++ '<rect width="400" height="200" fill="#E8E0D0"/><rect y="200" width="400" height="100" fill="#CFC8B8"/>'
++ '<rect x="30" y="50" width="150" height="80" fill="#BCAAA4"/>'
++ '<rect x="50" y="60" width="8" height="40" fill="#5D4037"/><rect x="42" y="58" width="24" height="12" fill="#78909C"/>'
++ '<circle cx="130" cy="100" r="12" fill="none" stroke="#5D4037" stroke-width="5"/><rect x="138" y="96" width="20" height="8" fill="#5D4037"/>'
++ '<rect x="180" y="60" width="120" height="8" fill="#8D6E63"/>'
++ '<rect x="192" y="32" width="12" height="28" fill="#EF9A9A"/><rect x="192" y="40" width="12" height="8" fill="#FFF"/><line x1="194" y1="44" x2="202" y2="44" stroke="#B71C1C" stroke-width="1.5"/>'
++ '<rect x="208" y="32" width="12" height="28" fill="#A5D6A7"/><rect x="208" y="40" width="12" height="8" fill="#FFF"/><line x1="210" y1="44" x2="218" y2="44" stroke="#1B5E20" stroke-width="1.5"/>'
++ '<rect x="224" y="30" width="14" height="30" fill="#FFCC80"/>'
++ '<rect x="30" y="170" width="200" height="14" fill="#8D6E63"/><rect x="40" y="184" width="10" height="60" fill="#6D4C41"/><rect x="210" y="184" width="10" height="60" fill="#6D4C41"/>'
++ '<circle cx="120" cy="190" r="22" fill="#90A4AE"/><circle cx="120" cy="190" r="6" fill="#37474F"/><rect x="90" y="210" width="60" height="8" fill="#5D4037"/>'
++ '<path d="M40 250 Q100 238 170 250" stroke="#37474F" stroke-width="3" fill="none"/>'
++ '<polyline points="92,242 96,236 100,242 104,236 108,242" stroke="#FF7043" stroke-width="2" fill="none"/>'
++ '<g transform="rotate(8 300 190)"><rect x="292" y="120" width="6" height="140" fill="#8D6E63"/><rect x="312" y="120" width="6" height="140" fill="#8D6E63"/><rect x="292" y="150" width="26" height="5" fill="#8D6E63"/><rect x="292" y="185" width="26" height="5" fill="#8D6E63"/><rect x="292" y="220" width="26" height="5" fill="#8D6E63"/></g>'
++ '<rect x="278" y="252" width="24" height="10" fill="#5D4037"/>'
++ '<rect x="320" y="120" width="60" height="120" fill="#2E7D32"/><rect x="335" y="100" width="30" height="14" fill="#66BB6A"/>'
++ '<rect x="315" y="210" width="35" height="30" fill="#A1887F"/><rect x="350" y="215" width="30" height="25" fill="#BCAAA4"/>'
++ '</svg>';
+var WAREHOUSE = '<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Warehouse scene">'
++ '<rect width="400" height="200" fill="#E0D8C8"/><rect y="200" width="400" height="100" fill="#C9C2B2"/>'
++ '<rect x="20" y="60" width="8" height="140" fill="#78909C"/><rect x="112" y="60" width="8" height="140" fill="#78909C"/>'
++ '<rect x="20" y="100" width="100" height="6" fill="#78909C"/><rect x="20" y="150" width="100" height="6" fill="#78909C"/>'
++ '<rect x="30" y="70" width="28" height="28" fill="#A1887F"/><rect x="66" y="70" width="28" height="28" fill="#BCAAA4"/><rect x="30" y="112" width="28" height="28" fill="#BCAAA4"/><rect x="66" y="162" width="28" height="28" fill="#A1887F"/>'
++ '<g transform="rotate(-8 180 200)"><rect x="150" y="190" width="60" height="10" fill="#8D6E63"/><rect x="152" y="176" width="56" height="10" fill="#A1887F"/><rect x="154" y="162" width="52" height="10" fill="#BCAAA4"/></g>'
++ '<rect x="300" y="100" width="80" height="16" fill="#8D6E63"/><rect x="306" y="116" width="10" height="50" fill="#6D4C41"/><rect x="364" y="116" width="10" height="50" fill="#6D4C41"/>'
++ '<line x1="300" y1="70" x2="330" y2="70" stroke="#FF7043" stroke-width="4"/><line x1="355" y1="70" x2="380" y2="70" stroke="#FF7043" stroke-width="4"/>'
++ '<line x1="300" y1="70" x2="300" y2="100" stroke="#FF7043" stroke-width="3"/><line x1="380" y1="70" x2="380" y2="100" stroke="#FF7043" stroke-width="3"/>'
++ '<rect x="250" y="130" width="50" height="110" fill="#2E7D32"/><rect x="262" y="112" width="26" height="12" fill="#66BB6A"/>'
++ '<rect x="255" y="212" width="35" height="28" fill="#A1887F"/>'
++ '<path d="M40 260 Q90 252 140 260" stroke="#37474F" stroke-width="3" fill="none"/>'
++ '<path d="M160 258 Q200 250 240 258" stroke="#37474F" stroke-width="3" fill="none"/>'
++ '<polyline points="192,252 196,246 200,252 204,246 208,252" stroke="#FF7043" stroke-width="2" fill="none"/>'
++ '<ellipse cx="100" cy="272" rx="40" ry="10" fill="#263238" opacity="0.8"/>'
++ '<rect x="285" y="252" width="40" height="14" rx="7" fill="#B0BEC5"/><circle cx="325" cy="259" r="7" fill="#78909C"/>'
++ '</svg>';
+var LEVELS = [
+  {id: 1, name: "Kitchen", tag: "Very easy", scene: KITCHEN, desc: "4 hazards. 3 mistakes. 2 hints.",
+   hazards: [
+    {x: 20, y: 87, rule: "Wet floor, no warning sign. A puddle without a sign is a fall waiting to happen."},
+    {x: 82, y: 38, rule: "Pot handle sticking out. A handle past the edge gets knocked and scalds."},
+    {x: 91, y: 64, rule: "Socket overloaded. Four plugs in one socket can overheat."},
+    {x: 16, y: 12, rule: "Knife on the shelf edge, blade up. A blade left exposed cuts the next hand that reaches."}]},
+  {id: 2, name: "Workshop", tag: "A bit tough", scene: WORKSHOP, desc: "5 hazards. 3 mistakes. 2 hints.",
+   hazards: [
+    {x: 25, y: 80, rule: "Exposed wire. A frayed cable can shock or start a fire."},
+    {x: 75, y: 63, rule: "Ladder on uneven ground. One foot on a block and the ladder can slip."},
+    {x: 58, y: 15, rule: "Chemical bottle with no label. An unlabelled bottle is a poisoning risk."},
+    {x: 83, y: 74, rule: "Fire exit blocked. Boxes in front of an exit trap people in a fire."},
+    {x: 30, y: 63, rule: "Saw with no guard. An exposed blade cuts before you react."}]},
+  {id: 3, name: "Warehouse", tag: "More tough", scene: WAREHOUSE, desc: "6 hazards. 3 mistakes. 2 hints.",
+   hazards: [
+    {x: 50, y: 84, rule: "Frayed cable beside a neat one. Damage you can see is damage to fix."},
+    {x: 68, y: 75, rule: "Exit half blocked. A half-blocked exit is still a blocked exit."},
+    {x: 45, y: 60, rule: "Pallet stack leaning. A leaning stack falls on the next person past."},
+    {x: 25, y: 91, rule: "Oil spill, no warning sign. An unmarked spill is a fall."},
+    {x: 76, y: 86, rule: "Gas cylinder lying loose. An unsecured cylinder rolls and breaks."},
+    {x: 86, y: 23, rule: "Platform edge with no guardrail. A gap in the rail is a fall from height."}]}
+];
+var levelScreen = document.getElementById("levelScreen");
+var gameScreen = document.getElementById("gameScreen");
+var winScreen = document.getElementById("winScreen");
+var loseScreen = document.getElementById("loseScreen");
+var levelList = document.getElementById("levelList");
+var sceneWrap = document.getElementById("sceneWrap");
+var feedback = document.getElementById("feedback");
+var foundEl = document.getElementById("foundEl");
+var mistakesEl = document.getElementById("mistakesEl");
+var hintsEl = document.getElementById("hintsEl");
+var trackFill = document.getElementById("trackFill");
+var hintBtn = document.getElementById("hintBtn");
+var muteBtn = document.getElementById("muteBtn");
+var curLevel = null, found = 0, mistakes = 0, hintUses = 0, roundOver = false;
+var foundSet = {};
+var muted = false;
+try { muted = localStorage.getItem("hazardMutedV1") === "1"; } catch (e) {}
+function progress(){
+  try { return parseInt(localStorage.getItem("hazardProgressV1") || "1", 10) || 1; } catch (e) { return 1; }
+}
+function setProgress(n){
+  try { localStorage.setItem("hazardProgressV1", String(n)); } catch (e) {}
+}
+function bestFor(id){
+  try { return JSON.parse(localStorage.getItem("hazardBestV1_L" + id) || "null"); } catch (e) { return null; }
+}
+function setBest(id, b){
+  try { localStorage.setItem("hazardBestV1_L" + id, JSON.stringify(b)); } catch (e) {}
+}
+function starRow(n){
+  var out = "";
+  for (var i = 0; i < 3; i++){
+    out += '<svg viewBox="0 0 24 24" class="' + (i < n ? "on" : "off") + '"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21 7.5 13.5 2 9h7z"/></svg>';
+  }
+  return out;
+}
+function show(el){
+  [levelScreen, gameScreen, winScreen, loseScreen].forEach(function(s){ s.hidden = true; });
+  el.hidden = false;
+  window.scrollTo(0, 0);
+}
+function setFeedback(html, kind){
+  feedback.innerHTML = html;
+  feedback.className = "feedback" + (kind ? " " + kind : "");
+}
+function ac(){
+  if (muted) return null;
+  try {
+    var C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    var ctx = ac._ctx || (ac._ctx = new C());
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  } catch (e) { return null; }
+}
+function tone(ctx, f, t, d, type, g){
+  var o = ctx.createOscillator(), gn = ctx.createGain();
+  o.type = type || "sine"; o.frequency.value = f;
+  gn.gain.setValueAtTime(0.0001, t);
+  gn.gain.exponentialRampToValueAtTime(g || 0.12, t + 0.02);
+  gn.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(gn); gn.connect(ctx.destination);
+  o.start(t); o.stop(t + d + 0.05);
+}
+function sfx(kind){
+  var ctx = ac(); if (!ctx) return;
+  var t = ctx.currentTime;
+  if (kind === "tap") tone(ctx, 660, t, 0.08, "sine", 0.06);
+  if (kind === "match"){ tone(ctx, 523, t, 0.15); tone(ctx, 659, t + 0.08, 0.15); tone(ctx, 784, t + 0.16, 0.25); }
+  if (kind === "miss") tone(ctx, 220, t, 0.18, "triangle", 0.1);
+  if (kind === "win"){ [523, 659, 784, 1047].forEach(function(f, i){ tone(ctx, f, t + i * 0.12, 0.3); }); }
+  if (kind === "lose"){ [392, 330, 262].forEach(function(f, i){ tone(ctx, f, t + i * 0.15, 0.25); }); }
+}
+function vibrate(ms){
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+}
+function syncHUD(){
+  foundEl.textContent = found + "/" + curLevel.hazards.length;
+  mistakesEl.textContent = mistakes + "/3";
+  hintsEl.textContent = hintUses;
+  trackFill.style.width = Math.round(found / curLevel.hazards.length * 100) + "%";
+  hintBtn.disabled = hintUses <= 0 || roundOver;
+}
+function renderLevels(){
+  var p = progress();
+  levelList.innerHTML = "";
+  LEVELS.forEach(function(lv){
+    var open = lv.id <= p;
+    var best = bestFor(lv.id);
+    var b = document.createElement("button");
+    b.className = "lvl"; b.type = "button"; b.disabled = !open;
+    b.innerHTML = '<span class="num">' + lv.id + '</span><span class="txt"><span class="name">Level ' + lv.id + ": " + lv.name + '</span><span class="desc">' + lv.desc + (best ? ' Best: ' + best.stars + ' stars, ' + best.mistakes + ' mistakes.' : '') + '</span></span><span class="meta"><span class="tag">' + lv.tag + '</span><span class="lock">' + (open ? "" : "Locked. Finish Level " + (lv.id - 1) + " first.") + '</span></span>';
+    b.addEventListener("click", function(){ sfx("tap"); startGame(lv.id); });
+    levelList.appendChild(b);
+  });
+}
+function quadrantOf(h){
+  return (h.x >= 50 ? 1 : 0) + (h.y >= 50 ? 2 : 0);
+}
+function startGame(id){
+  curLevel = LEVELS[id - 1];
+  found = 0; mistakes = 0; hintUses = 2; roundOver = false; foundSet = {};
+  document.getElementById("gameEyebrow").textContent = "Safety at Work";
+  document.getElementById("gameTitle").textContent = "Level " + curLevel.id + ": " + curLevel.name + ".";
+  sceneWrap.innerHTML = curLevel.scene
+    + '<div class="quad" style="left:0;top:0"></div>'
+    + '<div class="quad" style="right:0;top:0"></div>'
+    + '<div class="quad" style="left:0;bottom:0"></div>'
+    + '<div class="quad" style="right:0;bottom:0"></div>'
+    + curLevel.hazards.map(function(h, i){
+        return '<button class="spot" type="button" data-i="' + i + '" style="left:' + h.x + '%;top:' + h.y + '%" aria-label="Possible hazard ' + (i + 1) + '"><span class="badge"><svg><use href="#icon-check"/></svg></span></button>';
+      }).join("");
+  setFeedback("Tap what is dangerous. Look for risk, not objects.", "");
+  syncHUD();
+  show(gameScreen);
+}
+function onSpot(i, btn){
+  if (roundOver || foundSet[i]) return;
+  foundSet[i] = true;
+  found++;
+  btn.classList.add("found");
+  sfx("match"); vibrate(30);
+  setFeedback('<span class="lead">Hazard found.</span>' + curLevel.hazards[i].rule, "found");
+  syncHUD();
+  if (found === curLevel.hazards.length){
+    roundOver = true;
+    setTimeout(win, 400);
+  }
+}
+function onBackground(){
+  if (roundOver) return;
+  mistakes++;
+  sfx("miss"); vibrate(60);
+  sceneWrap.classList.remove("shake");
+  void sceneWrap.offsetWidth;
+  sceneWrap.classList.add("shake");
+  setFeedback("Not a hazard. Ask: what could hurt someone here?", "miss");
+  syncHUD();
+  if (mistakes >= 3){
+    roundOver = true;
+    lose();
+  }
+}
+function useHint(){
+  if (roundOver || hintUses <= 0) return;
+  var quads = {};
+  curLevel.hazards.forEach(function(h, i){
+    if (!foundSet[i]) quads[quadrantOf(h)] = true;
+  });
+  var keys = Object.keys(quads);
+  if (!keys.length) return;
+  var q = keys[Math.floor(Math.random() * keys.length)];
+  var el = sceneWrap.querySelectorAll(".quad")[+q];
+  el.classList.add("pulse");
+  setTimeout(function(){ el.classList.remove("pulse"); }, 1500);
+  hintUses--;
+  sfx("tap");
+  setFeedback("Hint: check the pulsing quarter. The hazard is in there, not marked.", "");
+  syncHUD();
+}
+function starsFor(){
+  return mistakes === 0 ? 3 : (mistakes === 1 ? 2 : 1);
+}
+function win(){
+  var stars = starsFor();
+  var prev = bestFor(curLevel.id);
+  if (!prev || stars > prev.stars || (stars === prev.stars && mistakes < prev.mistakes)) setBest(curLevel.id, {stars: stars, mistakes: mistakes});
+  if (curLevel.id < 3 && progress() <= curLevel.id) setProgress(curLevel.id + 1);
+  document.getElementById("winTitle").textContent = curLevel.name + " clear.";
+  document.getElementById("winStars").innerHTML = starRow(stars);
+  document.getElementById("winScore").textContent = curLevel.hazards.length + " hazards, " + mistakes + " mistakes.";
+  document.getElementById("winBest").textContent = "Best for this scene: " + stars + " stars.";
+  document.getElementById("nextBtn").style.display = curLevel.id < 3 ? "" : "none";
+  sfx("win"); vibrate([60, 40, 60]);
+  show(winScreen);
+  confetti();
+}
+function lose(){
+  document.getElementById("loseTitle").textContent = "Three mistakes.";
+  document.getElementById("loseScore").textContent = found + " of " + curLevel.hazards.length + " hazards found.";
+  document.getElementById("loseLine").textContent = "Scan for risk, not objects. The hazards are still there.";
+  sfx("lose");
+  show(loseScreen);
+}
+function confetti(){
+  var colors = ["#F59E0B", "#14B8A6", "#6366F1", "#EC4899", "#22C55E"];
+  for (var i = 0; i < 40; i++){
+    (function(){
+      var p = document.createElement("div");
+      p.className = "confetti-piece";
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDelay = (Math.random() * 0.8) + "s";
+      document.body.appendChild(p);
+      setTimeout(function(){ p.remove(); }, 4000);
+    })();
+  }
+}
+sceneWrap.addEventListener("click", function(e){
+  var btn = e.target.closest(".spot");
+  if (btn) onSpot(+btn.getAttribute("data-i"), btn);
+  else onBackground();
+});
+document.getElementById("restartBtn").addEventListener("click", function(){ sfx("tap"); startGame(curLevel.id); });
+hintBtn.addEventListener("click", useHint);
+muteBtn.addEventListener("click", function(){
+  muted = !muted;
+  try { localStorage.setItem("hazardMutedV1", muted ? "1" : "0"); } catch (e) {}
+  muteBtn.textContent = muted ? "Sound off" : "Sound on";
+  if (!muted) sfx("tap");
+});
+document.getElementById("backBtn").addEventListener("click", function(){ renderLevels(); show(levelScreen); });
+document.getElementById("againBtn").addEventListener("click", function(){ sfx("tap"); startGame(curLevel.id); });
+document.getElementById("nextBtn").addEventListener("click", function(){ sfx("tap"); startGame(curLevel.id + 1); });
+document.getElementById("winBackBtn").addEventListener("click", function(){ renderLevels(); show(levelScreen); });
+document.getElementById("retryBtn").addEventListener("click", function(){ sfx("tap"); startGame(curLevel.id); });
+document.getElementById("loseBackBtn").addEventListener("click", function(){ renderLevels(); show(levelScreen); });
+muteBtn.textContent = muted ? "Sound off" : "Sound on";
+renderLevels();
+</script>
+</body>
+</html>
