@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memory Cards</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F766E'/%3E%3Ctext x='32' y='44' font-size='40' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E?%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --porcelain:#F7F6F3; --ink:#101828; --graphite:#475467; --faint:#667085;
+    --teal:#0F766E; --teal-dark:#0B4F4A; --teal-base:#0B5E57; --teal-soft:#E6F4F1;
+    --indigo:#3730A3; --indigo-deep:#1E1B4B; --indigo-trim:#34306E;
+    --border:#E4E7EC; --white:#FFFFFF; --cream:#FFFDF4;
+    --danger:#DC2626; --danger-dark:#B91C1C; --danger-soft:#FEF2F2;
+    --green-soft:#ECFDF3; --gold:#F59E0B; --gold-dark:#D97706;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--porcelain);color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  .app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;
+    display:flex;flex-direction:column;
+    padding:calc(14px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px))}
+  main > section{display:flex;flex-direction:column;flex:1;min-height:0;animation:screenIn .2s ease}
+  @keyframes screenIn{from{opacity:0;transform:translateY(6px)}}
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:800;margin:0 0 4px}
+  h1{font-size:32px;line-height:1.1;letter-spacing:-.02em;margin:0 0 8px}
+  .game-title{font-size:24px;line-height:1.2;margin:0 0 10px;font-weight:800}
+  .support{color:var(--graphite);font-size:15px;line-height:1.5;margin:0 0 14px}
+  .panel{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .panel-dark{background:#1F2937;color:#E5E7EB;border:1px solid #1F2937;border-radius:16px;padding:18px}
+  .panel-dark .scoreline{color:#D1D5DB}
+  .rule{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;color:var(--graphite);font-size:14px;line-height:1.5}
+  .rule:last-child{margin-bottom:0}
+  .ricon{width:28px;height:28px;border-radius:8px;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;flex:none}
+  .ricon svg{width:18px;height:18px;fill:var(--teal)}
+  .mini-board{display:flex;gap:10px;justify-content:center;margin:14px 0 16px}
+  .mini{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 12px rgba(16,24,40,.18);position:relative}
+  .mini.back{background:linear-gradient(160deg,#0F766E,#0B4F4A)}
+  .mini.back .frame{border:2px solid rgba(255,255,255,.35);border-radius:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
+  .mini.back .frame svg{width:26px;height:26px}
+  .mini.front{background:var(--cream);border:1.5px solid var(--border)}
+  .mini.matched{box-shadow:0 0 0 2px var(--teal),0 5px 12px rgba(16,24,40,.18)}
+  .mini .disc{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .mini .disc svg{width:22px;height:22px}
+  .mini .mtext{font-size:11px;font-weight:800;line-height:1.25;text-align:center;padding:4px}
+  .hudbar{background:linear-gradient(180deg,#1E1B4B,#141233);border-radius:16px;padding:12px 14px;
+    display:flex;align-items:center;gap:14px;color:#fff;margin-bottom:10px;box-shadow:0 4px 14px rgba(16,24,40,.25)}
+  .hud-group{flex:1;min-width:0}
+  .hud-group label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
+  .hud-hearts{display:flex;gap:3px}
+  .hud-hearts svg{width:20px;height:20px}
+  .hud-num{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+  .track{display:block;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:5px;overflow:hidden}
+  .track i{display:block;height:100%;background:var(--gold);border-radius:2px}
+  .board-wrap{flex:1;display:flex;align-items:center;min-height:0}
+  .board-panel{background:var(--indigo-deep);border:1px solid var(--indigo-trim);border-radius:24px;padding:12px;width:100%;
+    box-shadow:inset 0 2px 14px rgba(0,0,0,.4)}
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+  .mcard{appearance:none;border:0;background:transparent;padding:0;cursor:pointer;aspect-ratio:1/1;perspective:700px;position:relative}
+  .mcard:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  .mcard:disabled{cursor:default}
+  .mcard:not(:disabled):active{transform:translateY(2px)}
+  .mcard.selected{transform:translateY(-2px)}
+  .mcard.deal{animation:dealIn .4s ease backwards}
+  @keyframes dealIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .mcard.pop{animation:popKey .45s ease}
+  @keyframes popKey{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .mcard.shake{animation:shakeX .35s ease}
+  @keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+  .mcard-inner{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;
+    transition:transform .32s cubic-bezier(.34,1.56,.64,1);border-radius:16px;
+    box-shadow:0 6px 16px rgba(16,24,40,.18)}
+  .mcard.selected .mcard-inner{box-shadow:0 10px 22px rgba(16,24,40,.28),0 0 0 2px var(--indigo)}
+  .mcard-inner.flash{animation:redFlash .5s ease}
+  @keyframes redFlash{
+    0%{box-shadow:0 0 0 0 rgba(220,38,38,.55),0 6px 16px rgba(16,24,40,.18)}
+    100%{box-shadow:0 0 0 14px rgba(220,38,38,0),0 6px 16px rgba(16,24,40,.18)}}
+  .mcard.flipped .mcard-inner{transform:rotateY(180deg)}
+  .mcard-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:8px;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .mcard-back{background-image:radial-gradient(rgba(255,255,255,.16) 1.2px,transparent 1.3px),linear-gradient(160deg,#0F766E,#0B4F4A);
+    background-size:14px 14px,100% 100%}
+  .back-frame{border:2px solid rgba(255,255,255,.35);border-radius:12px;width:calc(100% - 12px);height:calc(100% - 12px);
+    display:flex;align-items:center;justify-content:center}
+  .back-frame svg{width:30px;height:30px}
+  .mcard-front{transform:rotateY(180deg);background:var(--cream);border:1.5px solid var(--border);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -3px 0 rgba(16,24,40,.08)}
+  .mcard-front .disc{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .mcard-front .disc svg{width:28px;height:28px}
+  .mcard-front.txt{font-size:13px;font-weight:800;color:var(--ink);line-height:1.3}
+  .mcard.matched .mcard-front{background:var(--teal-soft);
+    box-shadow:0 0 0 2px var(--teal),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -3px 0 rgba(16,24,40,.08)}
+  .mcard.fault .mcard-front{background:var(--danger-soft);
+    box-shadow:0 0 0 2px var(--danger),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -3px 0 rgba(16,24,40,.08)}
+  .badge{position:absolute;top:-5px;right:-5px;width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(180deg,#FBBF24,#D97706);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:3}
+  .badge svg{width:13px;height:13px}
+  .feedback{border-radius:12px;padding:11px 12px;min-height:48px;font-size:13px;line-height:1.45;margin-bottom:10px;background:var(--white);border:1px solid var(--border)}
+  .feedback .lead{font-size:15px;font-weight:800;display:block;margin-bottom:1px}
+  .feedback.match{background:var(--green-soft);border-left:4px solid var(--teal)}
+  .feedback.match .lead{color:#0B5E57}
+  .feedback.miss{background:#1F2937;color:#E5E7EB;border:1px solid #1F2937}
+  .feedback.fault{background:var(--danger-soft);border-left:4px solid var(--danger)}
+  .feedback.fault .lead{color:var(--danger-dark)}
+  .btn{display:inline-block;background:var(--teal);color:#fff;text-decoration:none;font-weight:800;
+    font-size:16px;line-height:1;padding:14px 22px;border-radius:16px;border:0;cursor:pointer;
+    min-height:48px;text-align:center;box-shadow:0 4px 0 #0B5E57}
+  .btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 0 0 #0B5E57}
+  .btn:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  .btn.secondary{background:#fff;color:var(--teal);box-shadow:0 4px 0 #D0D5DD}
+  .btn.secondary:not(:disabled):active{box-shadow:0 0 0 #D0D5DD}
+  .btnrow{display:flex;gap:10px;margin-top:12px}
+  .btnrow .btn{flex:1}
+  .bottom{margin-top:auto}
+  .stars{display:flex;gap:6px}
+  .stars svg{width:36px;height:36px}
+  .stars .pop-star{animation:starPop .4s ease backwards}
+  @keyframes starPop{from{transform:scale(0)}60%{transform:scale(1.25)}to{transform:scale(1)}}
+  .stars-earned{filter:drop-shadow(0 2px 4px rgba(217,119,6,.45))}
+  .stars-sm svg{width:18px;height:18px}
+  .muted{color:var(--faint);font-size:13px;line-height:1.5}
+  .verdict{font-size:18px;line-height:1.5;margin:0 0 8px}
+  .scoreline{font-size:15px;color:var(--graphite);line-height:1.6;margin:0 0 4px}
+  .bignum{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+  .lose-track{height:8px;background:#E4E7EC;border-radius:4px;overflow:hidden;margin:10px 0}
+  .lose-track i{display:block;height:100%;background:var(--teal);border-radius:4px}
+  .lose-track.dark{background:rgba(255,255,255,.15)}
+  .lvl{width:100%;text-align:left;background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .lvl:disabled{opacity:.55;cursor:default}
+  .lvl-name{display:block;font-size:17px;font-weight:800}
+  .lvl-tag{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+  .lvl-desc{display:block;font-size:13px;color:var(--graphite);line-height:1.45;margin-top:3px}
+  .lvl-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .lvl-best{font-size:13px;color:var(--graphite)}
+  .lvl-lock{font-size:12px;font-weight:800;color:var(--faint)}
+  .mcard.hinted .mcard-inner{box-shadow:0 0 0 3px var(--gold),0 6px 16px rgba(16,24,40,.18)}
+  .linklike{background:none;border:0;color:var(--teal);font-weight:800;font-size:14px;cursor:pointer;padding:8px}
+  .btn:disabled{opacity:.5;cursor:default}
+  #confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti-piece{position:absolute;top:-14px;width:12px;height:12px;border-radius:50%;
+    animation:confettiFall 2.4s ease-in forwards}
+  .confetti-piece.star{clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    width:14px;height:14px;border-radius:0}
+  @keyframes confettiFall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+  @media (prefers-reduced-motion: reduce){
+    .mcard-inner{transition:none}
+    .mcard.deal,.mcard.pop,.mcard.shake,.mcard-inner.flash,.stars .pop-star,.confetti-piece,main > section{animation:none !important}
+  }
+  @media (orientation: landscape) and (max-height: 500px){
+    .app{padding-top:8px}
+    .game-title{display:none}
+    .board-panel{width:min(100%, 70dvh);margin:0 auto;padding:8px}
+    .feedback{min-height:40px;font-size:13px}
+  }
+  @media (min-width: 768px) and (min-height: 501px){
+    .app{padding-top:10px;padding-bottom:10px}
+    .game-title{font-size:20px}
+    .board-panel{width:360px;margin:0 auto;padding:10px}
+    .btnrow{margin-top:8px}
+  }
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+    <symbol id="eye" viewBox="0 0 24 24">
+      <path d="M2 12 Q12 4 22 12 Q12 20 2 12 Z" fill="none" stroke="#99F6E4" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="3" fill="#99F6E4"/>
+    </symbol>
+    <symbol id="sign-warning" viewBox="0 0 24 24">
+      <path d="M12 3 L21 20 H3 Z" fill="#F59E0B"/>
+      <rect x="11" y="8" width="2" height="7" rx="1" fill="#1F2937"/>
+      <circle cx="12" cy="17.5" r="1.3" fill="#1F2937"/>
+    </symbol>
+    <symbol id="sign-flame" viewBox="0 0 24 24">
+      <path d="M12 2 C13.5 6 17 8.5 17 13 a5 5 0 0 1-10 0 C7 10 9 8 12 2 Z" fill="#EA580C"/>
+    </symbol>
+    <symbol id="sign-helmet" viewBox="0 0 24 24">
+      <path d="M4 13 a8 8 0 0 1 16 0 v2 H4 Z" fill="#2563EB"/>
+      <rect x="2" y="15" width="20" height="3" rx="1.5" fill="#2563EB"/>
+      <rect x="11" y="6" width="2" height="4" rx="1" fill="#DBEAFE"/>
+    </symbol>
+    <symbol id="sign-exit" viewBox="0 0 24 24">
+      <rect x="4" y="3" width="13" height="18" rx="1" fill="#059669"/>
+      <path d="M9 12 h7 M14 9 l3 3-3 3" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="sign-bolt" viewBox="0 0 24 24">
+      <polygon points="13,2 5,14 11,14 9,22 19,10 12,10" fill="#EAB308"/>
+    </symbol>
+    <symbol id="sign-extinguisher" viewBox="0 0 24 24">
+      <rect x="8" y="8" width="8" height="12" rx="2" fill="#DC2626"/>
+      <rect x="10" y="5" width="4" height="3" fill="#1F2937"/>
+      <path d="M14 5 L19 3" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 7 Q20 9 19 13" fill="none" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="sign-goggles" viewBox="0 0 24 24">
+      <circle cx="8" cy="12" r="4.5" fill="none" stroke="#0284C7" stroke-width="2.5"/>
+      <circle cx="16" cy="12" r="4.5" fill="none" stroke="#0284C7" stroke-width="2.5"/>
+      <path d="M12.5 12 h-1 M3.5 12 H2 M22 12 h-1.5" stroke="#0284C7" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="sign-firstaid" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="2" fill="#059669"/>
+      <rect x="10.5" y="6" width="3" height="12" rx="1" fill="#fff"/>
+      <rect x="6" y="10.5" width="12" height="3" rx="1" fill="#fff"/>
+    </symbol>
+    <symbol id="sign-ears" viewBox="0 0 24 24">
+      <path d="M5 13 a7 7 0 0 1 14 0" fill="none" stroke="#1D4ED8" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="3" y="12" width="5" height="8" rx="2" fill="#1D4ED8"/>
+      <rect x="16" y="12" width="5" height="8" rx="2" fill="#1D4ED8"/>
+    </symbol>
+    <symbol id="fault-helmet" viewBox="0 0 24 24">
+      <path d="M4 13 a8 8 0 0 1 16 0 v2 H4 Z" fill="#6B7280"/>
+      <rect x="2" y="15" width="20" height="3" rx="1.5" fill="#6B7280"/>
+      <path d="M5 5 L19 19" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="fault-lift" viewBox="0 0 24 24">
+      <rect x="6" y="3" width="12" height="18" rx="1" fill="none" stroke="#6B7280" stroke-width="2"/>
+      <path d="M12 7 L9 11 h6 Z" fill="#6B7280"/>
+      <path d="M12 17 L9 13 h6 Z" fill="#6B7280"/>
+    </symbol>
+    <symbol id="fault-drop" viewBox="0 0 24 24">
+      <path d="M12 3 C12 3 6 10 6 14 a6 6 0 0 0 12 0 C18 10 12 3 12 3 Z" fill="#0284C7"/>
+    </symbol>
+    <symbol id="fault-gloves" viewBox="0 0 24 24">
+      <rect x="8" y="9" width="9" height="11" rx="3" fill="#6B7280"/>
+      <rect x="8" y="4" width="2.5" height="6" rx="1.2" fill="#6B7280"/>
+      <rect x="11" y="3" width="2.5" height="7" rx="1.2" fill="#6B7280"/>
+      <rect x="14" y="4" width="2.5" height="6" rx="1.2" fill="#6B7280"/>
+      <path d="M5 5 L19 19" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="fault-load" viewBox="0 0 24 24">
+      <path d="M12 2 v6" stroke="#6B7280" stroke-width="2"/>
+      <rect x="7" y="8" width="10" height="10" rx="1" fill="#6B7280"/>
+    </symbol>
+    <symbol id="heart" viewBox="0 0 24 24">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </symbol>
+    <symbol id="star" viewBox="0 0 24 24">
+      <path d="M12 2l2.9 6.26 6.6.56-5 4.4 1.5 6.5L12 16.9 5.99 19.72l1.5-6.5-5-4.4 6.6-.56z"/>
+    </symbol>
+    <symbol id="check" viewBox="0 0 24 24">
+      <path d="M6 12 l4 4 8-8" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="icon-tap" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3" fill="#0F766E"/>
+      <path d="M12 3 v3 M12 18 v3 M3 12 h3 M18 12 h3" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="#0F766E" stroke-width="2"/>
+      <path d="M12 7 v5 l3 3" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+<div id="confetti" aria-hidden="true"></div>
+<main class="app">
+  <section id="startScreen">
+    <p class="eyebrow">Attention to Detail</p>
+    <h1>Spot the real signs.</h1>
+    <p class="support">Three levels. Start easy, build up. Finish a level to unlock the next. No clock anywhere, play at your own pace.</p>
+    <div class="mini-board" aria-hidden="true">
+      <div class="mini back"><span class="frame"><svg><use href="#eye"/></svg></span></div>
+      <div class="mini back"><span class="frame"><svg><use href="#eye"/></svg></span></div>
+      <div class="mini front matched"><span class="disc" style="background:#FFEDD5"><svg><use href="#sign-flame"/></svg></span></div>
+      <div class="mini front matched"><span class="mtext">Flammable material</span></div>
+    </div>
+    <div id="levelList"></div>
+    <div class="panel">
+      <div class="rule"><span class="ricon"><svg><use href="#icon-tap"/></svg></span><span>Tap two cards. A sign matches its meaning, not its twin.</span></div>
+      <div class="rule"><span class="ricon"><svg><use href="#heart" fill="#DC2626"/></svg></span><span>One pair is faulty. Match it and you lose a heart. In Level 1, hearts only count as score.</span></div>
+      <div class="rule"><span class="ricon"><svg><use href="#star"/></svg></span><span>Hints help when you are stuck. Tap Hint to flash one real pair, or miss twice and one arrives free.</span></div>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:10px">No login. Your best score stays in this browser.</p>
+    <p class="muted" style="text-align:center">Proposed skill: Attention to Detail. Placement becomes final when the owner categorises it.</p>
+  </section>
+
+  <section id="gameScreen" hidden>
+    <p class="eyebrow" id="gameEyebrow">Attention to Detail</p>
+    <p class="game-title" id="gameTitle">Find the real pairs.</p>
+    <div class="hudbar" role="status">
+      <div class="hud-group"><label>Hearts</label><span class="hud-hearts" id="heartsEl"></span></div>
+      <div class="hud-group"><label>Pairs</label><span class="hud-num" id="foundEl">0/7</span><span class="track"><i id="pairTrack" style="width:0%"></i></span></div>
+      <div class="hud-group"><label>Hints</label><span class="hud-num" id="hintsEl">3</span></div>
+    </div>
+    <div class="feedback" id="feedback" aria-live="polite">Tap any two cards to begin.</div>
+    <div class="board-wrap">
+      <div class="board-panel">
+        <div class="board" id="board" aria-label="Memory card board"></div>
+      </div>
+    </div>
+    <div class="btnrow bottom">
+      <button class="btn secondary" id="restartBtn" type="button" aria-label="Restart the game">Restart</button>
+      <button class="btn secondary" id="hintBtn" type="button" aria-label="Use a hint">Hint</button>
+      <button class="btn secondary" id="muteBtn" type="button" aria-label="Toggle sound">Sound on</button>
+    </div>
+    <p style="text-align:center;margin:6px 0 0"><button class="linklike" id="levelsBtn" type="button">Back to levels</button></p>
+  </section>
+
+  <section id="winScreen" hidden>
+    <p class="eyebrow">Attention to Detail</p>
+    <h1 id="winHeadline">Board cleared!</h1>
+    <div class="panel">
+      <div class="stars" id="starsEl" aria-label="Stars earned"></div>
+      <p class="verdict" id="verdictEl"></p>
+      <p class="scoreline" id="scoreEl"></p>
+      <p class="scoreline" id="bestLine2"></p>
+    </div>
+    <div class="btnrow bottom">
+      <button class="btn" id="againBtn" type="button" aria-label="Play again">Play again</button>
+      <button class="btn" id="nextBtn" type="button" aria-label="Next level">Next level</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn secondary" id="winLevelsBtn" type="button" aria-label="Back to levels">Back to levels</button>
+    </div>
+  </section>
+
+  <section id="loseScreen" hidden>
+    <p class="eyebrow">Attention to Detail</p>
+    <h1>So close.</h1>
+    <div class="panel-dark">
+      <p class="verdict">The board got the better of you this time. One more round?</p>
+      <p><span class="bignum" id="losePairsEl"></span> <span class="scoreline">of <span id="loseTotalEl">7</span> real pairs</span></p>
+      <div class="lose-track dark"><i id="loseTrack" style="width:0%"></i></div>
+      <p class="scoreline" id="loseScoreEl"></p>
+      <p class="scoreline" id="bestLine3"></p>
+    </div>
+    <div class="btnrow bottom">
+      <button class="btn" id="retryBtn" type="button" aria-label="Try again">Try again</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn secondary" id="loseLevelsBtn" type="button" aria-label="Back to levels">Back to levels</button>
+    </div>
+  </section>
+</main>
+<script>
+(function(){
+  "use strict";
+  var PAIRS = [
+    {sign:"sign-warning", disc:"#FEF3C7", meaning:"Caution: hazard ahead",
+     fact:"A warning sign means slow down and look, not walk faster.",
+     wit:"A warning is not a suggestion."},
+    {sign:"sign-flame", disc:"#FFEDD5", meaning:"Flammable material",
+     fact:"Flammable means it catches fire easily. Keep sparks away.",
+     wit:"That flame is not decoration."},
+    {sign:"sign-helmet", disc:"#DBEAFE", meaning:"Hard hat area",
+     fact:"A hard hat area means things can fall on your head. Wear the hat.",
+     wit:"The helmet takes the hit so your head does not have to."},
+    {sign:"sign-exit", disc:"#D1FAE5", meaning:"Emergency exit",
+     fact:"An emergency exit is the way out when things go wrong. Know it before you need it.",
+     wit:"Find it now, not when the alarm sounds."},
+    {sign:"sign-bolt", disc:"#FEF9C3", meaning:"High voltage: keep out",
+     fact:"High voltage can hurt you without touch. Distance is the protection.",
+     wit:"Electricity does not give second warnings."},
+    {sign:"sign-extinguisher", disc:"#FEE2E2", meaning:"Fire extinguisher point",
+     fact:"An extinguisher point is where the extinguisher lives. Check it before the fire does.",
+     wit:"Red, small, and the only one allowed to panic."},
+    {sign:"sign-goggles", disc:"#E0F2FE", meaning:"Eye protection required",
+     fact:"Eye protection is required where bits fly. Eyes do not grow back.",
+     wit:"Safety goggles: the least cool thing that saves your sight."},
+    {sign:"sign-firstaid", disc:"#D1FAE5", meaning:"First aid point",
+     fact:"A first aid point is where help and supplies wait. Know it before someone needs it.",
+     wit:"The green cross is not decoration."},
+    {sign:"sign-ears", disc:"#DBEAFE", meaning:"Ear protection required",
+     fact:"Ear protection is required where noise is loud enough to damage hearing. Damage does not heal.",
+     wit:"Loud work steals hearing quietly."}
+  ];
+  var FAULTS = [
+    {sign:"fault-helmet", meaning:"Hard hat optional on site",
+     explain:"Helmets are never optional where things can fall. The rule is the protection."},
+    {sign:"fault-lift", meaning:"Use the lift in a fire",
+     explain:"Never use a lift in a fire. Lifts can stop between floors. Take the stairs."},
+    {sign:"fault-drop", meaning:"Water puts out every fire",
+     explain:"Water does not put out every fire. On electrical and oil fires it spreads the danger."},
+    {sign:"fault-gloves", meaning:"Gloves optional with chemicals",
+     explain:"Gloves are never optional with chemicals. Skin absorbs what you touch."},
+    {sign:"fault-load", meaning:"Stand under a load if you wear a helmet",
+     explain:"Never stand under a suspended load. A helmet does not stop a falling load."}
+  ];
+  var FAULT_POOLS = {1:[0,1,2], 2:[0,1,2], 3:[3,4,2]};
+  var LEVELS = [
+    {id:1, name:"Level 1", tag:"Very easy", desc:"12 cards, 5 real pairs. No game over. Learn the signs at your own pace.",
+     title:"Find the 5 real pairs. No game over.", pairs:[0,1,2,3,6], peek:5000, hearts:5, hints:3, noLose:true},
+    {id:2, name:"Level 2", tag:"A bit tough", desc:"16 cards, 7 real pairs. 3 hearts. The classic board.",
+     title:"Find the 7 real pairs. Skip the faulty one.", pairs:[0,1,2,3,4,5,6], peek:3000, hearts:3, hints:2, noLose:false},
+    {id:3, name:"Level 3", tag:"More tough", desc:"20 cards, 9 real pairs. Short peek, 1 hint, trickier faults.",
+     title:"Find the 9 real pairs. Skip the faulty one.", pairs:[0,1,2,3,4,5,6,7,8], peek:2000, hearts:3, hints:1, noLose:false}
+  ];
+  var NUDGES = [
+    "Close. The cards are not judging.",
+    "Not that one. Your eyes were faster than your memory.",
+    "Nope. Even the cards forgot that one.",
+    "Almost. The match is hiding in plain sight.",
+    "Wrong pair. Slow down and look again.",
+    "That was a guess. A confident guess, but a guess.",
+    "No match. Try again.",
+    "Not this time. Memory is a muscle, and this is the gym."
+  ];
+  var MUTE_KEY = "memoryCardsMutedV3";
+  var PROGRESS_KEY = "memoryCardsProgressV4";
+  var BEST_PREFIX = "memoryCardsBestV4_L";
+
+  var startScreen = document.getElementById("startScreen");
+  var gameScreen = document.getElementById("gameScreen");
+  var winScreen = document.getElementById("winScreen");
+  var loseScreen = document.getElementById("loseScreen");
+  var board = document.getElementById("board");
+  var feedback = document.getElementById("feedback");
+  var foundEl = document.getElementById("foundEl");
+  var pairTrack = document.getElementById("pairTrack");
+  var heartsEl = document.getElementById("heartsEl");
+  var muteBtn = document.getElementById("muteBtn");
+  var hintBtn = document.getElementById("hintBtn");
+  var hintsEl = document.getElementById("hintsEl");
+  var gameTitle = document.getElementById("gameTitle");
+  var gameEyebrow = document.getElementById("gameEyebrow");
+  var levelList = document.getElementById("levelList");
+  var nextBtn = document.getElementById("nextBtn");
+
+  var deck = [], flipped = [], lock = false, hearts = 3, maxHearts = 3, found = 0, foundTotal = 7;
+  var lastNudge = -1, faultHit = false, lastFault = -1, muted = false;
+  var curLevel = null, mistakes = 0, consecMisses = 0, hintUses = 0, roundOver = false, roundId = 0, fxToken = 0;
+  var audioCtx = null;
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  try { muted = localStorage.getItem(MUTE_KEY) === "1"; } catch (e) { muted = false; }
+  function syncMuteBtn(){
+    muteBtn.textContent = muted ? "Sound off" : "Sound on";
+    muteBtn.setAttribute("aria-label", muted ? "Turn sound on" : "Turn sound off");
+  }
+  muteBtn.addEventListener("click", function(){
+    muted = !muted;
+    try { localStorage.setItem(MUTE_KEY, muted ? "1" : "0"); } catch (e) {}
+    syncMuteBtn();
+    if (!muted) playTone(660, 0.08, "sine", 0.08);
+  });
+
+  function ac(){
+    if (!audioCtx){
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+  function playTone(freq, dur, type, gain, delay){
+    if (muted) return;
+    var ctx = ac();
+    if (!ctx) return;
+    try {
+      var t = ctx.currentTime + (delay || 0);
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(gain || 0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+  function buzz(pattern){
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+  function sfx(kind){
+    if (kind === "flip"){ playTone(800, 0.05, "sine", 0.05); buzz(15); }
+    else if (kind === "match"){ playTone(660, 0.1, "sine", 0.09); playTone(990, 0.14, "sine", 0.09, 0.09); buzz([40, 40, 40]); }
+    else if (kind === "miss"){ playTone(160, 0.15, "triangle", 0.09); buzz(100); }
+    else if (kind === "fault"){ playTone(220, 0.15, "sawtooth", 0.06); playTone(160, 0.2, "sawtooth", 0.06, 0.12); buzz([80, 40, 80]); }
+    else if (kind === "win"){ [523, 659, 784, 1047].forEach(function(f, i){ playTone(f, 0.16, "sine", 0.09, i * 0.12); }); buzz([50, 50, 50, 50, 200]); }
+    else if (kind === "lose"){ [400, 300, 200].forEach(function(f, i){ playTone(f, 0.18, "triangle", 0.08, i * 0.14); }); buzz([150, 50, 150]); }
+  }
+
+  function starSVG(n, pop){
+    var out = "";
+    for (var i = 1; i <= 3; i++){
+      if (i <= n){
+        var cls = "stars-earned" + (pop ? " pop-star" : "");
+        var delay = pop ? ' style="animation-delay:' + ((i - 1) * 80) + 'ms"' : "";
+        out += '<span class="' + cls + '"' + delay + '><svg><use href="#star" fill="url(#goldGrad)"/></svg></span>';
+      } else {
+        out += '<span><svg><use href="#star" fill="none" stroke="#D97706" stroke-width="1.5"/></svg></span>';
+      }
+    }
+    return out;
+  }
+  function readProgress(){
+    try { var p = parseInt(localStorage.getItem(PROGRESS_KEY) || "1", 10); return (p >= 1 && p <= 3) ? p : 1; }
+    catch (e) { return 1; }
+  }
+  function saveProgress(p){
+    try { localStorage.setItem(PROGRESS_KEY, String(p)); } catch (e) {}
+  }
+  function bestKey(lvl){ return BEST_PREFIX + lvl; }
+  function readBest(lvl){
+    try { return JSON.parse(localStorage.getItem(bestKey(lvl)) || "null"); }
+    catch (e) { return null; }
+  }
+  function bestText(b){
+    if (!b) return "Not played yet.";
+    return 'Best: <span class="stars-sm">' + starSVG(b.stars, false) + "</span> " +
+      b.mistakes + (b.mistakes === 1 ? " mistake." : " mistakes.");
+  }
+  function renderLevels(){
+    var progress = readProgress();
+    levelList.innerHTML = "";
+    LEVELS.forEach(function(lv){
+      var unlocked = lv.id <= progress;
+      var b = readBest(lv.id);
+      var btn = document.createElement("button");
+      btn.className = "lvl";
+      btn.type = "button";
+      btn.setAttribute("data-level", lv.id);
+      if (!unlocked) btn.disabled = true;
+      btn.innerHTML = '<span class="lvl-name">' + lv.name + ' <span class="lvl-tag">' + lv.tag + '</span></span>' +
+        '<span class="lvl-desc">' + lv.desc + '</span>' +
+        '<span class="lvl-meta">' +
+        (unlocked
+          ? '<span class="lvl-best">' + bestText(b) + '</span>'
+          : '<span class="lvl-lock">Locked. Finish Level ' + (lv.id - 1) + ' first.</span>') +
+        '</span>';
+      if (unlocked) btn.addEventListener("click", function(){ ac(); startGame(lv.id); });
+      levelList.appendChild(btn);
+    });
+  }
+  function showStart(){
+    renderLevels();
+    document.getElementById("confetti").innerHTML = "";
+    fxToken++;
+    startScreen.hidden = false; gameScreen.hidden = true; winScreen.hidden = true; loseScreen.hidden = true;
+  }
+  function shuffle(a){
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function renderHearts(){
+    var out = "";
+    for (var i = 1; i <= maxHearts; i++){
+      if (i <= hearts) out += '<svg><use href="#heart" fill="#DC2626"/></svg>';
+      else out += '<svg><use href="#heart" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/></svg>';
+    }
+    heartsEl.innerHTML = out;
+  }
+  function syncHints(){
+    hintsEl.textContent = hintUses;
+    hintBtn.disabled = hintUses <= 0;
+  }
+  function buildDeck(){
+    var d = [];
+    curLevel.pairs.forEach(function(pi){
+      var p = PAIRS[pi];
+      d.push({pair:pi, kind:"sym", sign:p.sign, disc:p.disc, fault:false});
+      d.push({pair:pi, kind:"meaning", text:p.meaning, fault:false});
+    });
+    var pool = FAULT_POOLS[curLevel.id].filter(function(i){ return i !== lastFault; });
+    var fi = pool[Math.floor(Math.random() * pool.length)];
+    lastFault = fi;
+    var f = FAULTS[fi];
+    d.push({pair:999, kind:"sym", sign:f.sign, disc:"#F3F4F6", fault:true, explain:f.explain});
+    d.push({pair:999, kind:"meaning", text:f.meaning, fault:true, explain:f.explain});
+    return shuffle(d);
+  }
+  function renderBoard(){
+    board.innerHTML = "";
+    deck.forEach(function(c, idx){
+      var btn = document.createElement("button");
+      btn.className = "mcard deal";
+      btn.type = "button";
+      btn.style.animationDelay = (idx * 30) + "ms";
+      btn.setAttribute("data-pair", c.pair);
+      btn.setAttribute("data-kind", c.kind);
+      btn.setAttribute("data-fault", c.fault ? "1" : "0");
+      btn.setAttribute("aria-label", c.kind === "sym" ? "Sign card" : "Meaning: " + (c.text || ""));
+      if (c.kind === "sym"){
+        btn.innerHTML = '<span class="mcard-inner">' +
+          '<span class="mcard-face mcard-front"><span class="disc" style="background:' + c.disc + '"><svg><use href="#' + c.sign + '"/></svg></span></span>' +
+          '<span class="mcard-face mcard-back"><span class="back-frame"><svg><use href="#eye"/></svg></span></span></span>';
+      } else {
+        btn.innerHTML = '<span class="mcard-inner">' +
+          '<span class="mcard-face mcard-front txt"></span>' +
+          '<span class="mcard-face mcard-back"><span class="back-frame"><svg><use href="#eye"/></svg></span></span></span>';
+        btn.querySelector(".mcard-front").textContent = c.text;
+      }
+      btn.addEventListener("click", function(){ flip(btn, c); });
+      board.appendChild(btn);
+    });
+  }
+  function setFeedback(html, kind){
+    feedback.innerHTML = html;
+    feedback.className = "feedback" + (kind ? " " + kind : "");
+  }
+  function confetti(){
+    if (reducedMotion) return;
+    var box = document.getElementById("confetti");
+    var colors = ["#0F766E", "#3730A3", "#F59E0B"];
+    var tok = ++fxToken;
+    for (var i = 0; i < 40; i++){
+      var p = document.createElement("div");
+      p.className = "confetti-piece" + (i % 3 === 0 ? " star" : "");
+      p.style.left = Math.floor(Math.random() * 100) + "%";
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 0.5) + "s";
+      p.style.transform = "rotate(" + Math.floor(Math.random() * 360) + "deg)";
+      box.appendChild(p);
+    }
+    setTimeout(function(){ if (tok === fxToken) box.innerHTML = ""; }, 3000);
+  }
+  function starsFor(){
+    if (curLevel.noLose){
+      if (hearts >= 4) return 3;
+      if (hearts >= 2) return 2;
+      return 1;
+    }
+    return Math.max(1, hearts);
+  }
+  function loseHeart(){
+    if (curLevel.noLose){
+      hearts = Math.max(0, hearts - 1);
+      renderHearts();
+      return false;
+    }
+    hearts--;
+    renderHearts();
+    if (hearts <= 0){
+      roundOver = true;
+      lock = true;
+      sfx("lose");
+      document.getElementById("losePairsEl").textContent = found;
+      document.getElementById("loseTotalEl").textContent = foundTotal;
+      document.getElementById("loseTrack").style.width = Math.round(found / foundTotal * 100) + "%";
+      document.getElementById("loseScoreEl").textContent =
+        "You found " + found + " of " + foundTotal + " real pairs. " +
+        mistakes + (mistakes === 1 ? " mistake." : " mistakes.");
+      document.getElementById("bestLine3").innerHTML = bestText(readBest(curLevel.id));
+      var rid = roundId;
+      setTimeout(function(){
+        if (rid !== roundId) return;
+        gameScreen.hidden = true; loseScreen.hidden = false;
+      }, 1400);
+      return true;
+    }
+    return false;
+  }
+  function flashHint(){
+    var btns = Array.prototype.slice.call(board.querySelectorAll(".mcard"));
+    var byPair = {};
+    btns.forEach(function(el, idx){
+      var c = deck[idx];
+      if (!c.fault && !el.disabled && !el.classList.contains("flipped")){
+        (byPair[c.pair] = byPair[c.pair] || []).push(el);
+      }
+    });
+    var options = Object.keys(byPair).filter(function(k){ return byPair[k].length === 2; });
+    if (!options.length) return false;
+    var pick = byPair[options[Math.floor(Math.random() * options.length)]];
+    lock = true;
+    pick.forEach(function(el){ el.classList.add("flipped"); el.classList.add("hinted"); });
+    sfx("flip");
+    setFeedback("Hint: this pair matches. Remember where they are.", "");
+    var rid = roundId;
+    setTimeout(function(){
+      if (rid !== roundId) return;
+      pick.forEach(function(el){ el.classList.remove("flipped"); el.classList.remove("hinted"); });
+      if (!roundOver){
+        lock = false;
+        setFeedback("Tap two cards. Real signs only.", "");
+      }
+    }, 1200);
+    return true;
+  }
+  function useHint(){
+    if (lock || flipped.length > 0 || hintUses <= 0) return;
+    if (!flashHint()) return;
+    hintUses--;
+    syncHints();
+  }
+  function flip(btn, c){
+    if (lock || btn.classList.contains("flipped") || btn.disabled) return;
+    btn.classList.add("flipped");
+    sfx("flip");
+    flipped.push({btn:btn, card:c});
+    if (flipped.length === 1){
+      btn.classList.add("selected");
+      return;
+    }
+    var a = flipped[0], b = flipped[1];
+    flipped = [];
+    a.btn.classList.remove("selected");
+    b.btn.classList.remove("selected");
+    if (a.card.pair === b.card.pair && a.card.kind !== b.card.kind){
+      consecMisses = 0;
+      if (a.card.fault){
+        a.btn.disabled = true; b.btn.disabled = true;
+        a.btn.classList.add("fault"); b.btn.classList.add("fault");
+        a.btn.classList.add("shake"); b.btn.classList.add("shake");
+        a.btn.querySelector(".mcard-inner").classList.add("flash");
+        b.btn.querySelector(".mcard-inner").classList.add("flash");
+        setTimeout(function(){
+          a.btn.classList.remove("shake"); b.btn.classList.remove("shake");
+          a.btn.querySelector(".mcard-inner").classList.remove("flash");
+          b.btn.querySelector(".mcard-inner").classList.remove("flash");
+        }, 500);
+        faultHit = true;
+        mistakes++;
+        sfx("fault");
+        setFeedback('<span class="lead">Fault spotted.</span>' + a.card.explain, "fault");
+        loseHeart();
+      } else {
+        a.btn.disabled = true; b.btn.disabled = true;
+        a.btn.classList.add("matched"); b.btn.classList.add("matched");
+        a.btn.classList.add("pop"); b.btn.classList.add("pop");
+        setTimeout(function(){ a.btn.classList.remove("pop"); b.btn.classList.remove("pop"); }, 500);
+        a.btn.insertAdjacentHTML("beforeend", '<span class="badge"><svg><use href="#check"/></svg></span>');
+        b.btn.insertAdjacentHTML("beforeend", '<span class="badge"><svg><use href="#check"/></svg></span>');
+        found++;
+        foundEl.textContent = found + "/" + foundTotal;
+        pairTrack.style.width = Math.round(found / foundTotal * 100) + "%";
+        var p = PAIRS[a.card.pair];
+        var lead = (found % 2 === 1) ? "Sharp eyes!" : "Exact match!";
+        setFeedback('<span class="lead">' + lead + "</span>" + p.fact + " " + p.wit, "match");
+        sfx("match");
+        if (found === foundTotal) win();
+      }
+    } else {
+      sfx("miss");
+      mistakes++;
+      consecMisses++;
+      var n;
+      do { n = Math.floor(Math.random() * NUDGES.length); } while (n === lastNudge && NUDGES.length > 1);
+      lastNudge = n;
+      setFeedback(NUDGES[n], "miss");
+      lock = true;
+      var rid = roundId;
+      setTimeout(function(){
+        if (rid !== roundId) return;
+        a.btn.classList.remove("flipped");
+        b.btn.classList.remove("flipped");
+        a.btn.setAttribute("aria-label", a.card.kind === "sym" ? "Sign card" : "Meaning: " + (a.card.text || ""));
+        b.btn.setAttribute("aria-label", b.card.kind === "sym" ? "Sign card" : "Meaning: " + (b.card.text || ""));
+        if (!roundOver) lock = false;
+        if (consecMisses >= 2 && !roundOver && !gameScreen.hidden){
+          consecMisses = 0;
+          setTimeout(function(){
+            if (rid === roundId && !roundOver && !gameScreen.hidden) flashHint();
+          }, 400);
+        }
+      }, 900);
+      loseHeart();
+    }
+  }
+  function startGame(levelId){
+    curLevel = LEVELS[levelId - 1];
+    roundId++;
+    var rid = roundId;
+    roundOver = false;
+    deck = buildDeck();
+    flipped = []; lock = true; hearts = curLevel.hearts; maxHearts = curLevel.hearts;
+    found = 0; foundTotal = curLevel.pairs.length; mistakes = 0; consecMisses = 0;
+    hintUses = curLevel.hints; faultHit = false; lastNudge = -1;
+    foundEl.textContent = "0/" + foundTotal;
+    pairTrack.style.width = "0%";
+    gameTitle.textContent = "Level " + curLevel.id + ": " + curLevel.title;
+    gameEyebrow.textContent = "Attention to Detail · Level " + curLevel.id;
+    renderHearts();
+    syncHints();
+    renderBoard();
+    startScreen.hidden = true; winScreen.hidden = true; loseScreen.hidden = true;
+    gameScreen.hidden = false;
+    document.getElementById("confetti").innerHTML = "";
+    fxToken++;
+    setFeedback("Memorize! The faulty one hides here too.", "");
+    var cards = board.querySelectorAll(".mcard");
+    cards.forEach(function(el){ el.classList.add("flipped"); });
+    setTimeout(function(){
+      if (rid !== roundId) return;
+      cards.forEach(function(el){
+        if (!el.disabled) el.classList.remove("flipped");
+      });
+      setFeedback("Tap two cards. Real signs only.", "");
+      lock = false;
+    }, curLevel.peek);
+  }
+  function headlineFor(st){
+    if (st === 3) return "Detail expert!";
+    if (st === 2) return "Sharp round!";
+    return "Board cleared!";
+  }
+  function verdictFor(st){
+    if (mistakes === 0) return "Clean round. Not a single mistake. That is attention to detail.";
+    if (faultHit && st === 3) return "Board cleared, and you caught the faulty sign too. Sharp eyes.";
+    if (faultHit) return "Solid round. You caught the faulty sign and found every real pair.";
+    if (st === 2) return "Solid round. A few wrong guesses, but every real pair found.";
+    return "You finished it. Barely, but the board is clear. Next time, trust your memory over your guesses.";
+  }
+  function win(){
+    roundOver = true;
+    var st = starsFor();
+    var cur = {stars:st, mistakes:mistakes};
+    var best = readBest(curLevel.id);
+    var better = !best || st > best.stars || (st === best.stars && mistakes < best.mistakes);
+    if (better){
+      try { localStorage.setItem(bestKey(curLevel.id), JSON.stringify(cur)); } catch (e) {}
+    }
+    if (curLevel.id < 3){
+      var prog = readProgress();
+      if (prog <= curLevel.id) saveProgress(curLevel.id + 1);
+    }
+    document.getElementById("starsEl").innerHTML = starSVG(st, true);
+    document.getElementById("starsEl").setAttribute("aria-label", st + " out of 3 stars");
+    document.getElementById("winHeadline").textContent = headlineFor(st);
+    document.getElementById("verdictEl").textContent = verdictFor(st);
+    document.getElementById("scoreEl").textContent =
+      foundTotal + " real pairs, " + hearts + (hearts === 1 ? " heart left." : " hearts left.");
+    document.getElementById("bestLine2").innerHTML = bestText(readBest(curLevel.id));
+    nextBtn.hidden = curLevel.id >= 3;
+    sfx("win");
+    confetti();
+    gameScreen.hidden = true; winScreen.hidden = false;
+  }
+  document.getElementById("restartBtn").addEventListener("click", function(){ startGame(curLevel.id); });
+  document.getElementById("againBtn").addEventListener("click", function(){ startGame(curLevel.id); });
+  document.getElementById("nextBtn").addEventListener("click", function(){ startGame(curLevel.id + 1); });
+  document.getElementById("retryBtn").addEventListener("click", function(){ startGame(curLevel.id); });
+  document.getElementById("levelsBtn").addEventListener("click", showStart);
+  document.getElementById("winLevelsBtn").addEventListener("click", showStart);
+  document.getElementById("loseLevelsBtn").addEventListener("click", showStart);
+  hintBtn.addEventListener("click", function(){ ac(); useHint(); });
+  syncMuteBtn();
+  showStart();
+})();
+
+</script>
+</body>
+</html>
