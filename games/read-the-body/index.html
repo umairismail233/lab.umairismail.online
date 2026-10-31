@@ -369,13 +369,21 @@ document.getElementById('again').onclick = () => {
 
 async function getModelUrl() {
   // No direct model.glb fetch: on the Lab page that fetch is cross-origin to Vercel, and Vercel's 404 response carries no CORS header, so the browser rejects the fetch and the chunk loop never runs. Go straight to the chunks, which do carry CORS.
-  const parts = [];
-  for (let i = 0; i < 84; i++) {
+  // Chunks load in parallel batches of 10, in order, because 84 sequential fetches took up to about 90 seconds in a browser and a visitor reads that as broken.
+  const parts = new Array(84);
+  let done = 0;
+  const loadOne = async (i) => {
     const name = 'part-' + String(i).padStart(2, '0') + '.bin';
-    loaderBarFillEl.style.width = ((i + 1) / 84 * 100) + '%';
     const res = await fetch('https://read-the-body-lab-umair-9ed4.vercel.app/model/' + name);
     if (!res.ok) throw new Error('Model failed to load.');
-    parts.push(await res.arrayBuffer());
+    parts[i] = await res.arrayBuffer();
+    done++;
+    loaderBarFillEl.style.width = (done / 84 * 100) + '%';
+  };
+  for (let start = 0; start < 84; start += 10) {
+    const batch = [];
+    for (let i = start; i < Math.min(start + 10, 84); i++) batch.push(loadOne(i));
+    await Promise.all(batch);
   }
   const blob = new Blob(parts, { type: 'model/gltf-binary' });
   return URL.createObjectURL(blob);
