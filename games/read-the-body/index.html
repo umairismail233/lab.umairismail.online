@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Read the Body Lab page. Model chunks are hosted on the Vercel staging alias, cross-origin, because the GitHub connector cannot push binary chunks. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -369,8 +368,7 @@ document.getElementById('again').onclick = () => {
 };
 
 async function getModelUrl() {
-  const direct = await fetch('https://read-the-body-lab-umair-9ed4.vercel.app/model.glb');
-  if (direct.ok) return 'model.glb';
+  // No direct model.glb fetch: on the Lab page that fetch is cross-origin to Vercel, and Vercel's 404 response carries no CORS header, so the browser rejects the fetch and the chunk loop never runs. Go straight to the chunks, which do carry CORS.
   const parts = [];
   for (let i = 0; i < 84; i++) {
     const name = 'part-' + String(i).padStart(2, '0') + '.bin';
