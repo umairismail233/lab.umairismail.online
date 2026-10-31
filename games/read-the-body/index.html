@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<!-- Read the Body Lab page. Model chunks are hosted on the Vercel staging alias, cross-origin, because the GitHub connector cannot push binary chunks. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Read the Body</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 100%; margin: 0; padding: 0; }
+  body {
+    background: #F7F6F3;
+    color: #101828;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow-x: hidden;
+  }
+  .wrap { width: 100%; max-width: 480px; margin: 0 auto; padding: 16px; }
+  header { margin: 0 0 16px 0; }
+  h1 { margin: 0 0 10px 0; font-size: 30px; line-height: 1.2; letter-spacing: -0.01em; }
+  .chip {
+    display: inline-block;
+    background: #3730A3;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    padding: 8px 12px;
+    border-radius: 999px;
+    max-width: 100%;
+  }
+  p.sub { margin: 12px 0 0 0; font-size: 16px; line-height: 1.55; }
+  #stage {
+    position: relative;
+    background: #101828;
+    border-radius: 20px;
+    overflow: hidden;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.18);
+  }
+  #stage canvas { display: block; width: 100%; height: auto; }
+  #loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 20px;
+    text-align: center;
+    color: #F7F6F3;
+    pointer-events: none;
+  }
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid rgba(247, 246, 243, 0.25);
+    border-top-color: #F7F6F3;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loader-label { font-size: 16px; line-height: 1.55; }
+  #loader-bar {
+    width: 70%;
+    max-width: 260px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(247, 246, 243, 0.25);
+    overflow: hidden;
+  }
+  #loader-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: #F7F6F3;
+    border-radius: 999px;
+  }
+  #progress {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0 4px 0;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.4;
+    width: 100%;
+  }
+  #progress span {
+    background: #FFFFFF;
+    border: 1px solid #101828;
+    border-radius: 999px;
+    padding: 6px 12px;
+    max-width: 100%;
+  }
+  #question { font-size: 21px; font-weight: 700; line-height: 1.35; margin: 16px 0 12px 0; }
+  #options { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
+  button.opt {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 16px;
+    font-size: 16px;
+    line-height: 1.4;
+    border: 2px solid #3730A3;
+    background: #FFFFFF;
+    color: #101828;
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    touch-action: manipulation;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.10);
+  }
+  button.opt:hover:not(:disabled), button.opt:focus-visible:not(:disabled) {
+    background: #F7F6F3;
+    border-color: #3730A3;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.16);
+  }
+  button.opt:focus-visible { outline: 3px solid #0F766E; outline-offset: 2px; }
+  button.opt:disabled { cursor: default; opacity: 0.90; box-shadow: none; }
+  button.opt.correct { background: #0F766E; border-color: #0F766E; color: #FFFFFF; }
+  button.opt.wrong { background: #101828; border-color: #101828; color: #FFFFFF; }
+  #feedback {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1px solid #0F766E;
+    border-left: 5px solid #0F766E;
+    line-height: 1.55;
+    font-size: 16px;
+    display: none;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.10);
+  }
+  #feedback.show { display: block; }
+  #next {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    background: #3730A3;
+    color: #FFFFFF;
+    border: 2px solid #3730A3;
+    border-radius: 14px;
+    cursor: pointer;
+    display: none;
+    touch-action: manipulation;
+  }
+  #next.show { display: block; }
+  #next:hover, #next:focus-visible { box-shadow: 0 4px 12px rgba(16, 24, 40, 0.20); }
+  #next:focus-visible { outline: 3px solid #0F766E; outline-offset: 2px; }
+  #final {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    padding: 24px 20px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 2px solid #101828;
+    width: 100%;
+    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.12);
+  }
+  #final.show { display: block; }
+  #final h2 { margin: 0 0 8px 0; font-size: 22px; line-height: 1.3; }
+  #final p { margin: 0 0 16px 0; font-size: 16px; line-height: 1.55; }
+  #again {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    background: #0F766E;
+    color: #FFFFFF;
+    border: 2px solid #0F766E;
+    border-radius: 14px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  #again:hover, #again:focus-visible { box-shadow: 0 4px 12px rgba(16, 24, 40, 0.20); }
+  #again:focus-visible { outline: 3px solid #3730A3; outline-offset: 2px; }
+  footer {
+    margin: 20px 0 0 0;
+    padding: 0 0 16px 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #101828;
+    opacity: 0.78;
+    width: 100%;
+  }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <h1>Read the Body</h1>
+  <span class="chip">G Attention to Detail</span>
+  <p class="sub">Watch the person move. The clip loops. Pick what they are signalling, then read why. 10 rounds, one model, no text question to hide behind.</p>
+</header>
+<div id="stage"><div id="loader"><div class="spinner" aria-hidden="true"></div><div id="loader-label">Loading Jay...</div><div id="loader-bar"><div id="loader-bar-fill"></div></div></div></div>
+<div id="progress"><span id="round">Round 1 of 10</span><span id="score">Score 0</span></div>
+<p id="question">What is this person signalling?</p>
+<div id="options"></div>
+<div id="feedback"></div>
+<button id="next" type="button">Next round</button>
+<div id="final">
+  <h2 id="finalTitle">Done</h2>
+  <p id="finalText"></p>
+  <button id="again" type="button">Play again</button>
+</div>
+<footer>
+  Model: Jay by Blender Studio, CC-BY. Animations: Mesh2Motion.
+</footer>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const ROUNDS = [
+  { clip: 'Cheering_Two_Hands', label: 'Celebrating a win', why: 'Both arms go up and cheer. That is a celebration, not a greeting. The whole body opens up.' },
+  { clip: 'Greeting', label: 'Saying hello', why: 'One hand rises and waves open. That is a greeting, aimed at someone arriving.' },
+  { clip: 'Confused', label: 'Confused and unsure', why: 'A hand goes to the head, like scratching it. That is the classic unsure gesture.' },
+  { clip: 'Angry', label: 'Angry and upset', why: 'The body leans forward with sharp arm gestures. That reads as anger, not energy.' },
+  { clip: 'Walk', label: 'Just walking, neutral', why: 'An ordinary stride, no raised arms, no slump, no gesture. Nothing strong is being signalled.' },
+  { clip: 'Tired_Hunched', label: 'Tired and down', why: 'The body crouches low, the head drops, the shoulders slump. That is low energy, not relaxation.' },
+  { clip: 'Shivering', label: 'Cold or nervous', why: 'A short tremble with arms crossed over the chest. That is shivering, a cold or nervous tremble.' },
+  { clip: 'Head_Nod', label: 'Agreeing, saying yes', why: 'The head dips in a nod, again and again. That is agreement, not a greeting.' },
+  { clip: 'Idle_FoldArms', label: 'Waiting, arms closed', why: 'Standing still with arms folded. The movement is only a small weight shift. That is a waiting, closed idle.' },
+  { clip: 'Reject', label: 'Refusing, saying no', why: 'The head turns, then both palms rise and face forward in a stop pose. That is a refusal.' },
+];
+
+let scene, camera, renderer, mixer, model, currentAction = null, clipsByName = {};
+let order = [], roundIndex = 0, score = 0, answered = false;
+
+const stage = document.getElementById('stage');
+const loaderEl = document.getElementById('loader');
+const loaderLabelEl = document.getElementById('loader-label');
+const loaderBarFillEl = document.getElementById('loader-bar-fill');
+const roundEl = document.getElementById('round');
+const scoreEl = document.getElementById('score');
+const optionsEl = document.getElementById('options');
+const feedbackEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('next');
+const finalEl = document.getElementById('final');
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101828);
+camera = new THREE.PerspectiveCamera(40, 480 / 420, 0.1, 100);
+camera.position.set(0, 1.2, 3.2);
+renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+// Responsive stage: renderer size follows the stage width, so the canvas
+// is never stretched by CSS. On narrow screens the stage is wider than
+// it is tall, but the camera aspect is updated to match, so the model
+// keeps its true proportions and stays head to feet in frame.
+function resizeStage() {
+  const w = stage.clientWidth || 480;
+  const h = window.innerWidth <= 560 ? Math.round(w * 0.87) : 420;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resizeStage();
+window.addEventListener('resize', resizeStage);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 1.2));
+const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+dir.position.set(2, 4, 3);
+scene.add(dir);
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  if (mixer) mixer.update(dt);
+  renderer.render(scene, camera);
+}
+animate();
+
+function playClip(name) {
+  if (currentAction) currentAction.stop();
+  const clip = clipsByName[name];
+  currentAction = mixer.clipAction(clip);
+  currentAction.setLoop(THREE.LoopRepeat);
+  currentAction.play();
+}
+
+function startRound() {
+  answered = false;
+  feedbackEl.classList.remove('show');
+  nextBtn.classList.remove('show');
+  finalEl.classList.remove('show');
+  const item = order[roundIndex];
+  roundEl.textContent = 'Round ' + (roundIndex + 1) + ' of 10';
+  scoreEl.textContent = 'Score ' + score;
+  playClip(item.clip);
+  const others = shuffle(ROUNDS.filter(r => r.clip !== item.clip)).slice(0, 3);
+  const choices = shuffle([item].concat(others));
+  optionsEl.innerHTML = '';
+  choices.forEach(choice => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = choice.label;
+    b.onclick = () => answer(choice, item, b);
+    optionsEl.appendChild(b);
+  });
+}
+
+function answer(choice, item, btn) {
+  if (answered) return;
+  answered = true;
+  const correct = choice.clip === item.clip;
+  if (correct) score += 1;
+  scoreEl.textContent = 'Score ' + score;
+  Array.from(optionsEl.children).forEach(el => {
+    el.disabled = true;
+    if (el.textContent === item.label) el.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  feedbackEl.innerHTML = '<strong>' + (correct ? 'Correct.' : 'Not quite.') + '</strong> ' + item.why;
+  feedbackEl.classList.add('show');
+  if (roundIndex < 9) {
+    nextBtn.textContent = 'Next round';
+    nextBtn.classList.add('show');
+  } else {
+    nextBtn.textContent = 'See final score';
+    nextBtn.classList.add('show');
+  }
+}
+
+nextBtn.onclick = () => {
+  if (roundIndex < 9) {
+    roundIndex += 1;
+    startRound();
+  } else {
+    optionsEl.innerHTML = '';
+    feedbackEl.classList.remove('show');
+    nextBtn.classList.remove('show');
+    document.getElementById('finalTitle').textContent = 'You scored ' + score + ' out of 10';
+    document.getElementById('finalText').textContent = score >= 8 ? 'Strong reading. You are picking up body cues, not just words.' : 'Good practice. Replay and watch the arms, the head, and the posture, not just the face.';
+    finalEl.classList.add('show');
+  }
+};
+
+document.getElementById('again').onclick = () => {
+  order = shuffle(ROUNDS);
+  roundIndex = 0;
+  score = 0;
+  startRound();
+};
+
+async function getModelUrl() {
+  const direct = await fetch('https://read-the-body-lab-umair-9ed4.vercel.app/model.glb');
+  if (direct.ok) return 'model.glb';
+  const parts = [];
+  for (let i = 0; i < 84; i++) {
+    const name = 'part-' + String(i).padStart(2, '0') + '.bin';
+    loaderBarFillEl.style.width = ((i + 1) / 84 * 100) + '%';
+    const res = await fetch('https://read-the-body-lab-umair-9ed4.vercel.app/model/' + name);
+    if (!res.ok) throw new Error('Model failed to load.');
+    parts.push(await res.arrayBuffer());
+  }
+  const blob = new Blob(parts, { type: 'model/gltf-binary' });
+  return URL.createObjectURL(blob);
+}
+
+getModelUrl().then(url => {
+  new GLTFLoader().load(url, (gltf) => {
+  model = gltf.scene;
+  scene.add(model);
+  // Do NOT use Box3.setFromObject here: on skinned GLBs it reports about
+  // 0.46 height instead of the true height, which put the camera far too close
+  // and cropped the head off. Use the geometry POSITION bounds instead.
+  // Jay bounds, verified from the GLB across all 22 meshes: x -0.958 to 0.958,
+  // y 0 to 2.613, so the union box, not the last mesh's box, must be used.
+  // The old single-mesh code took the last mesh only, which would crop Jay.
+  let geoBox = null;
+  model.traverse((obj) => {
+    if (obj.isMesh && obj.geometry && obj.geometry.attributes && obj.geometry.attributes.position) {
+      obj.geometry.computeBoundingBox();
+      const b = obj.geometry.boundingBox;
+      if (!geoBox) {
+        geoBox = b.clone();
+      } else {
+        geoBox.union(b);
+      }
+    }
+  });
+  const modelHeight = geoBox ? (geoBox.max.y - geoBox.min.y) : 2.613;
+  const modelCenterY = geoBox ? ((geoBox.max.y + geoBox.min.y) / 2) : 1.31;
+  // Model stands on y = 0 at the origin. Keep it there, put the camera back
+  // far enough that raised arms and the hat still fit: visible height at 4.6 distance
+  // with a 40 degree field of view is about 3.35, over the Jay height of 2.613.
+  // Distance was 4.2 (about 3.05 visible) before the Dual QA fix round; the
+  // crouch pose left only about 10px below the shoes, so 4.6 gives more room.
+  camera.position.set(0, modelCenterY + 0.2, 4.6);
+  camera.lookAt(0, modelCenterY, 0);
+  void modelHeight;
+  mixer = new THREE.AnimationMixer(model);
+  gltf.animations.forEach(c => { clipsByName[c.name] = c; });
+  const missing = ROUNDS.filter(r => !clipsByName[r.clip]).map(r => r.clip);
+  if (missing.length) {
+    loaderLabelEl.textContent = 'Sorry, the model could not be loaded.';
+    return;
+  }
+  loaderEl.style.display = 'none';
+  window.__RTB_READY = true;
+  order = shuffle(ROUNDS);
+  startRound();
+}, undefined, (err) => {
+  loaderLabelEl.textContent = 'Sorry, the model could not be loaded.';
+  console.error(err);
+  });
+}).catch((err) => {
+  loaderLabelEl.textContent = 'Sorry, the model could not be loaded.';
+  console.error(err);
+});
+</script>
+</body>
+</html>
