@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Terminal Overdrive. Sunset Container Terminal FPS</title>
+<meta property="og:title" content="Terminal Overdrive — Sunset Container Terminal FPS">
+<meta property="og:description" content="Fight robot soldiers in a sunset container terminal. Eight waves, five weapons, one boss. A Lab game that trains Fast Decisions.">
+<meta property="og:image" content="https://lab.umairismail.online/games/terminal-overdrive/thumb.jpg">
+<meta property="og:url" content="https://lab.umairismail.online/games/terminal-overdrive/">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+  @font-face { font-family: 'Oswald'; font-style: normal; font-weight: 600; font-display: swap; src: url('assets/fonts/oswald-600.woff2') format('woff2'); }
+  @font-face { font-family: 'Oswald'; font-style: normal; font-weight: 700; font-display: swap; src: url('assets/fonts/oswald-700.woff2') format('woff2'); }
+  @font-face { font-family: 'Rajdhani'; font-style: normal; font-weight: 500; font-display: swap; src: url('assets/fonts/rajdhani-500.woff2') format('woff2'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --font-display: 'Oswald', 'Arial Narrow', 'Franklin Gothic Medium', 'Helvetica Neue', sans-serif;
+    --font-body: 'Rajdhani', 'Segoe UI', Arial, sans-serif;
+    --amber: #ffb347;
+    --amber-deep: #ff7a1a;
+    --gold: #ffd23c;
+    --teal: #2dd4bf;
+    --red: #ff5340;
+    --ink: #14100c;
+    --panel: rgba(12, 10, 8, 0.72);
+    --line: rgba(255, 255, 255, 0.22);
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+  }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #14100c; font-family: var(--font-body); color: #f2ede4; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 20; text-align: center; overflow-y: auto; }
+  .screen > * { margin-top: auto; margin-bottom: auto; }
+  .hidden { display: none !important; }
+  /* Loading */
+  #loading { background: #14100c url('assets/concept/loading-bg.webp') center/cover no-repeat; }
+  #loading .shade { position: absolute; inset: 0; background: rgba(10,8,6,0.55); }
+  #loading .inner { position: relative; z-index: 2; width: min(560px, 90vw); }
+  .game-title { font-family: var(--font-display); font-size: clamp(46px, 7.5vw, 88px); font-weight: 900; letter-spacing: 5px; color: #ffb347; text-shadow: 0 4px 24px rgba(0,0,0,0.8), 0 0 60px rgba(255,140,40,0.5); line-height: 0.92; }
+  .game-sub { font-family: var(--font-display); font-size: clamp(13px, 1.6vw, 18px); letter-spacing: 7px; color: #e8ddc8; margin-top: 6px; }
+  #loadBarWrap { width: 100%; height: 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); margin-top: 34px; }
+  #loadBar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff7a1a, #ffb347); transition: width 0.2s; }
+  #loadText { margin-top: 12px; font-size: 14px; letter-spacing: 2px; color: #ddd; }
+  /* Title */
+  #title { background: #14100c url('assets/concept/title-art.webp') center/cover no-repeat; }
+  #title .shade { position: absolute; inset: 0; background: linear-gradient(rgba(10,8,6,0.18), rgba(10,8,6,0.50)); }
+  #title .inner { position: relative; z-index: 2; width: min(640px, 92vw); }
+  .tagline { margin: 8px 0 6px; font-size: 15px; color: #f5e9d2; letter-spacing: 1px; }
+  .btn { display: block; width: min(340px, 84vw); margin: 10px auto; padding: 14px 18px; font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: 3px; color: #fff; background: rgba(255,122,26,0.92); border: 1px solid #ffb347; cursor: pointer; clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+  .btn:hover { background: #ff8c2e; transform: translateY(-1px); }
+  .btn.ghost { background: rgba(20,18,16,0.75); border-color: rgba(255,255,255,0.4); }
+  .btn.ghost:hover { background: rgba(60,50,40,0.9); }
+  .btn.small { width: auto; display: inline-block; padding: 10px 22px; font-size: 14px; }
+  .hint { margin-top: 18px; font-size: 13px; color: #cfc4ae; line-height: 1.7; }
+  .touch-hint { display: none; }
+  body.touch .touch-hint { display: block; }
+  body.touch #hintDesktop { display: none; }
+  body.touch #pauseTextDesktop { display: none; }
+  #howtoTouch { display: none; }
+  body.touch #howtoTouch { display: table; }
+  body.touch #howtoKeys { display: none; }
+  /* Title: mode cards + one deploy button + loadout (Behance/Dribbble). */
+  #title { overflow-y: auto; justify-content: flex-start; }
+  #title .inner { margin: auto; padding: 10px 0; }
+  #title .game-title { font-size: clamp(40px, 6vw, 62px); }
+  .mode-row { display: flex; gap: 12px; margin: 4px 0 8px; }
+  .mode-card { flex: 1; position: relative; min-height: 120px; text-align: left; padding: 14px; cursor: pointer; color: #fff; border: 1px solid rgba(255,255,255,0.35); clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); font-family: var(--font-body); background-color: #14100c; }
+  #btnSurvival { background: linear-gradient(rgba(10,8,6,0.15), rgba(10,8,6,0.82)), url('assets/concept/title-art.webp') center 30%/cover no-repeat; }
+  #btnFFA { background: linear-gradient(rgba(10,8,6,0.15), rgba(10,8,6,0.82)), url('assets/concept/concept-enemies.webp') center 30%/cover no-repeat; }
+  .mode-card h3 { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 8px #000; }
+  .mode-card p { font-size: 13px; line-height: 1.5; color: #f0e6d2; text-shadow: 0 1px 4px #000; margin: 3px 0 6px; }
+  .mode-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mode-tags span { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: var(--gold); background: rgba(10,8,6,0.65); border: 1px solid rgba(255,210,60,0.4); padding: 3px 8px; }
+  .mode-card.selected { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), 0 0 24px rgba(255,140,40,0.45); }
+  .mode-pick { position: absolute; top: 10px; right: 10px; font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: #1a1206; background: var(--gold); padding: 3px 8px; display: none; }
+  .mode-card.selected .mode-pick { display: block; }
+  .btn.deploy { width: min(420px, 88vw); font-size: 20px; padding: 12px 18px; }
+  #loadout { margin-top: 10px; text-align: left; }
+  .loadout-label { font-family: var(--font-display); font-size: 12px; letter-spacing: 3px; color: #cfc4ae; margin-bottom: 8px; text-align: center; }
+  .loadout-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .wchip { font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #e8ddc8; background: rgba(20,18,16,0.75); border: 1px solid rgba(255,255,255,0.35); padding: 9px 12px; cursor: pointer; min-height: 44px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  .wchip.selected { border-color: var(--amber); color: #fff; background: rgba(255,122,26,0.35); box-shadow: 0 0 12px rgba(255,140,40,0.35); }
+  .wchip .wtag { display: block; font-size: 10px; color: var(--gold); letter-spacing: 2px; }
+  #loadoutStats { margin-top: 10px; background: rgba(12,10,8,0.6); border: 1px solid var(--line); border-left: 3px solid var(--amber); padding: 6px 14px; }
+  #loadoutStats .ls-name { font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; color: var(--amber); margin-bottom: 6px; }
+  .stat-row { display: flex; align-items: center; gap: 8px; margin: 1px 0; }
+  .stat-row .stat-label { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; width: 74px; text-align: right; color: #ddd; }
+  .stat-row .stat-track { flex: 1; height: 8px; background: rgba(255,255,255,0.12); }
+  .stat-row .stat-fill { height: 100%; background: linear-gradient(90deg, var(--amber-deep), var(--gold)); }
+  .stat-row .stat-val { font-family: var(--font-display); font-size: 12px; width: 26px; color: #fff; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+  .chip { font-size: 12px; letter-spacing: 1px; padding: 4px 10px; border: 1px solid var(--line); background: rgba(12,10,8,0.6); color: #e8ddc8; }
+  #pauseRun { font-family: var(--font-display); letter-spacing: 2px; font-size: 14px; color: var(--gold); margin-bottom: 14px; }
+  .touch-only-btn { display: none; }
+  body.touch .touch-only-btn { display: block; }
+  #pause.editing-layout { background: transparent; }
+  body.paused #hud { visibility: hidden; }
+  body.touch.paused:not(.editing) #touch { visibility: hidden; }
+  #pause.editing-layout .menu-card { display: none; }
+  #gameoverStats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 22px; text-align: left; margin: 10px 0 18px; }
+  .gs-row { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 5px 0; font-size: 14px; color: #e8ddc8; }
+  .gs-row b { font-family: var(--font-display); color: var(--gold); letter-spacing: 1px; }
+  .gs-row.wide { grid-column: 1 / -1; }
+  @media (max-width: 560px) {
+    .mode-row { flex-direction: column; }
+    .mode-card { min-height: 118px; }
+    .game-title { letter-spacing: 3px; }
+    #gameoverStats { grid-template-columns: 1fr; }
+  }
+  /* HUD */
+  #hud { position: fixed; inset: 0; pointer-events: none; z-index: 13; display: none; }
+  #hud.on { display: block; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 0; height: 0; --gap: 6px; }
+  #crosshair .ch-line { position: absolute; background: rgba(255,255,255,0.95); box-shadow: 0 0 4px #000; }
+  #crosshair .ch-t { left: -1px; bottom: var(--gap); width: 2px; height: 10px; }
+  #crosshair .ch-b { left: -1px; top: var(--gap); width: 2px; height: 10px; }
+  #crosshair .ch-l { top: -1px; right: var(--gap); width: 10px; height: 2px; }
+  #crosshair .ch-r { top: -1px; left: var(--gap); width: 10px; height: 2px; }
+  #crosshair .ch-dot { position: absolute; left: -1px; top: -1px; width: 2px; height: 2px; background: rgba(255,255,255,0.95); box-shadow: 0 0 4px #000; }
+  #hitmarker { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: 26px; font-weight: 900; opacity: 0; transition: opacity 0.12s, transform 0.12s; text-shadow: 0 0 6px #000; }
+  #enemyMarkers { position: absolute; inset: 0; pointer-events: none; }
+  .enemy-marker { position: absolute; transform: translate(-50%,-50%); font-weight: 900; color: #ff5340; text-shadow: 0 0 6px #000; display: flex; align-items: center; gap: 4px; }
+  .enemy-marker .em-arrow { display: inline-block; font-size: 20px; }
+  .enemy-marker .em-dist { font-size: 11px; color: #fff; }
+  #dmgLayer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .dmg-num { position: absolute; transform: translate(-50%,-50%); font-family: var(--font-display); font-size: 16px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px #000, 0 0 8px rgba(255,120,40,0.5); animation: dmgFloat 0.8s ease-out forwards; }
+  .dmg-num.head { color: #ffdd33; font-size: 21px; }
+  .score-pop { position: absolute; transform: translate(-50%,-50%); font-family: var(--font-display); font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #ffd23c; text-shadow: 0 1px 4px #000, 0 0 12px rgba(255,180,40,0.7); animation: scoreFloat 1s ease-out forwards; }
+  @keyframes dmgFloat { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -44px; } }
+  @keyframes scoreFloat { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -56px; } }
+  #damageArc { position: absolute; left: 50%; top: 50%; width: 220px; height: 220px; margin: -110px 0 0 -110px; border: 14px solid transparent; border-top-color: rgba(255,40,20,0.85); border-radius: 50%; opacity: 0; transition: opacity 0.4s; }
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 11; opacity: 0; background: radial-gradient(ellipse at center, transparent 52%, rgba(160,0,0,0.55) 82%, rgba(200,0,0,0.8) 100%); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--amber); padding: 8px 12px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+  #bl { position: absolute; left: calc(18px + var(--safe-l)); bottom: calc(16px + var(--safe-b)); min-width: 260px; }
+  #healthFill, #armorFill { height: 12px; }
+  #healthFill { background: repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0 2px, transparent 2px 16px), #ff5a3c; width: 100%; }
+  #armorFill { background: repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0 2px, transparent 2px 16px), #57b6ff; width: 100%; }
+  .barRow { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .barLabel { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; width: 52px; text-align: right; color: #ddd; }
+  .barTrack { flex: 1; height: 12px; background: rgba(255,255,255,0.12); }
+  .barNum { font-family: var(--font-display); font-size: 20px; font-weight: 700; width: 44px; }
+  #br { position: absolute; right: calc(18px + var(--safe-r)); bottom: calc(16px + var(--safe-b)); text-align: right; }
+  #weaponName { font-family: var(--font-display); font-size: 15px; letter-spacing: 2px; color: #ffb347; font-weight: 700; }
+  #ammoMag { font-family: var(--font-display); font-size: 56px; font-weight: 700; line-height: 1; }
+  #ammoRes { font-family: var(--font-display); font-size: 18px; color: #ccc; }
+  #grenadeNum { font-size: 14px; color: #ddd; margin-top: 4px; }
+  /* Minimap top-left, wave panel beneath it. Compass top-centre. */
+  #minimapWrap { position: absolute; left: calc(18px + var(--safe-l)); top: calc(16px + var(--safe-t)); width: 148px; height: 148px; background: rgba(10, 8, 6, 0.6); border: 1px solid var(--line); border-left: 3px solid var(--amber); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+  #minimap { display: block; width: 148px; height: 148px; }
+  #tl { position: absolute; left: calc(18px + var(--safe-l)); top: calc(172px + var(--safe-t)); }
+  #tl .big { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+  #tl .small { font-size: 13px; color: #ddd; letter-spacing: 1px; }
+  #compass { position: absolute; left: 50%; top: calc(10px + var(--safe-t)); transform: translateX(-50%); width: 320px; height: 30px; pointer-events: none; background: rgba(10,8,6,0.4); }
+  #compassCanvas { display: block; width: 320px; height: 30px; }
+  #reloadPrompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); display: none; font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 3px; color: #1a1206; background: var(--gold); padding: 5px 14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  #tr { position: absolute; right: calc(18px + var(--safe-r)); top: calc(16px + var(--safe-t)); text-align: right; }
+  #tr .big { font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+  #tr .small { font-size: 13px; color: #ddd; }
+  #styleRank { font-family: var(--font-display); font-size: 34px; font-weight: 900; color: #ffd23c; text-shadow: 0 0 12px rgba(255,180,40,0.6); }
+  #styleTrack { width: 110px; height: 6px; background: rgba(255,255,255,0.15); margin-left: auto; }
+  #styleFill { height: 100%; width: 0%; background: #ffd23c; }
+  #overdriveWrap { margin-top: 8px; width: 170px; margin-left: auto; }
+  #overdriveText { font-family: var(--font-display); font-size: 12px; letter-spacing: 1px; color: #9be7ff; }
+  #overdriveTrack { height: 8px; background: rgba(255,255,255,0.15); margin-top: 3px; }
+  #overdriveFill { height: 100%; width: 0%; background: #37c8ff; }
+  #killfeed { position: absolute; right: 18px; top: 150px; text-align: right; font-size: 13px; color: #ffe9c9; text-shadow: 0 1px 3px #000; line-height: 1.8; }
+  #banner { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); opacity: 0; transition: opacity 0.4s; text-align: center; }
+  #banner .banner-title { font-family: var(--font-display); font-size: clamp(26px, 4vw, 46px); font-weight: 900; letter-spacing: 4px; color: #ffb347; text-shadow: 0 3px 14px #000; }
+  #banner .banner-sub { font-size: 15px; letter-spacing: 2px; color: #fff; margin-top: 6px; text-shadow: 0 2px 8px #000; }
+  #bossWrap { position: absolute; left: 50%; top: 78px; transform: translateX(-50%); width: min(560px, 80vw); display: none; text-align: center; }
+  #bossLabel { font-family: var(--font-display); font-size: 14px; letter-spacing: 3px; color: #ff6a4a; font-weight: 800; text-shadow: 0 2px 6px #000; }
+  #bossTrack { height: 12px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,80,40,0.6); margin-top: 4px; }
+  #bossFill { height: 100%; width: 100%; background: linear-gradient(90deg, #c81e00, #ff5a1a); }
+  #bossPips { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+  .boss-pip { width: 26px; height: 6px; background: rgba(255,255,255,0.15); }
+  .boss-pip.on { background: #ff5a1a; box-shadow: 0 0 8px rgba(255,90,26,0.8); }
+  /* Menus */
+  .menu-card { background: rgba(16,13,10,0.92); border: 1px solid rgba(255,179,71,0.5); border-top: 3px solid var(--amber); padding: 30px 34px; width: min(560px, 92vw); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+  .menu-card h2 { font-family: var(--font-display); font-size: 30px; letter-spacing: 3px; color: #ffb347; margin-bottom: 10px; }
+  .menu-card p { font-size: 15px; line-height: 1.7; color: #e8ddc8; margin-bottom: 12px; }
+  #augmentCards { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+  .aug-card { width: 170px; padding: 16px 12px; background: rgba(255,122,26,0.14); border: 1px solid #ffb347; cursor: pointer; pointer-events: auto; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+  .aug-card:hover { background: rgba(255,122,26,0.35); transform: translateY(-2px); }
+  .aug-card h3 { font-family: var(--font-display); font-size: 15px; letter-spacing: 1px; color: #ffb347; margin-bottom: 8px; }
+  .aug-card p { font-size: 13px; line-height: 1.5; color: #eee; }
+  #howto .menu-card { text-align: left; max-height: min(660px, 88vh); overflow: hidden; display: flex; flex-direction: column; }
+  #howto .howto-body { overflow-y: auto; min-height: 0; }
+  #howto .howto-footer { flex: none; padding-top: 12px; margin-top: 12px; border-top: 1px solid rgba(255,179,71,0.35); }
+  #hintHowtoEsc { margin: 0 0 12px; font-size: 13px; color: #cfc4ae; }
+  body.touch #hintHowtoEsc { display: none; }
+  #howto table { width: 100%; font-size: 14px; line-height: 1.9; color: #e8ddc8; }
+  #howto td:first-child { color: #ffb347; font-weight: 700; width: 130px; font-family: var(--font-display); letter-spacing: 1px; }
+  #gameoverStats { font-size: 15px; line-height: 2; color: #e8ddc8; margin: 10px 0 18px; }
+  /* Touch: PUBG pattern. Left thumb moves, right thumb fires and aims.
+     FIRE is the biggest button; secondary actions orbit it within
+     right-thumb reach. Ghost translucent buttons keep the scene visible. */
+  #touch { position: fixed; inset: 0; z-index: 12; display: none; pointer-events: none; }
+  #stick { position: absolute; left: 22px; bottom: 90px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.35); pointer-events: auto; }
+  #stickKnob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(255,179,71,0.7); }
+  #lookArea { position: absolute; right: 0; top: 0; width: 55%; height: 100%; pointer-events: auto; }
+  .tbtn { position: absolute; pointer-events: auto; width: 60px; height: 60px; border-radius: 50%; background: rgba(20,18,16,0.65); border: 1px solid rgba(255,255,255,0.5); color: #fff; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  #btnFire { right: 24px; bottom: 96px; width: 88px; height: 88px; background: rgba(200,40,20,0.75); font-size: 14px; }
+  #btnJump { right: 124px; bottom: 88px; }
+  #btnSlide { right: 124px; bottom: 160px; }
+  #btnWeapon { right: 24px; bottom: 196px; }
+  #btnAim { right: 196px; bottom: 88px; }
+  #btnGrenade { right: 196px; bottom: 160px; }
+  #btnOverdrive { right: 24px; bottom: 268px; background: rgba(40,140,200,0.75); }
+  #btnView { right: 196px; bottom: 232px; }
+  #btnMelee { right: 124px; bottom: 232px; }
+  /* Layout edit mode: dashed outline on every button, drag to move. */
+  body.editing .tbtn { outline: 2px dashed var(--gold); outline-offset: 2px; }
+  body.editing #stick { outline: 2px dashed var(--gold); outline-offset: 2px; }
+  #layoutBar { position: fixed; left: 50%; bottom: calc(14px + var(--safe-b)); transform: translateX(-50%); z-index: 26; display: none; gap: 10px; }
+  body.editing #layoutBar { display: flex; }
+  #layoutHint { display: none; position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 26; font-family: var(--font-display); font-size: 14px; letter-spacing: 2px; color: var(--amber); text-shadow: 0 1px 4px #000; white-space: nowrap; pointer-events: none; }
+  body.editing #layoutHint { display: block; }
+  #layoutBar .btn { width: auto; margin: 0; padding: 12px 20px; font-size: 14px; }
+  /* Pause shade is click-through except the menu card: the HUD VIEW
+     button sits above the shade in z-order terms only while the pause
+     menu is up, and a mouse click on it must reach the button, not the
+     shade, so one click can toggle the view and resume play. The card
+     itself (RESUME, RESTART, QUIT) still takes clicks. */
+  #pause { pointer-events: none; }
+  #pause .menu-card { pointer-events: auto; }
+  /* Touch mode: compact HUD panels moved clear of the button clusters.
+     Minimap top-left (small), wave panel beneath it, ammo under the score
+     panel top-right, killfeed right edge below the ammo. */
+  body.touch #minimapWrap { left: 8px; top: 8px; width: 104px; height: 104px; }
+  body.touch #minimap { width: 104px; height: 104px; }
+  body.touch #tl { top: 120px; left: 8px; }
+  body.touch #tl .big { font-size: 16px; }
+  body.touch #bl { left: 12px; bottom: 12px; min-width: 210px; }
+  body.touch .barNum { font-size: 16px; }
+  #btnPauseTouch { display: none; font-size: 16px; }
+  body.touch #btnPauseTouch { display: flex; }
+  /* The desktop VIEW button never shows on touch: the round VIEW touch
+     button in the cluster is the touch route, at every width. */
+  body.touch #viewBtn { display: none !important; }
+  body.touch #br { top: 108px; left: auto; right: 8px; bottom: auto; padding: 6px 10px; }
+  body.touch #ammoMag { font-size: 30px; }
+  body.touch #weaponName { font-size: 13px; }
+  body.touch #grenadeNum { font-size: 12px; }
+  body.touch #tr { top: 8px; right: 8px; width: 190px; padding: 6px 8px; }
+  body.touch #tr .big, body.touch #tr .small { display: inline; font-size: 13px; margin-right: 8px; }
+  body.touch #styleRank { display: inline; font-size: 20px; }
+  body.touch #styleTrack { display: none; }
+  body.touch #overdriveWrap { width: 100%; margin-top: 4px; }
+  body.touch #killfeed { left: auto; right: 8px; top: 200px; text-align: right; }
+  body.touch #bossWrap { top: 96px; }
+  @media (orientation: landscape) {
+    body.touch #compass { width: 260px; }
+    body.touch #compassCanvas { width: 260px; }
+    /* Ammo goes bottom-centre on landscape: the top-right stack (score +
+       ammo) is taller than the room above the FIRE column, so the ammo
+       panel covered the OD and GUN buttons. Bottom-centre is clear of
+       every control and of the health panel. */
+    body.touch #br { top: auto; bottom: 12px; left: 50%; right: auto; transform: translateX(-50%); }
+    body.touch #btnFire { right: 24px; bottom: 84px; width: 84px; height: 84px; }
+    body.touch #btnJump { right: 120px; bottom: 84px; width: 56px; height: 56px; }
+    body.touch #btnSlide { right: 120px; bottom: 152px; width: 56px; height: 56px; }
+    body.touch #btnWeapon { right: 24px; bottom: 178px; width: 56px; height: 56px; }
+    body.touch #btnAim { right: 188px; bottom: 84px; width: 56px; height: 56px; }
+    body.touch #btnGrenade { right: 188px; bottom: 152px; width: 56px; height: 56px; }
+    body.touch #btnOverdrive { right: 24px; bottom: 242px; width: 56px; height: 56px; }
+    body.touch #btnView { right: 188px; bottom: 220px; width: 56px; height: 56px; }
+    body.touch #btnMelee { right: 120px; bottom: 220px; width: 56px; height: 56px; }
+    body.touch #btnPauseTouch { right: 208px; top: 12px; width: 48px; height: 48px; }
+    body.touch #stick { width: 100px; height: 100px; bottom: 94px; }
+    body.touch #stickKnob { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+  }
+  @media (orientation: portrait) {
+    /* Portrait compass: a 260px strip below the top HUD row, so the
+       heading and objective diamond survive on the default phone
+       orientation. Killfeed moves down to clear it. */
+    body.touch #compass { display: block; width: 260px; top: 200px; }
+    body.touch #stick { bottom: 96px; }
+    body.touch #compassCanvas { width: 260px; }
+    body.touch #killfeed { top: 240px; }
+    body.touch #btnFire { right: 16px; bottom: 96px; width: 88px; height: 88px; }
+    body.touch #btnJump { right: 116px; bottom: 96px; width: 56px; height: 56px; }
+    body.touch #btnSlide { right: 116px; bottom: 164px; width: 56px; height: 56px; }
+    body.touch #btnWeapon { right: 16px; bottom: 188px; width: 56px; height: 56px; }
+    body.touch #btnAim { right: 116px; bottom: 232px; width: 56px; height: 56px; }
+    body.touch #btnGrenade { right: 16px; bottom: 256px; width: 56px; height: 56px; }
+    body.touch #btnOverdrive { right: 116px; bottom: 300px; width: 56px; height: 56px; }
+    body.touch #btnView { right: 116px; bottom: 368px; width: 56px; height: 56px; }
+    body.touch #btnMelee { right: 16px; bottom: 324px; width: 56px; height: 56px; }
+    body.touch #btnPauseTouch { right: 208px; top: 12px; width: 48px; height: 48px; }
+  }
+  /* VIEW sits under the compass strip (top-centre), never over it. */
+  #viewBtn { position: absolute; left: 50%; top: 46px; transform: translateX(-50%); pointer-events: auto; cursor: pointer; font-family: var(--font-display); font-size: 12px; letter-spacing: 2px; color: #ffd23c; padding: 6px 12px; }
+  #fpsNote { position: fixed; right: 8px; bottom: 4px; z-index: 30; font-size: 11px; color: rgba(255,255,255,0.5); pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="loading" class="screen">
+  <div class="shade"></div>
+  <div class="inner">
+    <div class="game-title">TERMINAL<br>OVERDRIVE</div>
+    <div class="game-sub">SUNSET CONTAINER TERMINAL</div>
+    <div id="loadBarWrap"><div id="loadBar"></div></div>
+    <div id="loadText">LOADING TERMINAL...</div>
+  </div>
+</div>
+
+<div id="title" class="screen hidden">
+  <div class="shade"></div>
+  <div class="inner">
+    <div class="game-title">TERMINAL<br>OVERDRIVE</div>
+    <div class="game-sub">SUNSET CONTAINER TERMINAL</div>
+    <p class="tagline">Eight waves. Masked mercenaries. White machines. One exoskeleton boss. Hold the yard.</p>
+    <div class="mode-row">
+      <button class="mode-card selected" id="btnSurvival">
+        <span class="mode-pick">SELECTED</span>
+        <h3>SURVIVAL</h3>
+        <p>Hold the yard through 8 waves of robots. Wave 8 is the 3-phase exoskeleton boss.</p>
+        <div class="mode-tags"><span>8 WAVES</span><span>5 WEAPONS</span><span>BOSS</span></div>
+      </button>
+      <button class="mode-card" id="btnFFA">
+        <span class="mode-pick">SELECTED</span>
+        <h3>FREE FOR ALL</h3>
+        <p>Six bots in the yard. First to 10 eliminations takes the run.</p>
+        <div class="mode-tags"><span>6 BOTS</span><span>TARGET 10</span><span>RESPAWN</span></div>
+      </button>
+    </div>
+    <button class="btn deploy" id="btnDeploy">DEPLOY: SURVIVAL</button>
+    <button class="btn ghost" id="btnHowto">HOW TO PLAY</button>
+    <div id="loadout">
+      <div class="loadout-label">STARTING WEAPON</div>
+      <div class="loadout-chips" id="loadoutChips"></div>
+      <div id="loadoutStats"></div>
+    </div>
+    <p class="hint touch-hint">Left stick moves. Drag the right side to aim. FIRE shoots, AIM sights the red dot, OD is Overdrive, MELEE swings. VIEW changes view. II pauses the game.<br>Gamepad supported.</p>
+  </div>
+</div>
+
+<div id="hud">
+  <button id="viewBtn" class="panel">VIEW: 1ST [T]</button>
+  <div id="minimapWrap"><canvas id="minimap" width="148" height="148"></canvas></div>
+  <div id="compass"><canvas id="compassCanvas" width="320" height="30"></canvas></div>
+  <div id="reloadPrompt">RELOAD [R]</div>
+  <div id="vignette"></div>
+  <div id="enemyMarkers"></div>
+  <div id="dmgLayer"></div>
+  <div id="crosshair"><span class="ch-line ch-t"></span><span class="ch-line ch-b"></span><span class="ch-line ch-l"></span><span class="ch-line ch-r"></span><span class="ch-dot"></span></div>
+  <div id="hitmarker">+</div>
+  <div id="damageArc"></div>
+  <div id="tl" class="panel"><div class="big" id="waveNum">WAVE 1</div><div class="small" id="enemiesLeft">0 HOSTILES</div><div class="small" id="accuracyNum">100%</div></div>
+  <div id="tr" class="panel"><div class="big">SCORE <span id="scoreNum">0</span></div><div class="small">KILLS <span id="killsNum">0</span></div><div id="styleRank">D</div><div id="styleTrack"><div id="styleFill"></div></div><div id="overdriveWrap"><div id="overdriveText">OVERDRIVE READY [F]</div><div id="overdriveTrack"><div id="overdriveFill"></div></div></div></div>
+  <div id="bl" class="panel">
+    <div class="barRow"><div class="barLabel">HEALTH</div><div class="barTrack"><div id="healthFill"></div></div><div class="barNum" id="healthNum">100</div></div>
+    <div class="barRow"><div class="barLabel">ARMOR</div><div class="barTrack"><div id="armorFill"></div></div><div class="barNum" id="armorNum">150</div></div>
+  </div>
+  <div id="br" class="panel"><div id="weaponName">AR-7 VANGUARD</div><div><span id="ammoMag">30</span> <span id="ammoRes">/ 180</span></div><div id="grenadeNum">GRENADES: 4 [G]</div></div>
+  <div id="killfeed"></div>
+  <div id="banner"></div>
+  <div id="bossWrap"><div id="bossLabel">EXOSKELETON PRIME. PHASE 1</div><div id="bossTrack"><div id="bossFill"></div></div><div id="bossPips"><div class="boss-pip on"></div><div class="boss-pip"></div><div class="boss-pip"></div></div></div>
+</div>
+
+<div id="pause" class="screen hidden" style="background: rgba(10,8,6,0.82);">
+  <div class="menu-card">
+    <h2>PAUSED</h2>
+    <p><span id="pauseTextDesktop">The yard waits. Music and world sounds are silenced while paused. Press T during play to switch views. The VIEW button changes view and resumes.</span><span class="touch-hint">The yard waits. Music and world sounds are silenced while paused. Use VIEW here to change view and resume.</span></p>
+    <p id="pauseRun">WAVE 1 · SCORE 0 · KILLS 0</p>
+    <button class="btn" id="btnResume">RESUME</button>
+    <button class="btn ghost" id="btnPauseView">VIEW: 1ST [T]</button>
+    <button class="btn ghost touch-only-btn" id="btnLayout">LAYOUT: MOVE BUTTONS</button>
+    <button class="btn ghost" id="btnRestart">RESTART RUN</button>
+    <button class="btn ghost" id="btnQuitTitle">QUIT TO TITLE</button>
+  </div>
+</div>
+
+<div id="augment" class="screen hidden" style="background: rgba(10,8,6,0.78);">
+  <div class="menu-card" style="width: min(640px, 94vw);">
+    <h2>WAVE CLEARED</h2>
+    <p>Choose one augment. It stacks with every augment you already hold.</p>
+    <div id="augmentCards"></div>
+  </div>
+</div>
+
+<div id="howto" class="screen hidden" style="background: rgba(10,8,6,0.85);">
+  <div class="menu-card">
+    <div class="howto-body">
+    <h2>HOW TO PLAY</h2>
+    <p id="hintHowtoEsc">Press Esc to close this panel.</p>
+    <table id="howtoKeys">
+      <tr><td>WASD</td><td>Move</td></tr>
+      <tr><td>Mouse</td><td>Look. Left click fires. Right click aims the red dot optic</td></tr>
+      <tr><td>Shift</td><td>Sprint</td></tr>
+      <tr><td>Space</td><td>Jump</td></tr>
+      <tr><td>Ctrl / C</td><td>Slide while moving. Hold C to crouch behind cover</td></tr>
+      <tr><td>1 to 5</td><td>Rifle, shotgun, rocket launcher, grenade, knife</td></tr>
+      <tr><td>Q</td><td>Quick switch to previous weapon</td></tr>
+      <tr><td>R / G / V / F</td><td>Reload. Grenade. Melee. Overdrive: 8 seconds, fire 60 percent faster and ammo is free</td></tr>
+      <tr><td>X</td><td>Fire without pointer lock</td></tr>
+      <tr><td>T</td><td>Change view during play. Third person shows the operator firing, and the player is always visible in one view or the other. The VIEW button works while paused or on touch, not while playing on desktop</td></tr>
+      <tr><td>Esc</td><td>Pause. Sound stops and restores on resume. The pause menu has a VIEW button that changes view and resumes play</td></tr>
+    </table>
+    <table id="howtoTouch">
+      <tr><td>Left stick</td><td>Move</td></tr>
+      <tr><td>Drag right side</td><td>Look. FIRE shoots. AIM sights the red dot optic</td></tr>
+      <tr><td>FIRE</td><td>Shoot. The magazine reloads automatically when it runs dry</td></tr>
+      <tr><td>AIM</td><td>Tap to aim the red dot optic, tap again to stop aiming</td></tr>
+      <tr><td>JUMP</td><td>Jump</td></tr>
+      <tr><td>SLIDE</td><td>Slide while moving</td></tr>
+      <tr><td>GUN</td><td>Switch weapon. Tap to cycle rifle, shotgun, rocket launcher, grenade, knife</td></tr>
+      <tr><td>BOMB</td><td>Throw a grenade</td></tr>
+      <tr><td>MELEE</td><td>Swing the knife</td></tr>
+      <tr><td>OD</td><td>Overdrive: 8 seconds, fire 60 percent faster and ammo is free</td></tr>
+      <tr><td>VIEW</td><td>Change view. Third person shows the operator firing, and the player is always visible in one view or the other</td></tr>
+      <tr><td>II</td><td>Pause. Sound stops and restores on resume. The pause menu has a VIEW button that changes view and resumes play</td></tr>
+    </table>
+    <p style="margin-top:14px;">Headshots and weak points pay extra. Slide kills, airborne kills, and quick swaps raise your style rank from D to S. Kills drop health, armor, and ammo. Armor recharges after 1 second without damage. Wave 8 is the exoskeleton boss, in 3 phases.</p>
+    </div>
+    <div class="howto-footer">
+      <button class="btn small" id="btnHowtoClose">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameover" class="screen hidden" style="background: rgba(10,8,6,0.85);">
+  <div class="menu-card">
+    <h2 id="gameoverTitle">RUN OVER</h2>
+    <p id="gameoverText">The yard is lost.</p>
+    <div id="gameoverStats"></div>
+    <button class="btn" id="btnAgain">DEPLOY AGAIN</button>
+    <button class="btn ghost" id="btnOverTitle">TITLE SCREEN</button>
+  </div>
+</div>
+
+<div id="touch">
+  <div id="lookArea"></div>
+  <div id="stick"><div id="stickKnob"></div></div>
+  <div class="tbtn" id="btnFire">FIRE</div>
+  <div class="tbtn" id="btnJump">JUMP</div>
+  <div class="tbtn" id="btnSlide">SLIDE</div>
+  <div class="tbtn" id="btnWeapon">GUN</div>
+  <div class="tbtn" id="btnAim">AIM</div>
+  <div class="tbtn" id="btnGrenade">BOMB</div>
+  <div class="tbtn" id="btnOverdrive">OD</div>
+  <div class="tbtn" id="btnView">VIEW</div>
+  <div class="tbtn" id="btnMelee">MELEE</div>
+  <div class="tbtn" id="btnPauseTouch">II</div>
+</div>
+
+<div id="layoutHint">DRAG BUTTONS TO MOVE THEM</div>
+<div id="layoutBar">
+  <button class="btn" id="btnLayoutSave">SAVE</button>
+  <button class="btn ghost" id="btnLayoutReset">RESET</button>
+  <button class="btn ghost" id="btnLayoutDone">DONE</button>
+</div>
+
+<div id="fpsNote"></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

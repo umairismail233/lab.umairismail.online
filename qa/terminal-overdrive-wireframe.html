@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe — Lab homepage with Terminal Overdrive</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; background: #F4F5F7; color: #14181F; padding: 24px; }
+  .page { max-width: 960px; margin: 0 auto; background: #fff; border: 1px solid #D9DEE6; border-radius: 16px; padding: 24px; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #5B6472; font-size: 14px; margin-bottom: 20px; }
+  .box { border: 1.5px dashed #98A2B3; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+  .box .label { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #4F46E5; font-weight: 700; margin-bottom: 6px; }
+  .box h2 { font-size: 17px; margin-bottom: 4px; }
+  .box p { font-size: 14px; color: #5B6472; }
+  .strip { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+  .strip b { font-size: 16px; }
+  .new { border: 2px solid #4F46E5; background: #EEF2FF; }
+  .new .label { color: #4F46E5; }
+  .tag { display: inline-block; background: #0D9488; color: #fff; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-top: 6px; }
+  .featured { border: 2px solid #0D9488; background: #F0FDF9; }
+  .featured .label { color: #0D9488; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .card { border: 1px solid #D9DEE6; border-radius: 10px; padding: 12px; background: #fff; }
+  .card h3 { font-size: 15px; }
+  .card p { font-size: 13px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 800; background: #D1FAE5; color: #0D9488; padding: 2px 8px; border-radius: 999px; margin-bottom: 4px; }
+  .note { font-size: 13px; color: #5B6472; margin-top: 14px; }
+  .note b { color: #14181F; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Lab homepage — wireframe</h1>
+  <p class="sub">Terminal Overdrive joins the Lab at /games/terminal-overdrive/ under Fast Decisions. Nothing here is live yet; this is the approval view before any push.</p>
+
+  <div class="box">
+    <div class="label">Hero · status board</div>
+    <div class="strip"><span><b>Live right now</b></span><span><b>7</b> games</span><span><b>2</b> simulations</span><span><b>2</b> products</span></div>
+    <p style="margin-top:6px">Was 6 games (stale). Now reads the true live count: 7 games.</p>
+  </div>
+
+  <div class="box featured">
+    <div class="label">Featured build — front position (unchanged)</div>
+    <h2>First Policy</h2>
+    <p>Insurance onboarding adventure, 7 stations, EN + Urdu. Keeps its prominent front featured card, as required.</p>
+  </div>
+
+  <div class="box">
+    <div class="label">Games · Cluster B — Thinking and Solving (4 games · 2 live)</div>
+    <p>Web coverage: <b>10 of 32 skills have a game.</b> 14 games in total: 7 live, 7 upcoming.</p>
+    <div class="cards">
+      <div class="card"><span class="pill">Live</span><h3>Swipe the Decision</h3><p>Workplace dilemmas move Team, Budget, Quality and Trust. Fast Decisions.</p></div>
+      <div class="card new"><span class="pill">Live · NEW</span><h3>Terminal Overdrive</h3><p>Fight robot soldiers in a sunset container terminal. Eight waves, five weapons, one boss.</p><span class="tag">Fast Decisions</span></div>
+      <div class="card"><h3>Case Files</h3><p>Upcoming · Analytical Thinking</p></div>
+      <div class="card"><h3>Escape Room: Mobile</h3><p>Upcoming · Systems Thinking</p></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="label">Cleanups in the same edit</div>
+    <p>SharePoint: Upload a File removed from the “In progress” list (its sim card stays, marked In production). Red Flag Hunt “Upcoming” card removed from Cluster G. Cluster G now reads 3 games · 3 live; Attention to Detail now reads 2 games, 2 live.</p>
+  </div>
+
+  <p class="note"><b>What this wireframe is:</b> the layout and counts of the Lab homepage after the Terminal Overdrive addition. The real homepage (index.html in the repo) carries the same card, counts and removals. Approve this, and the push goes ahead.</p>
+</div>
+</body>
+</html>
